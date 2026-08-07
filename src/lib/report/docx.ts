@@ -141,7 +141,7 @@ export async function gerarDocx(v: Vistoria) {
   const logo = await carregarLogo();
 
   // CAPA — escudo no corpo da página, centralizado
-  children.push(new Paragraph({ spacing: { after: 2400 }, children: [] }));
+  children.push(new Paragraph({ spacing: { after: 1400 }, children: [] }));
   if (logo) {
     const ratio = logo.width / logo.height;
     const MAX_W = 440; // largura útil da página (pt)
