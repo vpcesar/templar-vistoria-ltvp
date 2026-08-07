@@ -199,10 +199,10 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   const risco = grauRiscoGlobal(v);
 
   // Capa — escudo centralizado no corpo da página
-  b.y = 72;
+  b.y = 52;
   if (logo) {
     const ratio = logo.width / logo.height;
-    let h = 56; // ~160px, dobro do tamanho anterior
+    let h = 84; // ~240px
     let w = ratio * h;
     if (w > W) {
       w = W;
