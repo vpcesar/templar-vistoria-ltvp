@@ -444,7 +444,6 @@ function NovaVistoria() {
                 Excluir
               </AlertDialogAction>
             </AlertDialogFooter>
-          </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
 
