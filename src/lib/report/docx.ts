@@ -214,8 +214,9 @@ export async function gerarDocx(v: Vistoria) {
     table(
       [
         ["Item", "Descrição"],
-        ["Responsável técnico", v.imovel.inspetor || "—"],
-        ["CREA", v.imovel.crea || "—"],
+        ["Responsável", v.imovel.inspetor || "—"],
+        ["RRT – Registro de Responsabilidade Técnica", `CREA – nº ${v.imovel.crea || "—"}`],
+        ["ART – Anotação de Responsabilidade Técnica", textoArt(v)],
       ],
       [3200, 6438],
     ),
@@ -288,7 +289,7 @@ export async function gerarDocx(v: Vistoria) {
   children.push(h("6. CLASSIFICAÇÃO DA INSPEÇÃO"), p(nivelInspecao(v)));
 
   children.push(h("7. METODOLOGIA"));
-  metodologia().forEach(([titulo, texto]: [string, string]) =>
+  metodologia(v).forEach(([titulo, texto]: [string, string]) =>
     children.push(h(titulo, 2), p(texto)),
   );
   children.push(
