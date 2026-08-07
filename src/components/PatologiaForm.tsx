@@ -393,7 +393,7 @@ export function PatologiaForm({
       <div className="flex flex-col gap-2 sm:flex-row">
         <Button onClick={salvar} className="min-h-12 flex-1">
           <Save className="mr-2 h-4 w-4" />
-          Salvar patologia
+          {modo === "editar" ? "Salvar Alterações" : "Salvar patologia"}
         </Button>
         <Button variant="outline" onClick={onCancelar} className="min-h-12">
           Cancelar
