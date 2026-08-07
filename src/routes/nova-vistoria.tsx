@@ -1,12 +1,22 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, CheckCircle2, Plus } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { AppShell } from "@/components/AppShell";
 import { Field } from "@/components/InfoTip";
 import { PatologiaForm } from "@/components/PatologiaForm";
@@ -17,6 +27,7 @@ import {
   obterVistoria,
   patologiaVazia,
   salvarVistoria,
+  salvarVistoriaSegura,
 } from "@/lib/storage";
 import { gutTotal, riscoDe, type Patologia, type Vistoria } from "@/lib/types";
 
