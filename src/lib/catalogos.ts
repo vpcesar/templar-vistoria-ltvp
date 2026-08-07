@@ -161,6 +161,8 @@ export const TOOLTIPS = {
   observacoes: "Informações complementares relevantes ao contexto da vistoria.",
   fotosEdificacao:
     "Foto da fachada do imóvel vistoriado. Será incluída na Seção 5 do laudo (Foto da Edificação).",
+  fotosSatelite:
+    "Captura de tela do Google Earth mostrando a localização do imóvel. Será incluída na Seção 5 do laudo ao lado da foto da fachada.",
   fotos: "Registre no mínimo uma foto por patologia; as imagens compõem o relatório fotográfico.",
   setor: "Agrupamento macro da varredura de inspeção conforme roteiro de campo.",
   elemento: "Sistema ou componente construtivo onde a manifestação foi observada.",

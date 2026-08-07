@@ -21,6 +21,7 @@ export const imovelVazio = (): DadosImovel => ({
   crea: "",
   observacoes: "",
   fotosEdificacao: [],
+  fotosSatelite: [],
 });
 
 export const anamneseVazia = (): Anamnese => ({ respostas: {}, observacoes: "" });
@@ -68,6 +69,7 @@ export function sanitizarVistoria(v: Vistoria): Vistoria {
       ...imovelVazio(),
       ...i,
       fotosEdificacao: (i.fotosEdificacao || []).filter((f) => !!f?.dataUrl),
+      fotosSatelite: (i.fotosSatelite || []).filter((f) => !!f?.dataUrl),
     },
     anamnese: {
       respostas: v.anamnese?.respostas || {},
@@ -128,7 +130,13 @@ async function comprimirFotos(v: Vistoria, maxLado: number, quality: number): Pr
       dataUrl: await comprimirDataUrl(f.dataUrl, maxLado, quality),
     })),
   );
-  return { ...v, patologias, imovel: { ...v.imovel, fotosEdificacao } };
+  const fotosSatelite = await Promise.all(
+    (v.imovel.fotosSatelite || []).map(async (f) => ({
+      ...f,
+      dataUrl: await comprimirDataUrl(f.dataUrl, maxLado, quality),
+    })),
+  );
+  return { ...v, patologias, imovel: { ...v.imovel, fotosEdificacao, fotosSatelite } };
 }
 
 const isQuota = (e: unknown) =>

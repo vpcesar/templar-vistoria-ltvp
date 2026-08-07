@@ -47,6 +47,7 @@ export interface DadosImovel {
   crea: string;
   observacoes?: string;
   fotosEdificacao?: Foto[];
+  fotosSatelite?: Foto[];
 }
 
 export interface Anamnese {

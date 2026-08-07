@@ -122,6 +122,35 @@ class Builder {
     this.y += 3;
   }
 
+  /** Item numerado de norma: identificação em negrito + descrição normal, justificado. */
+  normaItem(n: number, nome: string, desc: string) {
+    const prefixo = `${n}. ${nome}`;
+    this.doc.setFontSize(10);
+    this.doc.setTextColor(...SLATE);
+    this.doc.setFont("helvetica", "bold");
+    const prefixoW = this.doc.getTextWidth(prefixo);
+    this.ensure(6);
+    this.doc.text(prefixo, M.left, this.y);
+    if (!desc) {
+      this.y += 5.4;
+      return;
+    }
+    this.doc.setFont("helvetica", "normal");
+    const restante = ` — ${desc}`;
+    const primeira = this.doc.splitTextToSize(restante, W - prefixoW) as string[];
+    this.doc.text(primeira[0] ?? "", M.left + prefixoW, this.y);
+    this.y += 5.4;
+    const sobra = restante.slice((primeira[0] ?? "").length).trim();
+    if (sobra) {
+      (this.doc.splitTextToSize(sobra, W) as string[]).forEach((l) => {
+        this.ensure(6);
+        this.doc.text(l, M.left, this.y);
+        this.y += 5.4;
+      });
+    }
+    this.y += 0.8;
+  }
+
   image(dataUrl: string, w = 110, h = 78) {
     this.ensure(h + 4);
     try {
@@ -181,7 +210,6 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
     }
     b.y += h + 8;
   }
-  b.text(EMPRESA.nome, { bold: true, size: 22, center: true });
   b.text(EMPRESA.slogan, { size: 10, center: true });
   b.y += 24;
   b.text("LAUDO TÉCNICO DE VISTORIA PREDIAL (LTVP)", { bold: true, size: 17, center: true });
@@ -242,16 +270,24 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
 
   b.h1("5. FOTO DA EDIFICAÇÃO");
   const fotosEdificacao = v.imovel.fotosEdificacao ?? [];
-  if (fotosEdificacao.length > 0) {
+  const fotosSatelite = v.imovel.fotosSatelite ?? [];
+  if (fotosEdificacao.length === 0 && fotosSatelite.length === 0) {
+    b.text("Não há registro fotográfico da edificação nesta vistoria.");
+  } else {
     fotosEdificacao.forEach((f, i) => {
       b.image(f.dataUrl, 130, 90);
-      b.text(`Foto da edificação ${i + 1} — fachada do imóvel vistoriado.`, {
-        size: 8.5,
-        center: true,
-      });
+      b.text(
+        `Foto da fachada (in loco)${fotosEdificacao.length > 1 ? ` ${i + 1}` : ""} — fachada do imóvel vistoriado.`,
+        { size: 8.5, center: true },
+      );
     });
-  } else {
-    b.text("Não há registro fotográfico da fachada nesta vistoria.");
+    fotosSatelite.forEach((f, i) => {
+      b.image(f.dataUrl, 130, 90);
+      b.text(
+        `Foto de satélite (Google Earth)${fotosSatelite.length > 1 ? ` ${i + 1}` : ""} — localização do imóvel.`,
+        { size: 8.5, center: true },
+      );
+    });
   }
 
   b.h1("6. CLASSIFICAÇÃO DA INSPEÇÃO");
@@ -350,7 +386,7 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   });
 
   b.h1("14. NORMAS TÉCNICAS");
-  NORMAS.forEach((n) => b.text(`• ${n}`, { size: 10, justify: false }));
+  NORMAS.forEach(([nome, desc], i) => b.normaItem(i + 1, nome, desc));
 
   b.h1("15. ENCERRAMENTO");
   b.text(textoEncerramento(paginas));
