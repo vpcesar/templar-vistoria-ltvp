@@ -134,28 +134,18 @@ class Builder {
 
   finalize() {
     const total = this.doc.getNumberOfPages();
-    const logoH = 9;
-    const logoW = this.logo ? (this.logo.width / this.logo.height) * logoH : 0;
     for (let i = 1; i <= total; i++) {
       this.doc.setPage(i);
-      // Cabeçalho: escudo/logo + nome + slogan (centralizados)
-      if (this.logo) {
-        try {
-          this.doc.addImage(this.logo.dataUrl, (PAGE_W - logoW) / 2, 7, logoW, logoH);
-        } catch {
-          /* ignora logo inválido */
-        }
-      }
+      // Cabeçalho: nome à esquerda, slogan à direita, linha vermelha abaixo
       this.doc.setFont("helvetica", "bold");
-      this.doc.setFontSize(9);
+      this.doc.setFontSize(8);
       this.doc.setTextColor(...BRAND);
-      this.doc.text(EMPRESA.nome, PAGE_W / 2, 21, { align: "center" });
+      this.doc.text(EMPRESA.nome, M.left, 14);
       this.doc.setFont("helvetica", "normal");
-      this.doc.setFontSize(7.5);
-      this.doc.setTextColor(...GRAY);
-      this.doc.text(EMPRESA.slogan, PAGE_W / 2, 25, { align: "center" });
+      this.doc.text(EMPRESA.slogan, PAGE_W - M.right, 14, { align: "right" });
       this.doc.setDrawColor(...BRAND);
-      this.doc.line(M.left, 27.5, PAGE_W - M.right, 27.5);
+      this.doc.line(M.left, 17, PAGE_W - M.right, 17);
+
       // Rodapé
       this.doc.line(M.left, PAGE_H - 20, PAGE_W - M.right, PAGE_H - 20);
       this.doc.setFontSize(7.5);
