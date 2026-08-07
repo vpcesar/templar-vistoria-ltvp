@@ -271,6 +271,13 @@ function NovaVistoria() {
                 label="Tirar foto ou enviar imagem da fachada"
               />
             </Field>
+            <Field label="Foto de Satélite (Google Earth)" tip={TOOLTIPS.fotosSatelite}>
+              <FotoUploader
+                fotos={vistoria.imovel.fotosSatelite ?? []}
+                onChange={(f) => setImovel("fotosSatelite", f)}
+                label="Clique para enviar a captura de tela do Google Earth."
+              />
+            </Field>
           </div>
         )}
 
