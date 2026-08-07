@@ -47,7 +47,14 @@ const BRAND = "8B1A1A";
 const SLATE = "2D3748";
 const CONTENT_WIDTH = 9638; // A4 com margens de 2cm
 
-const p = (text: string, opts: { bold?: boolean; size?: number; align?: (typeof AlignmentType)[keyof typeof AlignmentType] } = {}) =>
+const p = (
+  text: string,
+  opts: {
+    bold?: boolean;
+    size?: number;
+    align?: (typeof AlignmentType)[keyof typeof AlignmentType];
+  } = {},
+) =>
   new Paragraph({
     alignment: opts.align ?? AlignmentType.JUSTIFIED,
     spacing: { after: 120 },
@@ -194,7 +201,13 @@ export async function gerarDocx(v: Vistoria) {
     v.imovel.observacoes ? p(`Observações gerais: ${v.imovel.observacoes}`) : p(""),
     h("4.1 Anamnese prévia", 2),
     table(
-      [["Questão", "Resposta"], ...anamneseResumo(v).map((a: { pergunta: string; resposta: string }) => [a.pergunta, a.resposta])],
+      [
+        ["Questão", "Resposta"],
+        ...anamneseResumo(v).map((a: { pergunta: string; resposta: string }) => [
+          a.pergunta,
+          a.resposta,
+        ]),
+      ],
       [6800, 2838],
     ),
     v.anamnese.observacoes ? p(`Observações da anamnese: ${v.anamnese.observacoes}`) : p(""),
@@ -212,7 +225,11 @@ export async function gerarDocx(v: Vistoria) {
               type: imageType(f.dataUrl),
               data: dataUrlToBytes(f.dataUrl),
               transformation: { width: 400, height: 280 },
-              altText: { title: "Edificação", description: "Vista da edificação", name: `fachada-${i}` },
+              altText: {
+                title: "Edificação",
+                description: "Vista da edificação",
+                name: `fachada-${i}`,
+              },
             }),
           ],
         }),
@@ -229,10 +246,15 @@ export async function gerarDocx(v: Vistoria) {
   children.push(h("6. CLASSIFICAÇÃO DA INSPEÇÃO"), p(nivelInspecao(v)));
 
   children.push(h("7. METODOLOGIA"));
-  metodologia().forEach(([titulo, texto]: [string, string]) => children.push(h(titulo, 2), p(texto)));
+  metodologia().forEach(([titulo, texto]: [string, string]) =>
+    children.push(h(titulo, 2), p(texto)),
+  );
   children.push(
     h("7.4 Glossário (ABNT NBR 16747)", 2),
-    table([["Termo", "Definição"], ...GLOSSARIO.map(([t, d]: [string, string]) => [t, d])], [2600, 7038]),
+    table(
+      [["Termo", "Definição"], ...GLOSSARIO.map(([t, d]: [string, string]) => [t, d])],
+      [2600, 7038],
+    ),
   );
 
   children.push(h("8. GRAU DE RISCO E PRIORIDADES"), h("8.1 Graus de risco (IBAPE)", 2));
@@ -240,7 +262,10 @@ export async function gerarDocx(v: Vistoria) {
   children.push(
     h("8.2 Matriz GUT — pesos", 2),
     table(
-      [["Peso", "Gravidade", "Urgência", "Tendência"], ...TABELA_GUT_PESOS.map((r: string[]) => [...r])],
+      [
+        ["Peso", "Gravidade", "Urgência", "Tendência"],
+        ...TABELA_GUT_PESOS.map((r: string[]) => [...r]),
+      ],
       [900, 2900, 2900, 2938],
     ),
     h("8.3 Classificação de anomalias e falhas", 2),
@@ -257,7 +282,14 @@ export async function gerarDocx(v: Vistoria) {
     table(
       [
         ["ITEM", "DESCRIÇÃO", "VERIFICADO", "OBSERVAÇÃO"],
-        ...listaVerificacao(v).map((l: { item: string; descricao: string; verificado: string; observacao: string }) => [l.item, l.descricao, l.verificado, l.observacao]),
+        ...listaVerificacao(v).map(
+          (l: { item: string; descricao: string; verificado: string; observacao: string }) => [
+            l.item,
+            l.descricao,
+            l.verificado,
+            l.observacao,
+          ],
+        ),
       ],
       [800, 3200, 1400, 4238],
     ),
@@ -344,7 +376,9 @@ export async function gerarDocx(v: Vistoria) {
 
   children.push(h("13. CONCLUSÕES"));
   textoConclusao(v).forEach((t: string) => children.push(p(t)));
-  children.push(p(`Classificação global do grau de risco: ${risco.label.toUpperCase()}.`, { bold: true }));
+  children.push(
+    p(`Classificação global do grau de risco: ${risco.label.toUpperCase()}.`, { bold: true }),
+  );
 
   children.push(h("14. NORMAS TÉCNICAS"));
   NORMAS.forEach((n: string) => children.push(p(`• ${n}`, { align: AlignmentType.LEFT })));

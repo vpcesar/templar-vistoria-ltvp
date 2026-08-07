@@ -88,7 +88,8 @@ export function sanitizarVistoria(v: Vistoria): Vistoria {
 /** Recompacta uma imagem base64 reduzindo dimensão e qualidade. */
 export function comprimirDataUrl(dataUrl: string, maxLado = 1000, quality = 0.6): Promise<string> {
   return new Promise((resolve) => {
-    if (typeof document === "undefined" || !dataUrl.startsWith("data:image")) return resolve(dataUrl);
+    if (typeof document === "undefined" || !dataUrl.startsWith("data:image"))
+      return resolve(dataUrl);
     const img = new Image();
     img.onload = () => {
       try {

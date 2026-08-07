@@ -99,7 +99,9 @@ class Builder {
     rows.forEach((row, ri) => {
       this.doc.setFont("helvetica", head && ri === 0 ? "bold" : "normal");
       this.doc.setFontSize(9);
-      const cells = row.map((c, ci) => this.doc.splitTextToSize(c, (cols[ci] ?? 20) - 4) as string[]);
+      const cells = row.map(
+        (c, ci) => this.doc.splitTextToSize(c, (cols[ci] ?? 20) - 4) as string[],
+      );
       const rowH = Math.max(...cells.map((c) => c.length)) * 4.4 + 3;
       this.ensure(rowH);
       let x = M.left;
@@ -231,7 +233,10 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   );
   if (v.imovel.observacoes) b.text(`Observações gerais: ${v.imovel.observacoes}`);
   b.h2("4.1 Anamnese prévia");
-  b.table([["Questão", "Resposta"], ...anamneseResumo(v).map((a) => [a.pergunta, a.resposta])], [70, 30]);
+  b.table(
+    [["Questão", "Resposta"], ...anamneseResumo(v).map((a) => [a.pergunta, a.resposta])],
+    [70, 30],
+  );
   if (v.anamnese.observacoes) b.text(`Observações da anamnese: ${v.anamnese.observacoes}`);
 
   b.h1("5. FOTO DA EDIFICAÇÃO");

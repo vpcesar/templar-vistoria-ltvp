@@ -238,7 +238,10 @@ export function classificacoesTexto() {
     ["Anomalia Exógena", "Provocada por fatores externos à edificação, por ação de terceiros."],
     ["Anomalia Natural", "Provocada por fenômenos da natureza."],
     ["Anomalia Funcional", "Originária da degradação natural dos sistemas por fim da vida útil."],
-    ["Falha de Planejamento", "Decorrente de falhas de procedimentos e especificações inadequadas."],
+    [
+      "Falha de Planejamento",
+      "Decorrente de falhas de procedimentos e especificações inadequadas.",
+    ],
     ["Falha de Execução", "Proveniente da execução inadequada de procedimentos de manutenção."],
     ["Falha Operacional", "Relativa aos procedimentos internos de operação e uso da edificação."],
     ["Falha Gerencial", "Decorrente da ausência de gestão da manutenção e de controles."],

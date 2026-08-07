@@ -134,7 +134,6 @@ function NovaVistoria() {
     navigate({ to: "/" });
   };
 
-
   return (
     <AppShell>
       <div className="space-y-6">
@@ -422,11 +421,7 @@ function NovaVistoria() {
                 })}
 
                 {vistoria.patologias.length > 0 && (
-                  <Button
-                    variant="outline"
-                    className="min-h-12 w-full"
-                    onClick={() => setPasso(3)}
-                  >
+                  <Button variant="outline" className="min-h-12 w-full" onClick={() => setPasso(3)}>
                     <CheckCircle2 className="mr-2 h-4 w-4" />
                     Finalizar coleta
                   </Button>
@@ -453,7 +448,6 @@ function NovaVistoria() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-
 
         {passo === 3 && (
           <div className="space-y-4 rounded-xl border border-border bg-card p-4 shadow-card sm:p-6">
