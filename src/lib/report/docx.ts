@@ -19,7 +19,7 @@ import {
   TextRun,
   WidthType,
 } from "docx";
-import { enderecoCompleto, gutTotal, riscoDe, type Vistoria } from "./types";
+import { enderecoCompleto, gutTotal, riscoDe, type Vistoria } from "../types";
 import {
   EMPRESA,
   GLOSSARIO,
@@ -40,18 +40,24 @@ import {
   textoEncerramento,
   textoSecao1,
   textoSecao12,
-} from "./laudo";
+} from "../laudo";
 
 const BRAND = "8B1A1A";
 const SLATE = "2D3748";
 const CONTENT_WIDTH = 9638; // A4 com margens de 2cm
 
-const p = (text: string, opts: { bold?: boolean; size?: number; align?: any } = {}) =>
+const p = (text: string, opts: { bold?: boolean; size?: number; align?: AlignmentType } = {}) =>
   new Paragraph({
-    alignment: opts.align,
+    ...(opts.align ? { alignment: opts.align } : {}),
     spacing: { after: 120 },
     children: [
-      new TextRun({ text, bold: opts.bold, size: opts.size ?? 22, font: "Arial", color: SLATE }),
+      new TextRun({
+        text,
+        bold: opts.bold ?? false,
+        size: opts.size ?? 22,
+        font: "Arial",
+        color: SLATE,
+      }),
     ],
   });
 
@@ -71,14 +77,14 @@ function cell(text: string, width: number, opts: { head?: boolean } = {}) {
   return new TableCell({
     borders,
     width: { size: width, type: WidthType.DXA },
-    shading: opts.head ? { fill: "F1E5E5", type: ShadingType.CLEAR } : undefined,
+    ...(opts.head ? { shading: { fill: "F1E5E5", type: ShadingType.CLEAR } } : {}),
     margins: { top: 80, bottom: 80, left: 120, right: 120 },
     children: [
       new Paragraph({
         children: [
           new TextRun({
             text,
-            bold: opts.head,
+            bold: opts.head ?? false,
             size: 20,
             font: "Arial",
             color: opts.head ? BRAND : SLATE,
@@ -96,7 +102,7 @@ function table(rows: string[][], widths: number[], withHead = true) {
     rows: rows.map(
       (r, i) =>
         new TableRow({
-          children: r.map((c, j) => cell(c, widths[j], { head: withHead && i === 0 })),
+          children: r.map((c, j) => cell(c, widths[j] ?? 1000, { head: withHead && i === 0 })),
         }),
     ),
   });
@@ -187,13 +193,13 @@ export async function gerarDocx(v: Vistoria) {
     v.imovel.observacoes ? p(`Observações gerais: ${v.imovel.observacoes}`) : p(""),
     h("4.1 Anamnese prévia", 2),
     table(
-      [["Questão", "Resposta"], ...anamneseResumo(v).map((a) => [a.pergunta, a.resposta])],
+      [["Questão", "Resposta"], ...anamneseResumo(v).map((a: { pergunta: string; resposta: string }) => [a.pergunta, a.resposta])],
       [6800, 2838],
     ),
     v.anamnese.observacoes ? p(`Observações da anamnese: ${v.anamnese.observacoes}`) : p(""),
   );
 
-  const fotoFachada = ordenadas.flatMap((x) => x.fotos)[0];
+  const fotoFachada = ordenadas.flatMap((x) => x.fotos)[0] as { dataUrl: string } | undefined;
   children.push(h("5. FOTO DA EDIFICAÇÃO"));
   if (fotoFachada) {
     children.push(
@@ -216,10 +222,10 @@ export async function gerarDocx(v: Vistoria) {
   children.push(h("6. CLASSIFICAÇÃO DA INSPEÇÃO"), p(nivelInspecao(v)));
 
   children.push(h("7. METODOLOGIA"));
-  metodologia().forEach(([titulo, texto]) => children.push(h(titulo, 2), p(texto)));
+  metodologia().forEach(([titulo, texto]: [string, string]) => children.push(h(titulo, 2), p(texto)));
   children.push(
     h("7.4 Glossário (ABNT NBR 16747)", 2),
-    table([["Termo", "Definição"], ...GLOSSARIO.map(([t, d]) => [t, d])], [2600, 7038]),
+    table([["Termo", "Definição"], ...GLOSSARIO.map(([t, d]: [string, string]) => [t, d])], [2600, 7038]),
   );
 
   children.push(h("8. GRAU DE RISCO E PRIORIDADES"), h("8.1 Graus de risco (IBAPE)", 2));
@@ -227,7 +233,7 @@ export async function gerarDocx(v: Vistoria) {
   children.push(
     h("8.2 Matriz GUT — pesos", 2),
     table(
-      [["Peso", "Gravidade", "Urgência", "Tendência"], ...TABELA_GUT_PESOS.map((r) => [...r])],
+      [["Peso", "Gravidade", "Urgência", "Tendência"], ...TABELA_GUT_PESOS.map((r: string[]) => [...r])],
       [900, 2900, 2900, 2938],
     ),
     h("8.3 Classificação de anomalias e falhas", 2),
@@ -235,24 +241,24 @@ export async function gerarDocx(v: Vistoria) {
   );
 
   children.push(h("9. SISTEMAS CONSTRUTIVOS INSPECIONADOS"));
-  sistemasInspecionados(v).forEach((s) => children.push(p(`• ${s}`)));
+  sistemasInspecionados(v).forEach((s: string) => children.push(p(`• ${s}`)));
 
   children.push(
     h("10. LISTA DE VERIFICAÇÃO"),
     table(
       [
         ["ITEM", "DESCRIÇÃO", "VERIFICADO", "OBSERVAÇÃO"],
-        ...listaVerificacao(v).map((l) => [l.item, l.descricao, l.verificado, l.observacao]),
+        ...listaVerificacao(v).map((l: { item: string; descricao: string; verificado: string; observacao: string }) => [l.item, l.descricao, l.verificado, l.observacao]),
       ],
       [800, 3200, 1400, 4238],
     ),
   );
 
   children.push(h("11. VISTORIA DA ÁREA — RELATÓRIO FOTOGRÁFICO"));
-  ordenadas.forEach((pat, idx) => {
+  ordenadas.forEach((pat, idx: number) => {
     const total = gutTotal(pat);
     children.push(h(`11.${idx + 1} ${pat.elemento || "Elemento"} — ${pat.local || "Local"}`, 2));
-    pat.fotos.forEach((f, i) => {
+    pat.fotos.forEach((f, i: number) => {
       children.push(
         new Paragraph({
           alignment: AlignmentType.CENTER,
@@ -309,14 +315,14 @@ export async function gerarDocx(v: Vistoria) {
     h("12. LISTA DE PRIORIDADES"),
     p(textoSecao12(v)),
     table(
-      [["Prioridade", "Pontuação", "Prazo"], ...TABELA_PRIORIDADES.map((r) => [...r])],
+      [["Prioridade", "Pontuação", "Prazo"], ...TABELA_PRIORIDADES.map((r: string[]) => [...r])],
       [2600, 3000, 4038],
     ),
     p(""),
     table(
       [
         ["Ordem", "Elemento / Local", "Pontuação GUT", "Grau de risco"],
-        ...ordenadas.map((pat, i) => [
+        ...ordenadas.map((pat, i: number) => [
           `${i + 1}º`,
           `${pat.elemento} — ${pat.local}`,
           String(gutTotal(pat)),
@@ -328,11 +334,11 @@ export async function gerarDocx(v: Vistoria) {
   );
 
   children.push(h("13. CONCLUSÕES"));
-  textoConclusao(v).forEach((t) => children.push(p(t)));
+  textoConclusao(v).forEach((t: string) => children.push(p(t)));
   children.push(p(`Classificação global do grau de risco: ${risco.label.toUpperCase()}.`, { bold: true }));
 
   children.push(h("14. NORMAS TÉCNICAS"));
-  NORMAS.forEach((n) => children.push(p(`• ${n}`)));
+  NORMAS.forEach((n: string) => children.push(p(`• ${n}`)));
 
   children.push(h("15. ENCERRAMENTO"), p(textoEncerramento(v)));
 
