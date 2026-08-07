@@ -46,7 +46,7 @@ const BRAND = "8B1A1A";
 const SLATE = "2D3748";
 const CONTENT_WIDTH = 9638; // A4 com margens de 2cm
 
-const p = (text: string, opts: { bold?: boolean; size?: number; align?: AlignmentType } = {}) =>
+const p = (text: string, opts: { bold?: boolean; size?: number; align?: (typeof AlignmentType)[keyof typeof AlignmentType] } = {}) =>
   new Paragraph({
     ...(opts.align ? { alignment: opts.align } : {}),
     spacing: { after: 120 },
