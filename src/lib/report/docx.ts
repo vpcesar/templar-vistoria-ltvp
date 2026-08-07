@@ -443,8 +443,8 @@ export async function gerarDocx(v: Vistoria) {
         new TextRun({ text: `\t${EMPRESA.slogan}`, size: 16, color: BRAND, font: "Arial" }),
       ],
     }),
+  ];
 
-  );
 
   const doc = new Document({
     styles: { default: { document: { run: { font: "Arial", size: 22, color: SLATE } } } },
