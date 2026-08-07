@@ -162,18 +162,58 @@ export const LISTA_VERIFICACAO_BASE = [
   "Acessibilidade e circulação",
 ];
 
+/** Queixas da anamnese que vinculam sistemas da lista de verificação. */
+const QUEIXAS_ANAMNESE: { id: string; alvo: string; observacao: string }[] = [
+  {
+    id: "infiltracoes",
+    alvo: "Instalações hidrossanitárias",
+    observacao: "Verificada a queixa de umidade relatada na anamnese.",
+  },
+  {
+    id: "infiltracoes",
+    alvo: "Impermeabilização de áreas molhadas",
+    observacao: "Verificada a queixa de umidade relatada na anamnese.",
+  },
+  {
+    id: "contas_agua",
+    alvo: "Instalações hidrossanitárias",
+    observacao: "Verificada a queixa de consumo de água relatada na anamnese.",
+  },
+  {
+    id: "eletrica",
+    alvo: "Instalações elétricas e QDC",
+    observacao: "Verificada a queixa elétrica relatada na anamnese.",
+  },
+  {
+    id: "trincas",
+    alvo: "Estrutura (pilares, vigas e lajes)",
+    observacao: "Verificada a queixa de trincas/fissuras relatada na anamnese.",
+  },
+  {
+    id: "telhado",
+    alvo: "Cobertura, telhado e calhas",
+    observacao: "Verificada a queixa de manutenção de cobertura relatada na anamnese.",
+  },
+];
+
 export function listaVerificacao(v: Vistoria) {
   return LISTA_VERIFICACAO_BASE.map((desc, i) => {
     const relacionadas = v.patologias.filter((p) =>
       desc.toLowerCase().includes(p.elemento.split(" ")[0]?.toLowerCase() ?? "@"),
     );
+    const queixas = QUEIXAS_ANAMNESE.filter(
+      (q) => q.alvo === desc && v.anamnese.respostas[q.id] === "SIM",
+    ).map((q) => q.observacao);
+    const observacao = relacionadas.length
+      ? [`${relacionadas.length} não conformidade(s) registrada(s).`, ...queixas].join(" ")
+      : queixas.length
+        ? queixas.join(" ")
+        : "Sem não conformidade registrada nesta inspeção.";
     return {
       item: String(i + 1),
       descricao: desc,
       verificado: "SIM",
-      observacao: relacionadas.length
-        ? `${relacionadas.length} não conformidade(s) registrada(s).`
-        : "Sem não conformidade registrada nesta inspeção.",
+      observacao,
     };
   });
 }
