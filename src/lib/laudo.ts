@@ -20,14 +20,13 @@ export const formatarData = (iso: string) => {
 export const patologiasOrdenadas = (v: Vistoria) =>
   [...v.patologias].sort((a, b) => gutTotal(b) - gutTotal(a));
 
-export function nivelInspecao(v: Vistoria) {
-  const pav = parseInt(v.imovel.pavimentos || "1", 10);
-  if (v.imovel.tipoEdificacao === "Residencial Unifamiliar" && pav <= 2)
-    return "Nível 1 — inspeção predial de menor complexidade técnica, realizada por profissional habilitado, em edificações com sistemas construtivos simples e sem manutenção programada formalizada.";
-  if (pav >= 5 || v.imovel.tipoEdificacao === "Misto")
-    return "Nível 3 — inspeção predial de maior complexidade, em edificações com múltiplos sistemas construtivos, exigindo equipe multidisciplinar e análise documental ampliada.";
-  return "Nível 2 — inspeção predial de complexidade média, em edificações com sistemas construtivos e manutenção de média complexidade.";
+export function nivelInspecao(_v: Vistoria): string[] {
+  return [
+    "A presente inspeção predial é classificada como Nível 1, conforme estabelecido pela ABNT NBR 16747:2020.",
+    "Nível 1 — inspeção predial de menor complexidade técnica, realizada por profissional habilitado, em edificações com sistemas construtivos simples e sem manutenção programada formalizada. A classificação como Nível 1 justifica-se pela simplicidade dos sistemas construtivos da edificação e pela ausência de manutenção programada formalizada, sendo as verificações realizadas por inspeção visual sensorial e testes expeditos não destrutivos.",
+  ];
 }
+
 
 export function grauRiscoGlobal(v: Vistoria) {
   const totais = v.patologias.map(gutTotal);
@@ -93,7 +92,7 @@ export const TABELA_PRIORIDADES: [string, string, string][] = [
 
 /** Normas técnicas sempre aplicáveis: [identificação com ano vigente, descrição]. */
 export const NORMAS_BASE: [string, string][] = [
-  ["ABNT NBR 5410:2004", "Instalações elétricas de baixa tensão"],
+  ["ABNT NBR 5410:2004 (versão corrigida 2008)", "Instalações elétricas de baixa tensão"],
   ["ABNT NBR 5419:2015", "Proteção de estruturas contra descargas atmosféricas"],
   ["ABNT NBR 5626:2020", "Instalações prediais de água fria"],
   [
@@ -102,13 +101,13 @@ export const NORMAS_BASE: [string, string][] = [
   ],
   ["ABNT NBR 6118:2023", "Projeto de estruturas de concreto — Procedimento"],
   ["ABNT NBR 7200:1998", "Execução de impermeabilização"],
-  ["ABNT NBR 8160:1999", "Sistemas prediais de esgoto sanitário — Projeto e execução"],
+  ["ABNT NBR 8160:2023", "Sistemas prediais de esgoto sanitário — Projeto e execução"],
   ["ABNT NBR 9574:2008", "Impermeabilização — Diretrizes para elaboração de projetos"],
   ["ABNT NBR 9575:2010", "Impermeabilização — Seleção e projeto"],
   ["ABNT NBR 10844:1989", "Instalações prediais de águas pluviais"],
   ["ABNT NBR 12962:2017", "Recuperação de estruturas de concreto — Requisitos"],
-  ["ABNT NBR 13752:2017", "Perícias de engenharia na construção civil"],
-  ["ABNT NBR 15575:2013", "Edificações habitacionais — Desempenho"],
+  ["ABNT NBR 13752:2024", "Perícias de engenharia na construção civil"],
+  ["ABNT NBR 15575:2024", "Edificações habitacionais — Desempenho"],
   [
     "ABNT NBR 16747:2020",
     "Inspeção predial — Diretrizes, conceitos, terminologia e procedimento",
