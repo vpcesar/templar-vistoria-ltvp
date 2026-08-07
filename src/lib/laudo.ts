@@ -20,14 +20,13 @@ export const formatarData = (iso: string) => {
 export const patologiasOrdenadas = (v: Vistoria) =>
   [...v.patologias].sort((a, b) => gutTotal(b) - gutTotal(a));
 
-export function nivelInspecao(v: Vistoria) {
-  const pav = parseInt(v.imovel.pavimentos || "1", 10);
-  if (v.imovel.tipoEdificacao === "Residencial Unifamiliar" && pav <= 2)
-    return "Nível 1 — inspeção predial de menor complexidade técnica, realizada por profissional habilitado, em edificações com sistemas construtivos simples e sem manutenção programada formalizada.";
-  if (pav >= 5 || v.imovel.tipoEdificacao === "Misto")
-    return "Nível 3 — inspeção predial de maior complexidade, em edificações com múltiplos sistemas construtivos, exigindo equipe multidisciplinar e análise documental ampliada.";
-  return "Nível 2 — inspeção predial de complexidade média, em edificações com sistemas construtivos e manutenção de média complexidade.";
+export function nivelInspecao(_v: Vistoria): string[] {
+  return [
+    "A presente inspeção predial é classificada como Nível 1, conforme estabelecido pela ABNT NBR 16747:2020.",
+    "Nível 1 — inspeção predial de menor complexidade técnica, realizada por profissional habilitado, em edificações com sistemas construtivos simples e sem manutenção programada formalizada. A classificação como Nível 1 justifica-se pela simplicidade dos sistemas construtivos da edificação e pela ausência de manutenção programada formalizada, sendo as verificações realizadas por inspeção visual sensorial e testes expeditos não destrutivos.",
+  ];
 }
+
 
 export function grauRiscoGlobal(v: Vistoria) {
   const totais = v.patologias.map(gutTotal);
