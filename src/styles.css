@@ -167,7 +167,14 @@
   }
 
   body {
-    background-color: var(--color-background);
+    background-color: var(--color-surface);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-tap-highlight-color: transparent;
   }
 }
+
+@utility field-label {
+  @apply flex items-center gap-1.5 text-sm font-semibold text-foreground;
+}
+
