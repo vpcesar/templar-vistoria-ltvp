@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ArrowLeft, Check, ChevronsUpDown, Plus } from "lucide-react";
+import { useRef, useState } from "react";
+import { ArrowLeft, Camera, Check, ChevronsUpDown, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -10,7 +10,8 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { addOpcaoCustom, opcoesCustom } from "@/lib/storage";
+import { addOpcaoCustom, comprimirDataUrl, opcoesCustom, uid } from "@/lib/storage";
+import type { Foto } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const OUTRO_OPCAO = "✚ Outro (digitar)";
@@ -284,5 +285,69 @@ export function SelectOrText({
       placeholder={placeholder}
       {...(campo ? { campo } : {})}
     />
+  );
+}
+
+/** Área de upload de fotos com thumbnails removíveis (mobile-first). */
+export function FotoUploader({
+  fotos,
+  onChange,
+  label = "Tirar foto ou enviar imagem",
+}: {
+  fotos: Foto[];
+  onChange: (f: Foto[]) => void;
+  label?: string;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const addFotos = (files: FileList | null) => {
+    if (!files) return;
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const comprimida = await comprimirDataUrl(String(reader.result), 1200, 0.7);
+        onChange([...fotos, { id: uid(), dataUrl: comprimida }]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  return (
+    <div className="space-y-3">
+      <button
+        type="button"
+        onClick={() => fileRef.current?.click()}
+        className="flex min-h-24 w-full flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border bg-muted/40 p-4 text-sm font-medium text-muted-foreground transition hover:border-primary hover:text-primary"
+      >
+        <Camera className="h-6 w-6" />
+        {label}
+      </button>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        multiple
+        hidden
+        onChange={(e) => addFotos(e.target.files)}
+      />
+      {fotos.length > 0 && (
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+          {fotos.map((f) => (
+            <div key={f.id} className="relative overflow-hidden rounded-lg border border-border">
+              <img src={f.dataUrl} alt="Foto da edificação" className="h-20 w-full object-cover" />
+              <button
+                type="button"
+                aria-label="Remover foto"
+                onClick={() => onChange(fotos.filter((x) => x.id !== f.id))}
+                className="absolute right-1 top-1 rounded-full bg-destructive p-1 text-destructive-foreground"
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

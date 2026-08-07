@@ -20,7 +20,7 @@ import {
 import { AppShell } from "@/components/AppShell";
 import { Field } from "@/components/InfoTip";
 import { PatologiaForm } from "@/components/PatologiaForm";
-import { SearchSelect, TripleToggle } from "@/components/fields";
+import { FotoUploader, SearchSelect, TripleToggle } from "@/components/fields";
 import { ANAMNESE_ITENS, PAVIMENTOS, TIPOS_EDIFICACAO, TOOLTIPS } from "@/lib/catalogos";
 import {
   novaVistoria,
@@ -263,6 +263,13 @@ function NovaVistoria() {
                 rows={3}
                 value={vistoria.imovel.observacoes ?? ""}
                 onChange={(e) => setImovel("observacoes", e.target.value)}
+              />
+            </Field>
+            <Field label="Foto da edificação" tip={TOOLTIPS.fotosEdificacao}>
+              <FotoUploader
+                fotos={vistoria.imovel.fotosEdificacao ?? []}
+                onChange={(f) => setImovel("fotosEdificacao", f)}
+                label="Tirar foto ou enviar imagem da fachada"
               />
             </Field>
           </div>
