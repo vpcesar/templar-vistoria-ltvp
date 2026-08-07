@@ -351,6 +351,11 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
       ],
       [32, 68],
     );
+    b.text("Determinação do Grau de Risco e Prioridades", {
+      bold: true,
+      size: 12,
+      justify: false,
+    });
     b.table(
       [
         ["Gravidade", "Urgência", "Tendência", "Pontuação", "Grau de risco"],
@@ -402,8 +407,11 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   b.text(`${v.imovel.cidade || "—"}, ${formatarData(v.imovel.dataVistoria)}.`, { center: true });
   b.y += 10;
   b.text("_______________________________________", { center: true });
-  b.text(v.imovel.inspetor || "Responsável técnico", { bold: true, center: true });
-  b.text(`CREA ${v.imovel.crea || "—"}`, { center: true });
+  b.text(`${v.imovel.inspetor || "Responsável técnico"} — Engenheiro Civil`, {
+    bold: true,
+    center: true,
+  });
+  b.text(`CREA: ${v.imovel.crea || "—"}`, { center: true });
 
   b.finalize();
   return b.doc;
