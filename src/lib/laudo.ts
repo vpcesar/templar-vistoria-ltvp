@@ -264,12 +264,20 @@ export function textoConclusao(v: Vistoria) {
 
 export const ENCERRAMENTO_PARTE_1 =
   "Nada mais havendo a relatar, encerra-se o presente Laudo Técnico de Vistoria Predial, composto por ";
-export const ENCERRAMENTO_PARTE_2 =
-  " folhas digitadas de um só lado, elaborado sob a responsabilidade técnica do Engenheiro Civil Vinicius Paulino Cesar, CREA RJ 20241001977, que o assina para os devidos fins.";
 
-export function textoEncerramento(paginas: string | number = "xx") {
-  return `${ENCERRAMENTO_PARTE_1}${paginas}${ENCERRAMENTO_PARTE_2}`;
+/** Parte final do encerramento com nome e CREA dinâmicos da Etapa 1. */
+export const encerramentoParte2 = (v: Vistoria) =>
+  ` folhas digitadas de um só lado, elaborado sob a responsabilidade técnica do Engenheiro Civil ${
+    v.imovel.inspetor || "—"
+  }, CREA ${v.imovel.crea || "—"}, que o assina para os devidos fins.`;
+
+export function textoEncerramento(v: Vistoria, paginas: string | number = "xx") {
+  return `${ENCERRAMENTO_PARTE_1}${paginas}${encerramentoParte2(v)}`;
 }
+
+/** ART informada na Etapa 1 ou aviso padrão. */
+export const textoArt = (v: Vistoria) =>
+  v.imovel.art?.trim() ? v.imovel.art.trim() : "A ser emitida.";
 
 /** Legenda de foto: "Foto 3.2 — Manifestações. Local / Posição" */
 export function legendaFoto(
