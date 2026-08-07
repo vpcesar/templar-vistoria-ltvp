@@ -159,6 +159,8 @@ export const TOOLTIPS = {
   inspetor: "Profissional responsável técnico pela inspeção.",
   crea: "Registro no Conselho Regional de Engenharia e Agronomia do responsável técnico.",
   observacoes: "Informações complementares relevantes ao contexto da vistoria.",
+  fotosEdificacao:
+    "Foto da fachada do imóvel vistoriado. Será incluída na Seção 5 do laudo (Foto da Edificação).",
   fotos: "Registre no mínimo uma foto por patologia; as imagens compõem o relatório fotográfico.",
   setor: "Agrupamento macro da varredura de inspeção conforme roteiro de campo.",
   elemento: "Sistema ou componente construtivo onde a manifestação foi observada.",
