@@ -184,7 +184,9 @@ export function PatologiaForm({
   return (
     <div className="space-y-6 rounded-xl border border-border bg-card p-4 shadow-card sm:p-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-bold text-foreground">Ficha de Patologia</h3>
+        <h3 className="text-base font-bold text-foreground">
+          {modo === "editar" ? "Editar Patologia" : "Ficha de Patologia"}
+        </h3>
         <Button variant="ghost" size="icon" onClick={onCancelar} aria-label="Cancelar">
           <X className="h-4 w-4" />
         </Button>
