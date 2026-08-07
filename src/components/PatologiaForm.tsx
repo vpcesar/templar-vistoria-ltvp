@@ -23,7 +23,7 @@ import {
   sugerirClassificacao,
   sugerirGUT,
 } from "@/lib/ai.functions";
-import { uid } from "@/lib/storage";
+import { comprimirDataUrl, uid } from "@/lib/storage";
 import { gutTotal, riscoDe, type DadosImovel, type Patologia } from "@/lib/types";
 
 const riskClass = { critico: "bg-risk-high", medio: "bg-risk-mid", baixo: "bg-risk-low" };
@@ -31,11 +31,13 @@ const riskClass = { critico: "bg-risk-high", medio: "bg-risk-mid", baixo: "bg-ri
 export function PatologiaForm({
   inicial,
   imovel,
+  modo = "novo",
   onSalvar,
   onCancelar,
 }: {
   inicial: Patologia;
   imovel: DadosImovel;
+  modo?: "novo" | "editar";
   onSalvar: (p: Patologia) => void;
   onCancelar: () => void;
 }) {
@@ -69,14 +71,14 @@ export function PatologiaForm({
     if (!files) return;
     Array.from(files).forEach((file) => {
       const reader = new FileReader();
-      reader.onload = () =>
-        setPat((p) => ({
-          ...p,
-          fotos: [...p.fotos, { id: uid(), dataUrl: String(reader.result) }],
-        }));
+      reader.onload = async () => {
+        const comprimida = await comprimirDataUrl(String(reader.result), 1200, 0.7);
+        setPat((p) => ({ ...p, fotos: [...p.fotos, { id: uid(), dataUrl: comprimida }] }));
+      };
       reader.readAsDataURL(file);
     });
   };
+
 
   const rodarClassificacao = async () => {
     setLoading("class");
