@@ -91,8 +91,8 @@ export const TABELA_PRIORIDADES: [string, string, string][] = [
   ["6ª", "1 a 9", "240 dias a 360 dias"],
 ];
 
-/** Normas técnicas aplicáveis: [identificação com ano vigente, descrição]. */
-export const NORMAS: [string, string][] = [
+/** Normas técnicas sempre aplicáveis: [identificação com ano vigente, descrição]. */
+export const NORMAS_BASE: [string, string][] = [
   ["ABNT NBR 5410:2004", "Instalações elétricas de baixa tensão"],
   ["ABNT NBR 5419:2015", "Proteção de estruturas contra descargas atmosféricas"],
   ["ABNT NBR 5626:2020", "Instalações prediais de água fria"],
@@ -100,46 +100,54 @@ export const NORMAS: [string, string][] = [
     "ABNT NBR 5674:2024",
     "Manutenção de edificações — Requisitos para o sistema de gestão de manutenção",
   ],
-  ["ABNT NBR 6118:2014", "Projeto de estruturas de concreto — Procedimento"],
-  ["ABNT NBR 7200:1998", "Impermeabilização — Seleção e projeto"],
+  ["ABNT NBR 6118:2023", "Projeto de estruturas de concreto — Procedimento"],
+  ["ABNT NBR 7200:1998", "Execução de impermeabilização"],
   ["ABNT NBR 8160:1999", "Sistemas prediais de esgoto sanitário — Projeto e execução"],
   ["ABNT NBR 9574:2008", "Impermeabilização — Diretrizes para elaboração de projetos"],
   ["ABNT NBR 9575:2010", "Impermeabilização — Seleção e projeto"],
   ["ABNT NBR 10844:1989", "Instalações prediais de águas pluviais"],
-  ["ABNT NBR 10898:2013", "Sistema de iluminação de emergência"],
-  [
-    "ABNT NBR 12190:2013",
-    "Inspeção predial — Diretrizes, conceitos, metodologia e procedimento",
-  ],
   ["ABNT NBR 12962:2017", "Recuperação de estruturas de concreto — Requisitos"],
-  [
-    "ABNT NBR 13103:2022",
-    "Fogões domésticos e aquecedores de água para uso com gás liquefeito de petróleo (GLP)",
-  ],
-  ["ABNT NBR 13127:2020", "Portas corta-fogo com núcleo de madeira para edificações"],
-  ["ABNT NBR 13933:2019", "Acessibilidade a edificações e ao mobiliário urbano"],
-  [
-    "ABNT NBR 14037:2024",
-    "Diretrizes para elaboração de manuais de uso, operação e manutenção das edificações",
-  ],
-  [
-    "ABNT NBR 14712:2020",
-    "Elevadores elétricos — Requisitos de segurança para construção e instalação",
-  ],
-  [
-    "ABNT NBR 14718:2020",
-    "Escadas e esteiras rolantes — Requisitos de segurança para construção e instalação",
-  ],
-  [
-    "ABNT NBR 15575:2013",
-    "Edificações habitacionais — Desempenho (com partes atualizadas em 2020/2021)",
-  ],
+  ["ABNT NBR 13752:2017", "Perícias de engenharia na construção civil"],
+  ["ABNT NBR 15575:2013", "Edificações habitacionais — Desempenho"],
   [
     "ABNT NBR 16747:2020",
-    "Inspeção predial — Avaliação da manutenção de edificações — Diretrizes, conceitos, metodologia e procedimento",
+    "Inspeção predial — Diretrizes, conceitos, terminologia e procedimento",
   ],
   ["Norma de Inspeção Predial do IBAPE/SP", ""],
 ];
+
+/** Normas condicionais, filtradas pelo tipo de edificação e nº de pavimentos. */
+export function normasAplicaveis(v: Vistoria): [string, string][] {
+  const pav = parseInt(v.imovel.pavimentos || "1", 10) || 1;
+  const tipo = v.imovel.tipoEdificacao;
+  const naoResidencial = tipo === "Comercial" || tipo === "Misto";
+  const lista: [string, string][] = [...NORMAS_BASE];
+
+  if (naoResidencial || pav > 1) {
+    lista.push(
+      ["ABNT NBR 10898:2013", "Sistema de iluminação de emergência"],
+      ["ABNT NBR 13933:2019", "Acessibilidade a edificações e ao mobiliário urbano"],
+    );
+  }
+  if (naoResidencial || pav >= 4) {
+    lista.push(
+      ["ABNT NBR 14712:2020", "Elevadores elétricos — Requisitos de segurança"],
+      ["ABNT NBR 14718:2020", "Escadas e esteiras rolantes — Requisitos de segurança"],
+    );
+  }
+  lista.push(
+    [
+      "ABNT NBR 13103:2022",
+      "Fogões domésticos e aquecedores de água para uso com gás liquefeito de petróleo (GLP)",
+    ],
+    ["ABNT NBR 13127:2020", "Portas corta-fogo com núcleo de madeira para edificações"],
+    [
+      "ABNT NBR 14037:2024",
+      "Diretrizes para elaboração de manuais de uso, operação e manutenção das edificações",
+    ],
+  );
+  return lista;
+}
 
 export const LISTA_VERIFICACAO_BASE = [
   "Estrutura (pilares, vigas e lajes)",
@@ -154,18 +162,58 @@ export const LISTA_VERIFICACAO_BASE = [
   "Acessibilidade e circulação",
 ];
 
+/** Queixas da anamnese que vinculam sistemas da lista de verificação. */
+const QUEIXAS_ANAMNESE: { id: string; alvo: string; observacao: string }[] = [
+  {
+    id: "infiltracoes",
+    alvo: "Instalações hidrossanitárias",
+    observacao: "Verificada a queixa de umidade relatada na anamnese.",
+  },
+  {
+    id: "infiltracoes",
+    alvo: "Impermeabilização de áreas molhadas",
+    observacao: "Verificada a queixa de umidade relatada na anamnese.",
+  },
+  {
+    id: "contas_agua",
+    alvo: "Instalações hidrossanitárias",
+    observacao: "Verificada a queixa de consumo de água relatada na anamnese.",
+  },
+  {
+    id: "eletrica",
+    alvo: "Instalações elétricas e QDC",
+    observacao: "Verificada a queixa elétrica relatada na anamnese.",
+  },
+  {
+    id: "trincas",
+    alvo: "Estrutura (pilares, vigas e lajes)",
+    observacao: "Verificada a queixa de trincas/fissuras relatada na anamnese.",
+  },
+  {
+    id: "telhado",
+    alvo: "Cobertura, telhado e calhas",
+    observacao: "Verificada a queixa de manutenção de cobertura relatada na anamnese.",
+  },
+];
+
 export function listaVerificacao(v: Vistoria) {
   return LISTA_VERIFICACAO_BASE.map((desc, i) => {
     const relacionadas = v.patologias.filter((p) =>
       desc.toLowerCase().includes(p.elemento.split(" ")[0]?.toLowerCase() ?? "@"),
     );
+    const queixas = QUEIXAS_ANAMNESE.filter(
+      (q) => q.alvo === desc && v.anamnese.respostas[q.id] === "SIM",
+    ).map((q) => q.observacao);
+    const observacao = relacionadas.length
+      ? [`${relacionadas.length} não conformidade(s) registrada(s).`, ...queixas].join(" ")
+      : queixas.length
+        ? queixas.join(" ")
+        : "Sem não conformidade registrada nesta inspeção.";
     return {
       item: String(i + 1),
       descricao: desc,
       verificado: "SIM",
-      observacao: relacionadas.length
-        ? `${relacionadas.length} não conformidade(s) registrada(s).`
-        : "Sem não conformidade registrada nesta inspeção.",
+      observacao,
     };
   });
 }
@@ -216,12 +264,20 @@ export function textoConclusao(v: Vistoria) {
 
 export const ENCERRAMENTO_PARTE_1 =
   "Nada mais havendo a relatar, encerra-se o presente Laudo Técnico de Vistoria Predial, composto por ";
-export const ENCERRAMENTO_PARTE_2 =
-  " folhas digitadas de um só lado, elaborado sob a responsabilidade técnica do Engenheiro Civil Vinicius Paulino Cesar, CREA RJ 20241001977, que o assina para os devidos fins.";
 
-export function textoEncerramento(paginas: string | number = "xx") {
-  return `${ENCERRAMENTO_PARTE_1}${paginas}${ENCERRAMENTO_PARTE_2}`;
+/** Parte final do encerramento com nome e CREA dinâmicos da Etapa 1. */
+export const encerramentoParte2 = (v: Vistoria) =>
+  ` folhas digitadas de um só lado, elaborado sob a responsabilidade técnica do Engenheiro Civil ${
+    v.imovel.inspetor || "—"
+  }, CREA ${v.imovel.crea || "—"}, que o assina para os devidos fins.`;
+
+export function textoEncerramento(v: Vistoria, paginas: string | number = "xx") {
+  return `${ENCERRAMENTO_PARTE_1}${paginas}${encerramentoParte2(v)}`;
 }
+
+/** ART informada na Etapa 1 ou aviso padrão. */
+export const textoArt = (v: Vistoria) =>
+  v.imovel.art?.trim() ? v.imovel.art.trim() : "A ser emitida.";
 
 /** Legenda de foto: "Foto 3.2 — Manifestações. Local / Posição" */
 export function legendaFoto(
@@ -234,7 +290,8 @@ export function legendaFoto(
   return `Foto ${indiceSistema}.${indiceFoto} — ${manif}.${lugar ? ` ${lugar}` : ""}`;
 }
 
-export function metodologia() {
+export function metodologia(v: Vistoria) {
+  const extras = v.imovel.equipamentos?.trim();
   return [
     [
       "7.1 Fase inicial e documental",
@@ -242,7 +299,9 @@ export function metodologia() {
     ],
     [
       "7.2 Vistoria das áreas",
-      "Varredura sistemática dos setores da edificação (perímetro externo e fachadas, cobertura e telhado, ambientes internos e sistemas/instalações globais), com inspeção sensorial, registro fotográfico e caracterização das manifestações patológicas identificadas.",
+      `Foram utilizados na vistoria equipamentos de auxílio ao diagnóstico como trena, martelo oco, nível de bolha e/ou nível a laser, câmera fotográfica, medidor de umidade FNIRSI WMT-10${
+        extras ? `, ${extras}` : ""
+      }. A vistoria consistiu em inspeção visual sensorial e verificações expeditas em todos os ambientes acessíveis da edificação, com registro fotográfico das manifestações patológicas encontradas.`,
     ],
     [
       "7.3 Elaboração do laudo",

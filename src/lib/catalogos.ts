@@ -158,6 +158,9 @@ export const TOOLTIPS = {
   dataVistoria: "Data efetiva da inspeção em campo.",
   inspetor: "Profissional responsável técnico pela inspeção.",
   crea: "Registro no Conselho Regional de Engenharia e Agronomia do responsável técnico.",
+  art: "Número da Anotação de Responsabilidade Técnica (ART) do CREA, se já emitida. Opcional.",
+  equipamentos:
+    "Liste aqui qualquer equipamento adicional utilizado na vistoria além dos já pré-definidos no laudo (trena, martelo oco, nível de bolha e/ou nível a laser, câmera fotográfica, medidor de umidade FNIRSI WMT-10).",
   observacoes: "Informações complementares relevantes ao contexto da vistoria.",
   fotosEdificacao:
     "Foto da fachada do imóvel vistoriado. Será incluída na Seção 5 do laudo (Foto da Edificação).",

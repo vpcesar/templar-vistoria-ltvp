@@ -23,7 +23,8 @@ import { enderecoCompleto, gutTotal, riscoDe, type Vistoria } from "../types";
 import {
   EMPRESA,
   GLOSSARIO,
-  NORMAS,
+  normasAplicaveis,
+  textoArt,
   TABELA_GUT_PESOS,
   TABELA_PRIORIDADES,
   anamneseResumo,
@@ -39,7 +40,7 @@ import {
   legendaFoto,
   textoConclusao,
   ENCERRAMENTO_PARTE_1,
-  ENCERRAMENTO_PARTE_2,
+  encerramentoParte2,
   textoSecao1,
   textoSecao12,
 } from "../laudo";
@@ -213,8 +214,9 @@ export async function gerarDocx(v: Vistoria) {
     table(
       [
         ["Item", "Descrição"],
-        ["Responsável técnico", v.imovel.inspetor || "—"],
-        ["CREA", v.imovel.crea || "—"],
+        ["Responsável", v.imovel.inspetor || "—"],
+        ["RRT – Registro de Responsabilidade Técnica", `CREA – nº ${v.imovel.crea || "—"}`],
+        ["ART – Anotação de Responsabilidade Técnica", textoArt(v)],
       ],
       [3200, 6438],
     ),
@@ -287,7 +289,7 @@ export async function gerarDocx(v: Vistoria) {
   children.push(h("6. CLASSIFICAÇÃO DA INSPEÇÃO"), p(nivelInspecao(v)));
 
   children.push(h("7. METODOLOGIA"));
-  metodologia().forEach(([titulo, texto]: [string, string]) =>
+  metodologia(v).forEach(([titulo, texto]: [string, string]) =>
     children.push(h(titulo, 2), p(texto)),
   );
   children.push(
@@ -376,7 +378,11 @@ export async function gerarDocx(v: Vistoria) {
         ],
         [3000, 6638],
       ),
-      p(""),
+      p("Determinação do Grau de Risco e Prioridades", {
+        bold: true,
+        size: 24,
+        align: AlignmentType.LEFT,
+      }),
       table(
         [
           ["Gravidade", "Urgência", "Tendência", "Pontuação", "Grau de risco"],
@@ -422,7 +428,7 @@ export async function gerarDocx(v: Vistoria) {
   );
 
   children.push(h("14. NORMAS TÉCNICAS"));
-  NORMAS.forEach(([nome, desc]: [string, string], i: number) =>
+  normasAplicaveis(v).forEach(([nome, desc]: [string, string], i: number) =>
     children.push(
       new Paragraph({
         alignment: AlignmentType.JUSTIFIED,
@@ -451,7 +457,7 @@ export async function gerarDocx(v: Vistoria) {
       children: [
         new TextRun({ text: ENCERRAMENTO_PARTE_1, size: 22, font: "Arial", color: SLATE }),
         new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 22, font: "Arial", color: SLATE }),
-        new TextRun({ text: ENCERRAMENTO_PARTE_2, size: 22, font: "Arial", color: SLATE }),
+        new TextRun({ text: encerramentoParte2(v), size: 22, font: "Arial", color: SLATE }),
       ],
     }),
   );
@@ -463,8 +469,11 @@ export async function gerarDocx(v: Vistoria) {
     }),
     p(""),
     p("_______________________________________", { align: AlignmentType.CENTER }),
-    p(v.imovel.inspetor || "Responsável técnico", { bold: true, align: AlignmentType.CENTER }),
-    p(`CREA ${v.imovel.crea || "—"}`, { align: AlignmentType.CENTER }),
+    p(`${v.imovel.inspetor || "Responsável técnico"} — Engenheiro Civil`, {
+      bold: true,
+      align: AlignmentType.CENTER,
+    }),
+    p(`CREA: ${v.imovel.crea || "—"}`, { align: AlignmentType.CENTER }),
   );
 
   // Cabeçalho de todas as páginas: nome à esquerda, slogan à direita, linha vermelha abaixo

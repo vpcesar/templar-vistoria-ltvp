@@ -250,10 +250,16 @@ function NovaVistoria() {
                   onChange={(e) => setImovel("inspetor", e.target.value)}
                 />
               </Field>
-              <Field label="CREA">
+              <Field label="CREA" tip={TOOLTIPS.crea}>
                 <Input
                   value={vistoria.imovel.crea}
                   onChange={(e) => setImovel("crea", e.target.value)}
+                />
+              </Field>
+              <Field label="Número da ART (opcional)" tip={TOOLTIPS.art}>
+                <Input
+                  value={vistoria.imovel.art ?? ""}
+                  onChange={(e) => setImovel("art", e.target.value)}
                 />
               </Field>
             </div>
@@ -262,6 +268,14 @@ function NovaVistoria() {
                 rows={3}
                 value={vistoria.imovel.observacoes ?? ""}
                 onChange={(e) => setImovel("observacoes", e.target.value)}
+              />
+            </Field>
+            <Field label="Equipamentos adicionais utilizados (opcional)" tip={TOOLTIPS.equipamentos}>
+              <Textarea
+                rows={2}
+                placeholder="Ex.: Termômetro infravermelho, durômetro, broscópio, etc."
+                value={vistoria.imovel.equipamentos ?? ""}
+                onChange={(e) => setImovel("equipamentos", e.target.value)}
               />
             </Field>
             <Field label="Foto da edificação" tip={TOOLTIPS.fotosEdificacao}>

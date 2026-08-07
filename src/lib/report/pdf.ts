@@ -3,7 +3,8 @@ import { enderecoCompleto, gutTotal, riscoDe, type Vistoria } from "../types";
 import {
   EMPRESA,
   GLOSSARIO,
-  NORMAS,
+  normasAplicaveis,
+  textoArt,
   TABELA_GUT_PESOS,
   TABELA_PRIORIDADES,
   anamneseResumo,
@@ -249,8 +250,9 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   b.table(
     [
       ["Item", "Descrição"],
-      ["Responsável técnico", v.imovel.inspetor || "—"],
-      ["CREA", v.imovel.crea || "—"],
+      ["Responsável", v.imovel.inspetor || "—"],
+      ["RRT – Registro de Responsabilidade Técnica", `CREA – nº ${v.imovel.crea || "—"}`],
+      ["ART – Anotação de Responsabilidade Técnica", textoArt(v)],
     ],
     [35, 65],
   );
@@ -299,7 +301,7 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   b.text(nivelInspecao(v));
 
   b.h1("7. METODOLOGIA");
-  metodologia().forEach(([t, txt]) => {
+  metodologia(v).forEach(([t, txt]) => {
     b.h2(t);
     b.text(txt);
   });
@@ -349,6 +351,11 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
       ],
       [32, 68],
     );
+    b.text("Determinação do Grau de Risco e Prioridades", {
+      bold: true,
+      size: 12,
+      justify: false,
+    });
     b.table(
       [
         ["Gravidade", "Urgência", "Tendência", "Pontuação", "Grau de risco"],
@@ -391,17 +398,20 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   });
 
   b.h1("14. NORMAS TÉCNICAS");
-  NORMAS.forEach(([nome, desc], i) => b.normaItem(i + 1, nome, desc));
+  normasAplicaveis(v).forEach(([nome, desc], i) => b.normaItem(i + 1, nome, desc));
 
   b.h1("15. ENCERRAMENTO");
-  b.text(textoEncerramento(paginas));
+  b.text(textoEncerramento(v, paginas));
 
   b.h1("16. ASSINATURA");
   b.text(`${v.imovel.cidade || "—"}, ${formatarData(v.imovel.dataVistoria)}.`, { center: true });
   b.y += 10;
   b.text("_______________________________________", { center: true });
-  b.text(v.imovel.inspetor || "Responsável técnico", { bold: true, center: true });
-  b.text(`CREA ${v.imovel.crea || "—"}`, { center: true });
+  b.text(`${v.imovel.inspetor || "Responsável técnico"} — Engenheiro Civil`, {
+    bold: true,
+    center: true,
+  });
+  b.text(`CREA: ${v.imovel.crea || "—"}`, { center: true });
 
   b.finalize();
   return b.doc;
