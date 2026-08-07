@@ -45,6 +45,8 @@ export interface DadosImovel {
   dataVistoria: string;
   inspetor: string;
   crea: string;
+  art?: string;
+  equipamentos?: string;
   observacoes?: string;
   fotosEdificacao?: Foto[];
   fotosSatelite?: Foto[];

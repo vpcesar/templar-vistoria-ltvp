@@ -19,6 +19,8 @@ export const imovelVazio = (): DadosImovel => ({
   dataVistoria: new Date().toISOString().slice(0, 10),
   inspetor: "Vinicius Paulino Cesar",
   crea: "",
+  art: "",
+  equipamentos: "",
   observacoes: "",
   fotosEdificacao: [],
   fotosSatelite: [],
