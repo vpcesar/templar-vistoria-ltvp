@@ -101,8 +101,15 @@ function Dashboard() {
                       {enderecoCompleto(v.imovel) || "Endereço não informado"}
                     </p>
                   </div>
-                  <Badge variant={v.status === "CONCLUIDA" ? "secondary" : "outline"}>
-                    {v.status}
+                  <Badge
+                    variant={v.status === "AGUARDANDO REVISAO" ? "default" : "outline"}
+                    className={
+                      v.status === "AGUARDANDO REVISAO"
+                        ? "shrink-0 bg-risk-mid text-primary-foreground"
+                        : "shrink-0"
+                    }
+                  >
+                    {v.status === "AGUARDANDO REVISAO" ? "AGUARDANDO REVISÃO" : v.status}
                   </Badge>
                 </div>
 

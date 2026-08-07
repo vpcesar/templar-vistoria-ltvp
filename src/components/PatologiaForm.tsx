@@ -23,7 +23,7 @@ import {
   sugerirClassificacao,
   sugerirGUT,
 } from "@/lib/ai.functions";
-import { uid } from "@/lib/storage";
+import { comprimirDataUrl, uid } from "@/lib/storage";
 import { gutTotal, riscoDe, type DadosImovel, type Patologia } from "@/lib/types";
 
 const riskClass = { critico: "bg-risk-high", medio: "bg-risk-mid", baixo: "bg-risk-low" };
@@ -31,11 +31,13 @@ const riskClass = { critico: "bg-risk-high", medio: "bg-risk-mid", baixo: "bg-ri
 export function PatologiaForm({
   inicial,
   imovel,
+  modo = "novo",
   onSalvar,
   onCancelar,
 }: {
   inicial: Patologia;
   imovel: DadosImovel;
+  modo?: "novo" | "editar";
   onSalvar: (p: Patologia) => void;
   onCancelar: () => void;
 }) {
@@ -69,14 +71,14 @@ export function PatologiaForm({
     if (!files) return;
     Array.from(files).forEach((file) => {
       const reader = new FileReader();
-      reader.onload = () =>
-        setPat((p) => ({
-          ...p,
-          fotos: [...p.fotos, { id: uid(), dataUrl: String(reader.result) }],
-        }));
+      reader.onload = async () => {
+        const comprimida = await comprimirDataUrl(String(reader.result), 1200, 0.7);
+        setPat((p) => ({ ...p, fotos: [...p.fotos, { id: uid(), dataUrl: comprimida }] }));
+      };
       reader.readAsDataURL(file);
     });
   };
+
 
   const rodarClassificacao = async () => {
     setLoading("class");
@@ -140,12 +142,19 @@ export function PatologiaForm({
   };
 
   const salvar = () => {
-    if (!pat.elemento || !pat.local || pat.manifestacoes.length === 0) {
-      toast.error("Informe elemento, local e ao menos uma manifestação.");
+    if (
+      pat.fotos.length === 0 ||
+      !pat.elemento ||
+      !pat.local ||
+      pat.manifestacoes.length === 0 ||
+      !pat.classificacao
+    ) {
+      toast.error("Preencha todos os campos obrigatórios.");
       return;
     }
     onSalvar(pat);
   };
+
 
   const sliderGut = (
     key: "gravidade" | "urgencia" | "tendencia",
@@ -175,7 +184,9 @@ export function PatologiaForm({
   return (
     <div className="space-y-6 rounded-xl border border-border bg-card p-4 shadow-card sm:p-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-bold text-foreground">Ficha de Patologia</h3>
+        <h3 className="text-base font-bold text-foreground">
+          {modo === "editar" ? "Editar Patologia" : "Ficha de Patologia"}
+        </h3>
         <Button variant="ghost" size="icon" onClick={onCancelar} aria-label="Cancelar">
           <X className="h-4 w-4" />
         </Button>
@@ -382,7 +393,7 @@ export function PatologiaForm({
       <div className="flex flex-col gap-2 sm:flex-row">
         <Button onClick={salvar} className="min-h-12 flex-1">
           <Save className="mr-2 h-4 w-4" />
-          Salvar patologia
+          {modo === "editar" ? "Salvar Alterações" : "Salvar patologia"}
         </Button>
         <Button variant="outline" onClick={onCancelar} className="min-h-12">
           Cancelar

@@ -1,12 +1,22 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, CheckCircle2, Plus } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { AppShell } from "@/components/AppShell";
 import { Field } from "@/components/InfoTip";
 import { PatologiaForm } from "@/components/PatologiaForm";
@@ -17,6 +27,7 @@ import {
   obterVistoria,
   patologiaVazia,
   salvarVistoria,
+  salvarVistoriaSegura,
 } from "@/lib/storage";
 import { gutTotal, riscoDe, type Patologia, type Vistoria } from "@/lib/types";
 
@@ -48,12 +59,21 @@ function NovaVistoria() {
   const [vistoria, setVistoria] = useState<Vistoria | null>(null);
   const [passo, setPasso] = useState(0);
   const [editando, setEditando] = useState<Patologia | null>(null);
+  const [modo, setModo] = useState<"novo" | "editar">("novo");
+  const [excluindo, setExcluindo] = useState<Patologia | null>(null);
+  const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
     const existente = id ? obterVistoria(id) : undefined;
     const v = existente ?? novaVistoria();
     setVistoria(v);
-    if (!existente) salvarVistoria(v);
+    if (!existente) {
+      try {
+        salvarVistoria(v);
+      } catch {
+        /* rascunho fica apenas em memória se o armazenamento estiver cheio */
+      }
+    }
   }, [id]);
 
   if (!vistoria) return null;
@@ -61,7 +81,12 @@ function NovaVistoria() {
   const persistir = (v: Vistoria) => {
     const atualizada = { ...v, atualizadoEm: new Date().toISOString() };
     setVistoria(atualizada);
-    salvarVistoria(atualizada);
+    try {
+      salvarVistoria(atualizada);
+    } catch {
+      /* rascunho segue em memória; a compactação acontece ao finalizar */
+    }
+    return atualizada;
   };
 
   const setImovel = <K extends keyof Vistoria["imovel"]>(k: K, val: Vistoria["imovel"][K]) =>
@@ -76,25 +101,39 @@ function NovaVistoria() {
         : [...vistoria.patologias, p],
     });
     setEditando(null);
+    setModo("novo");
     setPasso(2);
-    toast.success("Patologia salva com sucesso!");
+    toast.success(existe ? "Patologia atualizada!" : "Patologia salva!", { duration: 3000 });
   };
 
-  const finalizar = () => {
+  const confirmarExclusao = () => {
+    if (!excluindo) return;
+    persistir({
+      ...vistoria,
+      patologias: vistoria.patologias.filter((x) => x.id !== excluindo.id),
+    });
+    setExcluindo(null);
+    toast.success("Patologia excluída.");
+  };
+
+  const finalizar = async () => {
     if (vistoria.patologias.length === 0) {
       toast.error("Registre ao menos uma patologia antes de finalizar.");
       return;
     }
-    try {
-      persistir({ ...vistoria, status: "AGUARDANDO REVISAO" });
-      setEditando(null);
-      setPasso(0);
-      toast.success("Coleta finalizada! Revise as informações no escritório para gerar o laudo.");
-      navigate({ to: "/" });
-    } catch {
-      toast.error("Erro ao finalizar coleta. Tente novamente.");
+    setSalvando(true);
+    const res = await salvarVistoriaSegura({ ...vistoria, status: "AGUARDANDO REVISAO" });
+    setSalvando(false);
+    if (!res.ok) {
+      toast.error(res.erro);
+      return;
     }
+    setVistoria(res.vistoria);
+    setEditando(null);
+    toast.success("Coleta finalizada! Revise as informações no escritório para gerar o laudo.");
+    navigate({ to: "/" });
   };
+
 
   return (
     <AppShell>
@@ -271,8 +310,12 @@ function NovaVistoria() {
               <PatologiaForm
                 inicial={editando}
                 imovel={vistoria.imovel}
+                modo={modo}
                 onSalvar={salvarPatologia}
-                onCancelar={() => setEditando(null)}
+                onCancelar={() => {
+                  setEditando(null);
+                  setModo("novo");
+                }}
               />
             ) : (
               <>
@@ -285,7 +328,10 @@ function NovaVistoria() {
 
                 <Button
                   className="min-h-14 w-full text-base"
-                  onClick={() => setEditando(patologiaVazia())}
+                  onClick={() => {
+                    setModo("novo");
+                    setEditando(patologiaVazia());
+                  }}
                 >
                   <Plus className="mr-2 h-5 w-5" />
                   Adicionar nova patologia
@@ -300,44 +346,80 @@ function NovaVistoria() {
                 {vistoria.patologias.map((p) => {
                   const risco = riscoDe(gutTotal(p));
                   return (
-                    <button
+                    <div
                       key={p.id}
-                      type="button"
-                      onClick={() => setEditando(p)}
-                      className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3 text-left shadow-card transition hover:border-primary"
+                      className="rounded-xl border border-border bg-card p-3 shadow-card"
                     >
-                      {p.fotos[0] ? (
-                        <img
-                          src={p.fotos[0].dataUrl}
-                          alt={`Registro de ${p.elemento}`}
-                          className="h-14 w-14 shrink-0 rounded-lg object-cover"
-                        />
-                      ) : (
-                        <div className="h-14 w-14 shrink-0 rounded-lg bg-muted" />
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-bold text-foreground">{p.elemento}</p>
-                        <p className="truncate text-xs text-muted-foreground">
-                          {p.local} • {p.manifestacoes.join(", ")}
-                        </p>
+                      <div className="flex items-center gap-3">
+                        {p.fotos[0] ? (
+                          <img
+                            src={p.fotos[0].dataUrl}
+                            alt={`Registro de ${p.elemento}`}
+                            className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                          />
+                        ) : (
+                          <div className="h-14 w-14 shrink-0 rounded-lg bg-muted" />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-bold text-foreground">{p.elemento}</p>
+                          <p className="truncate text-xs text-muted-foreground">{p.local}</p>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {p.manifestacoes.map((m) => (
+                              <span
+                                key={m}
+                                className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+                              >
+                                {m}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <Badge
+                          className={
+                            risco.tone === "critico"
+                              ? "bg-risk-high"
+                              : risco.tone === "medio"
+                                ? "bg-risk-mid"
+                                : "bg-risk-low"
+                          }
+                        >
+                          {gutTotal(p)}
+                        </Badge>
                       </div>
-                      <Badge
-                        className={
-                          risco.tone === "critico"
-                            ? "bg-risk-high"
-                            : risco.tone === "medio"
-                              ? "bg-risk-mid"
-                              : "bg-risk-low"
-                        }
-                      >
-                        {gutTotal(p)}
-                      </Badge>
-                    </button>
+
+                      <div className="mt-3 flex gap-2 border-t border-border pt-3">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="min-h-10 flex-1"
+                          onClick={() => {
+                            setModo("editar");
+                            setEditando(p);
+                          }}
+                        >
+                          <Pencil className="mr-1.5 h-4 w-4" />
+                          Editar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="min-h-10 flex-1 border-destructive text-destructive hover:bg-destructive/10"
+                          onClick={() => setExcluindo(p)}
+                        >
+                          <Trash2 className="mr-1.5 h-4 w-4" />
+                          Excluir
+                        </Button>
+                      </div>
+                    </div>
                   );
                 })}
 
                 {vistoria.patologias.length > 0 && (
-                  <Button variant="outline" className="min-h-12 w-full" onClick={finalizar}>
+                  <Button
+                    variant="outline"
+                    className="min-h-12 w-full"
+                    onClick={() => setPasso(3)}
+                  >
                     <CheckCircle2 className="mr-2 h-4 w-4" />
                     Finalizar coleta
                   </Button>
@@ -346,6 +428,25 @@ function NovaVistoria() {
             )}
           </div>
         )}
+
+        <AlertDialog open={!!excluindo} onOpenChange={(o) => !o && setExcluindo(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Deseja excluir esta patologia?</AlertDialogTitle>
+              <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmarExclusao}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Excluir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
 
         {passo === 3 && (
           <div className="space-y-4 rounded-xl border border-border bg-card p-4 shadow-card sm:p-6">
@@ -358,9 +459,9 @@ function NovaVistoria() {
                 {ANAMNESE_ITENS.length}
               </p>
             </div>
-            <Button className="min-h-12 w-full" onClick={finalizar}>
+            <Button className="min-h-12 w-full" onClick={finalizar} disabled={salvando}>
               <CheckCircle2 className="mr-2 h-4 w-4" />
-              Finalizar coleta e revisar
+              {salvando ? "Salvando coleta..." : "Finalizar coleta e revisar"}
             </Button>
           </div>
         )}
