@@ -36,11 +36,14 @@ import {
   nivelInspecao,
   patologiasOrdenadas,
   sistemasInspecionados,
+  legendaFoto,
   textoConclusao,
-  textoEncerramento,
+  ENCERRAMENTO_PARTE_1,
+  ENCERRAMENTO_PARTE_2,
   textoSecao1,
   textoSecao12,
 } from "../laudo";
+import { carregarLogo } from "./logo";
 
 const BRAND = "8B1A1A";
 const SLATE = "2D3748";
@@ -48,7 +51,7 @@ const CONTENT_WIDTH = 9638; // A4 com margens de 2cm
 
 const p = (text: string, opts: { bold?: boolean; size?: number; align?: (typeof AlignmentType)[keyof typeof AlignmentType] } = {}) =>
   new Paragraph({
-    ...(opts.align ? { alignment: opts.align } : {}),
+    alignment: opts.align ?? AlignmentType.JUSTIFIED,
     spacing: { after: 120 },
     children: [
       new TextRun({
@@ -199,22 +202,28 @@ export async function gerarDocx(v: Vistoria) {
     v.anamnese.observacoes ? p(`Observações da anamnese: ${v.anamnese.observacoes}`) : p(""),
   );
 
-  const fotoFachada = ordenadas.flatMap((x) => x.fotos)[0] as { dataUrl: string } | undefined;
+  const fotosEdificacao = v.imovel.fotosEdificacao ?? [];
   children.push(h("5. FOTO DA EDIFICAÇÃO"));
-  if (fotoFachada) {
-    children.push(
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        children: [
-          new ImageRun({
-            type: imageType(fotoFachada.dataUrl),
-            data: dataUrlToBytes(fotoFachada.dataUrl),
-            transformation: { width: 400, height: 280 },
-            altText: { title: "Edificação", description: "Vista da edificação", name: "Fachada" },
-          }),
-        ],
-      }),
-    );
+  if (fotosEdificacao.length > 0) {
+    fotosEdificacao.forEach((f, i) => {
+      children.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new ImageRun({
+              type: imageType(f.dataUrl),
+              data: dataUrlToBytes(f.dataUrl),
+              transformation: { width: 400, height: 280 },
+              altText: { title: "Edificação", description: "Vista da edificação", name: `fachada-${i}` },
+            }),
+          ],
+        }),
+        p(`Foto da edificação ${i + 1} — fachada do imóvel vistoriado.`, {
+          size: 18,
+          align: AlignmentType.CENTER,
+        }),
+      );
+    });
   } else {
     children.push(p("Não há registro fotográfico da fachada nesta vistoria."));
   }
@@ -241,7 +250,9 @@ export async function gerarDocx(v: Vistoria) {
   );
 
   children.push(h("9. SISTEMAS CONSTRUTIVOS INSPECIONADOS"));
-  sistemasInspecionados(v).forEach((s: string) => children.push(p(`• ${s}`)));
+  sistemasInspecionados(v).forEach((s: string) =>
+    children.push(p(`• ${s}`, { align: AlignmentType.LEFT })),
+  );
 
   children.push(
     h("10. LISTA DE VERIFICAÇÃO"),
@@ -275,7 +286,7 @@ export async function gerarDocx(v: Vistoria) {
             }),
           ],
         }),
-        p(`Foto ${idx + 1}.${i + 1} — ${pat.manifestacoes.join(", ") || "Registro fotográfico"}`, {
+        p(legendaFoto(pat, idx + 1, i + 1), {
           size: 18,
           align: AlignmentType.CENTER,
         }),
@@ -338,17 +349,62 @@ export async function gerarDocx(v: Vistoria) {
   children.push(p(`Classificação global do grau de risco: ${risco.label.toUpperCase()}.`, { bold: true }));
 
   children.push(h("14. NORMAS TÉCNICAS"));
-  NORMAS.forEach((n: string) => children.push(p(`• ${n}`)));
+  NORMAS.forEach((n: string) => children.push(p(`• ${n}`, { align: AlignmentType.LEFT })));
 
-  children.push(h("15. ENCERRAMENTO"), p(textoEncerramento(v)));
+  children.push(
+    h("15. ENCERRAMENTO"),
+    new Paragraph({
+      alignment: AlignmentType.JUSTIFIED,
+      spacing: { after: 120 },
+      children: [
+        new TextRun({ text: ENCERRAMENTO_PARTE_1, size: 22, font: "Arial", color: SLATE }),
+        new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 22, font: "Arial", color: SLATE }),
+        new TextRun({ text: ENCERRAMENTO_PARTE_2, size: 22, font: "Arial", color: SLATE }),
+      ],
+    }),
+  );
 
   children.push(
     h("16. ASSINATURA"),
-    p(`${v.imovel.cidade || "—"}, ${formatarData(v.imovel.dataVistoria)}.`),
+    p(`${v.imovel.cidade || "—"}, ${formatarData(v.imovel.dataVistoria)}.`, {
+      align: AlignmentType.CENTER,
+    }),
     p(""),
-    p("_______________________________________"),
-    p(v.imovel.inspetor || "Responsável técnico", { bold: true }),
-    p(`CREA ${v.imovel.crea || "—"}`),
+    p("_______________________________________", { align: AlignmentType.CENTER }),
+    p(v.imovel.inspetor || "Responsável técnico", { bold: true, align: AlignmentType.CENTER }),
+    p(`CREA ${v.imovel.crea || "—"}`, { align: AlignmentType.CENTER }),
+  );
+
+  const logo = await carregarLogo();
+  const logoHeight = 30;
+  const logoWidth = logo ? Math.round((logo.width / logo.height) * logoHeight) : 0;
+
+  const headerChildren: Paragraph[] = [];
+  if (logo) {
+    headerChildren.push(
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [
+          new ImageRun({
+            type: imageType(logo.dataUrl),
+            data: dataUrlToBytes(logo.dataUrl),
+            transformation: { width: logoWidth, height: logoHeight },
+            altText: { title: "TEMPLAR ENGENHARIA", description: "Escudo Templar", name: "escudo" },
+          }),
+        ],
+      }),
+    );
+  }
+  headerChildren.push(
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      children: [new TextRun({ text: EMPRESA.nome, bold: true, size: 20, color: BRAND })],
+    }),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: BRAND, space: 4 } },
+      children: [new TextRun({ text: EMPRESA.slogan, size: 16, color: "666666" })],
+    }),
   );
 
   const doc = new Document({
@@ -362,20 +418,7 @@ export async function gerarDocx(v: Vistoria) {
           },
         },
         headers: {
-          default: new Header({
-            children: [
-              new Paragraph({
-                tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
-                border: {
-                  bottom: { style: BorderStyle.SINGLE, size: 6, color: BRAND, space: 4 },
-                },
-                children: [
-                  new TextRun({ text: EMPRESA.nome, bold: true, size: 20, color: BRAND }),
-                  new TextRun({ text: `\t${EMPRESA.slogan}`, size: 16, color: SLATE }),
-                ],
-              }),
-            ],
-          }),
+          default: new Header({ children: headerChildren }),
         },
         footers: {
           default: new Footer({
