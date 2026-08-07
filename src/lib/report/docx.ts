@@ -469,8 +469,11 @@ export async function gerarDocx(v: Vistoria) {
     }),
     p(""),
     p("_______________________________________", { align: AlignmentType.CENTER }),
-    p(v.imovel.inspetor || "Responsável técnico", { bold: true, align: AlignmentType.CENTER }),
-    p(`CREA ${v.imovel.crea || "—"}`, { align: AlignmentType.CENTER }),
+    p(`${v.imovel.inspetor || "Responsável técnico"} — Engenheiro Civil`, {
+      bold: true,
+      align: AlignmentType.CENTER,
+    }),
+    p(`CREA: ${v.imovel.crea || "—"}`, { align: AlignmentType.CENTER }),
   );
 
   // Cabeçalho de todas as páginas: nome à esquerda, slogan à direita, linha vermelha abaixo
