@@ -4,6 +4,7 @@ import { ClipboardList, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { TemplarLogo } from "@/components/TemplarLogo";
+import { ConfiguracoesDialog } from "@/components/ConfiguracoesDialog";
 import { useAuth } from "@/context/AuthContext";
 
 const ROTEIRO = [
@@ -37,6 +38,8 @@ const ROTEIRO = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { userEmail, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const [config, setConfig] = useState(false);
+
 
   return (
     <div className="min-h-screen bg-surface">
@@ -81,9 +84,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </SheetContent>
             </Sheet>
 
-            <Button variant="ghost" size="icon" aria-label="Configurações">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Configurações"
+              onClick={() => setConfig(true)}
+            >
               <Settings className="h-5 w-5" />
             </Button>
+            <ConfiguracoesDialog open={config} onOpenChange={setConfig} />
+
 
             <div className="hidden text-right sm:block">
               <p className="text-[10px] text-muted-foreground">Logado como</p>
