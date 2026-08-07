@@ -433,36 +433,17 @@ export async function gerarDocx(v: Vistoria) {
     p(`CREA ${v.imovel.crea || "—"}`, { align: AlignmentType.CENTER }),
   );
 
-  const logo = await carregarLogo();
-  const logoHeight = 30;
-  const logoWidth = logo ? Math.round((logo.width / logo.height) * logoHeight) : 0;
-
-  const headerChildren: Paragraph[] = [];
-  if (logo) {
-    headerChildren.push(
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        children: [
-          new ImageRun({
-            type: imageType(logo.dataUrl),
-            data: dataUrlToBytes(logo.dataUrl),
-            transformation: { width: logoWidth, height: logoHeight },
-            altText: { title: "TEMPLAR ENGENHARIA", description: "Escudo Templar", name: "escudo" },
-          }),
-        ],
-      }),
-    );
-  }
-  headerChildren.push(
+  // Cabeçalho de todas as páginas: nome à esquerda, slogan à direita, linha vermelha abaixo
+  const headerChildren: Paragraph[] = [
     new Paragraph({
-      alignment: AlignmentType.CENTER,
-      children: [new TextRun({ text: EMPRESA.nome, bold: true, size: 20, color: BRAND })],
-    }),
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
+      tabStops: [{ type: TabStopType.RIGHT, position: CONTENT_WIDTH }],
       border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: BRAND, space: 4 } },
-      children: [new TextRun({ text: EMPRESA.slogan, size: 16, color: "666666" })],
+      children: [
+        new TextRun({ text: EMPRESA.nome, bold: true, size: 16, color: BRAND, font: "Arial" }),
+        new TextRun({ text: `\t${EMPRESA.slogan}`, size: 16, color: BRAND, font: "Arial" }),
+      ],
     }),
+
   );
 
   const doc = new Document({
