@@ -23,7 +23,8 @@ import { enderecoCompleto, gutTotal, riscoDe, type Vistoria } from "../types";
 import {
   EMPRESA,
   GLOSSARIO,
-  NORMAS,
+  normasAplicaveis,
+  textoArt,
   TABELA_GUT_PESOS,
   TABELA_PRIORIDADES,
   anamneseResumo,
@@ -39,7 +40,7 @@ import {
   legendaFoto,
   textoConclusao,
   ENCERRAMENTO_PARTE_1,
-  ENCERRAMENTO_PARTE_2,
+  encerramentoParte2,
   textoSecao1,
   textoSecao12,
 } from "../laudo";
