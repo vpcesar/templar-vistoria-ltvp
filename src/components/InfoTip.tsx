@@ -1,22 +1,35 @@
+import { useState } from "react";
 import { Info } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function InfoTip({ text }: { text: string }) {
+  // Controlado por toque: em campo o inspetor usa o celular, onde hover não existe.
+  const [open, setOpen] = useState(false);
+
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          aria-label="Informação sobre o campo"
-          className="text-muted-foreground transition hover:text-primary"
-        >
-          <Info className="h-3.5 w-3.5" />
-        </button>
-      </TooltipTrigger>
-      <TooltipContent className="max-w-[260px] text-xs leading-relaxed">{text}</TooltipContent>
-    </Tooltip>
+    <TooltipProvider delayDuration={0}>
+      <Tooltip open={open} onOpenChange={setOpen}>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label="Informação sobre o campo"
+            onClick={() => setOpen((o) => !o)}
+            className="text-muted-foreground transition hover:text-primary"
+          >
+            <Info className="h-3.5 w-3.5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent className="max-w-[260px] text-xs leading-relaxed">{text}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
+
 
 export function Field({
   label,
