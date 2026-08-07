@@ -424,7 +424,7 @@ export async function gerarDocx(v: Vistoria) {
   );
 
   children.push(h("14. NORMAS TÉCNICAS"));
-  NORMAS.forEach(([nome, desc]: [string, string], i: number) =>
+  normasAplicaveis(v).forEach(([nome, desc]: [string, string], i: number) =>
     children.push(
       new Paragraph({
         alignment: AlignmentType.JUSTIFIED,
@@ -453,7 +453,7 @@ export async function gerarDocx(v: Vistoria) {
       children: [
         new TextRun({ text: ENCERRAMENTO_PARTE_1, size: 22, font: "Arial", color: SLATE }),
         new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 22, font: "Arial", color: SLATE }),
-        new TextRun({ text: ENCERRAMENTO_PARTE_2, size: 22, font: "Arial", color: SLATE }),
+        new TextRun({ text: encerramentoParte2(v), size: 22, font: "Arial", color: SLATE }),
       ],
     }),
   );
