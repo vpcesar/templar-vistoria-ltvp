@@ -142,12 +142,19 @@ export function PatologiaForm({
   };
 
   const salvar = () => {
-    if (!pat.elemento || !pat.local || pat.manifestacoes.length === 0) {
-      toast.error("Informe elemento, local e ao menos uma manifestação.");
+    if (
+      pat.fotos.length === 0 ||
+      !pat.elemento ||
+      !pat.local ||
+      pat.manifestacoes.length === 0 ||
+      !pat.classificacao
+    ) {
+      toast.error("Preencha todos os campos obrigatórios.");
       return;
     }
     onSalvar(pat);
   };
+
 
   const sliderGut = (
     key: "gravidade" | "urgencia" | "tendencia",
