@@ -11,6 +11,7 @@ import {
   formatarData,
   grauRiscoGlobal,
   grausRiscoIbape,
+  legendaFoto,
   listaVerificacao,
   metodologia,
   nivelInspecao,
@@ -21,10 +22,12 @@ import {
   textoSecao1,
   textoSecao12,
 } from "../laudo";
+import { carregarLogo, type LogoLaudo } from "./logo";
 
 const BRAND: [number, number, number] = [139, 26, 26];
 const SLATE: [number, number, number] = [45, 55, 72];
-const M = { left: 20, right: 20, top: 25, bottom: 25 };
+const GRAY: [number, number, number] = [102, 102, 102];
+const M = { left: 20, right: 20, top: 34, bottom: 25 };
 const PAGE_W = 210;
 const PAGE_H = 297;
 const W = PAGE_W - M.left - M.right;
@@ -32,8 +35,10 @@ const W = PAGE_W - M.left - M.right;
 class Builder {
   doc: jsPDF;
   y = M.top;
+  logo: LogoLaudo | null;
 
-  constructor() {
+  constructor(logo: LogoLaudo | null) {
+    this.logo = logo;
     this.doc = new jsPDF({ unit: "mm", format: "a4" });
     this.doc.setFont("helvetica", "normal");
   }
@@ -64,18 +69,28 @@ class Builder {
     this.y += 6;
   }
 
-  text(txt: string, opts: { bold?: boolean; size?: number; center?: boolean } = {}) {
+  /** Texto corrido; justificado por padrão (exceto quando centralizado ou marcado). */
+  text(
+    txt: string,
+    opts: { bold?: boolean; size?: number; center?: boolean; justify?: boolean } = {},
+  ) {
     this.doc.setFont("helvetica", opts.bold ? "bold" : "normal");
     this.doc.setFontSize(opts.size ?? 11);
     this.doc.setTextColor(...SLATE);
+    const justificar = !opts.center && (opts.justify ?? true);
     const lines = this.doc.splitTextToSize(txt, W) as string[];
-    for (const line of lines) {
+    lines.forEach((line, i) => {
       this.ensure(6);
-      this.doc.text(line, opts.center ? PAGE_W / 2 : M.left, this.y, {
-        align: opts.center ? "center" : "left",
-      });
+      const ultima = i === lines.length - 1;
+      if (opts.center) {
+        this.doc.text(line, PAGE_W / 2, this.y, { align: "center" });
+      } else if (justificar && !ultima) {
+        this.doc.text(line, M.left, this.y, { align: "justify", maxWidth: W });
+      } else {
+        this.doc.text(line, M.left, this.y);
+      }
       this.y += 5.4;
-    }
+    });
     this.y += 1.5;
   }
 
@@ -117,19 +132,28 @@ class Builder {
 
   finalize() {
     const total = this.doc.getNumberOfPages();
+    const logoH = 9;
+    const logoW = this.logo ? (this.logo.width / this.logo.height) * logoH : 0;
     for (let i = 1; i <= total; i++) {
       this.doc.setPage(i);
-      // Cabeçalho
+      // Cabeçalho: escudo/logo + nome + slogan (centralizados)
+      if (this.logo) {
+        try {
+          this.doc.addImage(this.logo.dataUrl, (PAGE_W - logoW) / 2, 7, logoW, logoH);
+        } catch {
+          /* ignora logo inválido */
+        }
+      }
       this.doc.setFont("helvetica", "bold");
       this.doc.setFontSize(9);
       this.doc.setTextColor(...BRAND);
-      this.doc.text(EMPRESA.nome, M.left, 14);
+      this.doc.text(EMPRESA.nome, PAGE_W / 2, 21, { align: "center" });
       this.doc.setFont("helvetica", "normal");
-      this.doc.setTextColor(...SLATE);
-      this.doc.setFontSize(8);
-      this.doc.text(EMPRESA.slogan, PAGE_W - M.right, 14, { align: "right" });
+      this.doc.setFontSize(7.5);
+      this.doc.setTextColor(...GRAY);
+      this.doc.text(EMPRESA.slogan, PAGE_W / 2, 25, { align: "center" });
       this.doc.setDrawColor(...BRAND);
-      this.doc.line(M.left, 17, PAGE_W - M.right, 17);
+      this.doc.line(M.left, 27.5, PAGE_W - M.right, 27.5);
       // Rodapé
       this.doc.line(M.left, PAGE_H - 20, PAGE_W - M.right, PAGE_H - 20);
       this.doc.setFontSize(7.5);
@@ -148,8 +172,8 @@ class Builder {
   }
 }
 
-export function gerarPdf(v: Vistoria) {
-  const b = new Builder();
+function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
+  const b = new Builder(logo);
   const ordenadas = patologiasOrdenadas(v);
   const risco = grauRiscoGlobal(v);
 
@@ -195,7 +219,7 @@ export function gerarPdf(v: Vistoria) {
     [35, 65],
   );
   b.h2("3.3 Data da vistoria");
-  b.text(formatarData(v.imovel.dataVistoria));
+  b.text(formatarData(v.imovel.dataVistoria), { justify: false });
 
   b.h1("4. DESCRIÇÃO DO IMÓVEL");
   b.text(
@@ -211,9 +235,18 @@ export function gerarPdf(v: Vistoria) {
   if (v.anamnese.observacoes) b.text(`Observações da anamnese: ${v.anamnese.observacoes}`);
 
   b.h1("5. FOTO DA EDIFICAÇÃO");
-  const capa = ordenadas.flatMap((p) => p.fotos)[0];
-  if (capa) b.image(capa.dataUrl, 130, 90);
-  else b.text("Não há registro fotográfico da fachada nesta vistoria.");
+  const fotosEdificacao = v.imovel.fotosEdificacao ?? [];
+  if (fotosEdificacao.length > 0) {
+    fotosEdificacao.forEach((f, i) => {
+      b.image(f.dataUrl, 130, 90);
+      b.text(`Foto da edificação ${i + 1} — fachada do imóvel vistoriado.`, {
+        size: 8.5,
+        center: true,
+      });
+    });
+  } else {
+    b.text("Não há registro fotográfico da fachada nesta vistoria.");
+  }
 
   b.h1("6. CLASSIFICAÇÃO DA INSPEÇÃO");
   b.text(nivelInspecao(v));
@@ -238,7 +271,7 @@ export function gerarPdf(v: Vistoria) {
   b.table([["Classificação", "Definição"], ...classificacoesTexto()], [32, 68]);
 
   b.h1("9. SISTEMAS CONSTRUTIVOS INSPECIONADOS");
-  sistemasInspecionados(v).forEach((s) => b.text(`• ${s}`));
+  sistemasInspecionados(v).forEach((s) => b.text(`• ${s}`, { justify: false }));
 
   b.h1("10. LISTA DE VERIFICAÇÃO");
   b.table(
@@ -255,10 +288,7 @@ export function gerarPdf(v: Vistoria) {
     b.h2(`11.${idx + 1} ${pat.elemento || "Elemento"} — ${pat.local || "Local"}`);
     pat.fotos.forEach((f, i) => {
       b.image(f.dataUrl);
-      b.text(`Foto ${idx + 1}.${i + 1} — ${pat.manifestacoes.join(", ") || "Registro fotográfico"}`, {
-        size: 8.5,
-        center: true,
-      });
+      b.text(legendaFoto(pat, idx + 1, i + 1), { size: 8.5, center: true });
     });
     b.table(
       [
@@ -308,21 +338,38 @@ export function gerarPdf(v: Vistoria) {
 
   b.h1("13. CONCLUSÕES");
   textoConclusao(v).forEach((t) => b.text(t));
-  b.text(`Classificação global do grau de risco: ${risco.label.toUpperCase()}.`, { bold: true });
+  b.text(`Classificação global do grau de risco: ${risco.label.toUpperCase()}.`, {
+    bold: true,
+    justify: false,
+  });
 
   b.h1("14. NORMAS TÉCNICAS");
-  NORMAS.forEach((n) => b.text(`• ${n}`, { size: 10 }));
+  NORMAS.forEach((n) => b.text(`• ${n}`, { size: 10, justify: false }));
 
   b.h1("15. ENCERRAMENTO");
-  b.text(textoEncerramento(v));
+  b.text(textoEncerramento(paginas));
 
   b.h1("16. ASSINATURA");
-  b.text(`${v.imovel.cidade || "—"}, ${formatarData(v.imovel.dataVistoria)}.`);
+  b.text(`${v.imovel.cidade || "—"}, ${formatarData(v.imovel.dataVistoria)}.`, { center: true });
   b.y += 10;
-  b.text("_______________________________________");
-  b.text(v.imovel.inspetor || "Responsável técnico", { bold: true });
-  b.text(`CREA ${v.imovel.crea || "—"}`);
+  b.text("_______________________________________", { center: true });
+  b.text(v.imovel.inspetor || "Responsável técnico", { bold: true, center: true });
+  b.text(`CREA ${v.imovel.crea || "—"}`, { center: true });
 
   b.finalize();
-  b.doc.save(`LTVP-${(v.imovel.proprietario || "vistoria").replace(/\s+/g, "-")}.pdf`);
+  return b.doc;
+}
+
+export async function gerarPdf(v: Vistoria) {
+  const logo = await carregarLogo();
+  // 1ª passagem: descobre a quantidade real de páginas.
+  const previa = render(v, logo, "xx");
+  let paginas = previa.getNumberOfPages();
+  // 2ª passagem: grava o número real no texto de encerramento.
+  let doc = render(v, logo, paginas);
+  if (doc.getNumberOfPages() !== paginas) {
+    paginas = doc.getNumberOfPages();
+    doc = render(v, logo, paginas);
+  }
+  doc.save(`LTVP-${(v.imovel.proprietario || "vistoria").replace(/\s+/g, "-")}.pdf`);
 }
