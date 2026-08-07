@@ -76,7 +76,8 @@ function NovaVistoria() {
         : [...vistoria.patologias, p],
     });
     setEditando(null);
-    toast.success("Patologia registrada");
+    setPasso(2);
+    toast.success("Patologia salva com sucesso!");
   };
 
   const finalizar = () => {
@@ -84,9 +85,15 @@ function NovaVistoria() {
       toast.error("Registre ao menos uma patologia antes de finalizar.");
       return;
     }
-    persistir({ ...vistoria, status: "AGUARDANDO REVISAO" });
-    toast.success("Coleta finalizada. Siga para a revisão.");
-    navigate({ to: "/revisao/$id", params: { id: vistoria.id } });
+    try {
+      persistir({ ...vistoria, status: "AGUARDANDO REVISAO" });
+      setEditando(null);
+      setPasso(0);
+      toast.success("Coleta finalizada! Revise as informações no escritório para gerar o laudo.");
+      navigate({ to: "/" });
+    } catch {
+      toast.error("Erro ao finalizar coleta. Tente novamente.");
+    }
   };
 
   return (
@@ -269,12 +276,19 @@ function NovaVistoria() {
               />
             ) : (
               <>
+                <p className="text-sm font-semibold text-muted-foreground">
+                  {vistoria.patologias.length}{" "}
+                  {vistoria.patologias.length === 1
+                    ? "patologia registrada"
+                    : "patologias registradas"}
+                </p>
+
                 <Button
                   className="min-h-14 w-full text-base"
                   onClick={() => setEditando(patologiaVazia())}
                 >
                   <Plus className="mr-2 h-5 w-5" />
-                  Registrar patologia
+                  Adicionar nova patologia
                 </Button>
 
                 {vistoria.patologias.length === 0 && (
@@ -321,6 +335,13 @@ function NovaVistoria() {
                     </button>
                   );
                 })}
+
+                {vistoria.patologias.length > 0 && (
+                  <Button variant="outline" className="min-h-12 w-full" onClick={finalizar}>
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Finalizar coleta
+                  </Button>
+                )}
               </>
             )}
           </div>

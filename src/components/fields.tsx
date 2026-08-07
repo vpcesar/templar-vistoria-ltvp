@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, ChevronsUpDown, Plus } from "lucide-react";
+import { ArrowLeft, Check, ChevronsUpDown, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -12,6 +12,8 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { addOpcaoCustom, opcoesCustom } from "@/lib/storage";
 import { cn } from "@/lib/utils";
+
+const OUTRO_OPCAO = "✚ Outro (digitar)";
 
 export function SearchSelect({
   value,
@@ -222,5 +224,65 @@ export function SegmentedOptions({
         </button>
       ))}
     </div>
+  );
+}
+
+/** Menu suspenso pesquisável com opção "Outro (digitar)" para texto livre. */
+export function SelectOrText({
+  value,
+  onChange,
+  options,
+  placeholder = "Selecione...",
+  campo,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+  placeholder?: string;
+  campo?: string;
+}) {
+  const [isCustom, setIsCustom] = useState(false);
+
+  if (isCustom) {
+    return (
+      <div className="flex gap-2">
+        <input
+          autoFocus
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Digite livremente"
+          className="h-12 flex-1 rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          className="h-12 shrink-0 text-xs"
+          onClick={() => {
+            setIsCustom(false);
+            onChange("");
+          }}
+        >
+          <ArrowLeft className="mr-1 h-3.5 w-3.5" />
+          Voltar para lista
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <SearchSelect
+      value={value}
+      onChange={(v) => {
+        if (v === OUTRO_OPCAO) {
+          onChange("");
+          setIsCustom(true);
+          return;
+        }
+        onChange(v);
+      }}
+      options={[...options, OUTRO_OPCAO]}
+      placeholder={placeholder}
+      {...(campo ? { campo } : {})}
+    />
   );
 }
