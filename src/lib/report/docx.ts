@@ -14,8 +14,10 @@ import {
   Table,
   TableCell,
   TableRow,
+  TabStopType,
   TextRun,
   WidthType,
+
 } from "docx";
 import { enderecoCompleto, gutTotal, riscoDe, type Vistoria } from "../types";
 import {
