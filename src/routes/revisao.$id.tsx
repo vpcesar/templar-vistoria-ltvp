@@ -82,7 +82,7 @@ function Revisao() {
     setGerando("pdf");
     try {
       const { gerarPdf } = await import("@/lib/report/pdf");
-      gerarPdf(vistoria);
+      await gerarPdf(vistoria);
       concluir();
       toast.success("Laudo em PDF gerado");
     } catch {

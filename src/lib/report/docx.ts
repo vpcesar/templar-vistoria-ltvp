@@ -14,8 +14,6 @@ import {
   Table,
   TableCell,
   TableRow,
-  TabStopPosition,
-  TabStopType,
   TextRun,
   WidthType,
 } from "docx";
