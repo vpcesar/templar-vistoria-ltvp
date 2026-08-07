@@ -290,7 +290,8 @@ export function legendaFoto(
   return `Foto ${indiceSistema}.${indiceFoto} — ${manif}.${lugar ? ` ${lugar}` : ""}`;
 }
 
-export function metodologia() {
+export function metodologia(v: Vistoria) {
+  const extras = v.imovel.equipamentos?.trim();
   return [
     [
       "7.1 Fase inicial e documental",
@@ -298,7 +299,9 @@ export function metodologia() {
     ],
     [
       "7.2 Vistoria das áreas",
-      "Varredura sistemática dos setores da edificação (perímetro externo e fachadas, cobertura e telhado, ambientes internos e sistemas/instalações globais), com inspeção sensorial, registro fotográfico e caracterização das manifestações patológicas identificadas.",
+      `Foram utilizados na vistoria equipamentos de auxílio ao diagnóstico como trena, martelo oco, nível de bolha e/ou nível a laser, câmera fotográfica, medidor de umidade FNIRSI WMT-10${
+        extras ? `, ${extras}` : ""
+      }. A vistoria consistiu em inspeção visual sensorial e verificações expeditas em todos os ambientes acessíveis da edificação, com registro fotográfico das manifestações patológicas encontradas.`,
     ],
     [
       "7.3 Elaboração do laudo",
