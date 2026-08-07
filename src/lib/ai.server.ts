@@ -50,9 +50,10 @@ const classificacaoSchema = z.object({
 
 const recomendacaoSchema = z.object({
   acao_principal: z.string(),
-  etapas: z.array(z.string()),
-  norma_referencia: z.string(),
-  observacao_complementar: z.string(),
+});
+
+const observacaoSchema = z.object({
+  texto_otimizado: z.string(),
 });
 
 const gutSchema = z.object({
@@ -85,8 +86,16 @@ export function classificar(c: ContextoPatologia) {
 export function recomendar(c: ContextoPatologia) {
   return run(
     recomendacaoSchema,
-    `Você é engenheiro civil perito. Elabore uma recomendação técnica corretiva contendo ação corretiva principal, etapas de execução em sequência, norma técnica ABNT de referência e observação complementar quando relevante. Limite total de 200 palavras. ${BASE_CONTEXT}`,
+    `Como engenheiro civil, elabore uma recomendação técnica corretiva para a patologia descrita. A recomendação deve ser: 1) curta e objetiva, no máximo 3 linhas no total; 2) sem termos demasiadamente técnicos, em linguagem clara que um proprietário leigo consiga entender; 3) sem etapas numeradas, apenas um parágrafo direto; 4) citando a norma técnica de referência apenas se estritamente relevante. Responda em português do Brasil.`,
     resumo(c),
+  );
+}
+
+export function otimizarObservacao(texto: string) {
+  return run(
+    observacaoSchema,
+    "Como engenheiro civil perito, reescreva o texto do usuário de forma curta, objetiva e tecnicamente adequada para um laudo de inspeção predial. Mantenha as informações originais, apenas melhore a clareza e objetividade. Máximo de 3 linhas. Não adicione informações que não estão no texto original. Responda em português do Brasil.",
+    `Texto original: ${texto}`,
   );
 }
 
