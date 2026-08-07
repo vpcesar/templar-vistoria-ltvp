@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/logotipo-horizontal-TEMPLAR.jpg.asset.json";
+import logoAsset from "@/assets/Logomarca-Templar.png.asset.json";
 
 export interface LogoLaudo {
   dataUrl: string;
