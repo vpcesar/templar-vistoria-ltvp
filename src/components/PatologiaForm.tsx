@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, InfoTip } from "@/components/InfoTip";
-import { ChipMulti, SearchSelect, SegmentedOptions } from "@/components/fields";
+import { ChipMulti, SearchSelect, SegmentedOptions, SelectOrText } from "@/components/fields";
 import {
   CLASSIFICACOES,
   ELEMENTOS,
@@ -17,7 +17,12 @@ import {
   SETORES,
   TOOLTIPS,
 } from "@/lib/catalogos";
-import { gerarRecomendacao, sugerirClassificacao, sugerirGUT } from "@/lib/ai.functions";
+import {
+  gerarRecomendacao,
+  otimizarObservacaoIA,
+  sugerirClassificacao,
+  sugerirGUT,
+} from "@/lib/ai.functions";
 import { uid } from "@/lib/storage";
 import { gutTotal, riscoDe, type DadosImovel, type Patologia } from "@/lib/types";
 
@@ -35,12 +40,13 @@ export function PatologiaForm({
   onCancelar: () => void;
 }) {
   const [pat, setPat] = useState<Patologia>(inicial);
-  const [loading, setLoading] = useState<"class" | "rec" | "gut" | null>(null);
+  const [loading, setLoading] = useState<"class" | "rec" | "gut" | "obs" | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const classFn = useServerFn(sugerirClassificacao);
   const recFn = useServerFn(gerarRecomendacao);
   const gutFn = useServerFn(sugerirGUT);
+  const obsFn = useServerFn(otimizarObservacaoIA);
 
   const set = <K extends keyof Patologia>(k: K, val: Patologia[K]) =>
     setPat((p) => ({ ...p, [k]: val }));
@@ -92,20 +98,22 @@ export function PatologiaForm({
     setLoading("rec");
     try {
       const r = await recFn({ data: contexto });
-      const texto = [
-        r.acao_principal,
-        "",
-        "Etapas de execução:",
-        ...r.etapas.map((e, i) => `${i + 1}. ${e}`),
-        "",
-        `Norma de referência: ${r.norma_referencia}`,
-        r.observacao_complementar ? `Observação: ${r.observacao_complementar}` : "",
-      ]
-        .filter(Boolean)
-        .join("\n");
-      set("recomendacao", texto);
+      set("recomendacao", r.acao_principal);
     } catch {
       toast.error("Não foi possível gerar a recomendação. Escreva manualmente.");
+    }
+    setLoading(null);
+  };
+
+  const otimizarObs = async () => {
+    const texto = (pat.observacoes ?? "").trim();
+    if (texto.length < 10) return;
+    setLoading("obs");
+    try {
+      const r = await obsFn({ data: { texto } });
+      set("observacoes", r.texto_otimizado);
+    } catch {
+      toast.error("Não foi possível otimizar. Edite manualmente.");
     }
     setLoading(null);
   };
@@ -217,32 +225,29 @@ export function PatologiaForm({
       </Field>
 
       <Field label="Elemento inspecionado" tip={TOOLTIPS.elemento}>
-        <SearchSelect
+        <SelectOrText
           value={pat.elemento}
           onChange={(v) => set("elemento", v)}
           options={ELEMENTOS}
           campo="elementos"
-          allowAdd
         />
       </Field>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Local (ambiente)" tip={TOOLTIPS.local}>
-          <SearchSelect
+          <SelectOrText
             value={pat.local}
             onChange={(v) => set("local", v)}
             options={LOCAIS}
             campo="locais"
-            allowAdd
           />
         </Field>
         <Field label="Posição no ambiente" tip={TOOLTIPS.posicao}>
-          <SearchSelect
+          <SelectOrText
             value={pat.posicao}
             onChange={(v) => set("posicao", v)}
             options={POSICOES}
             campo="posicoes"
-            allowAdd
           />
         </Field>
       </div>
@@ -349,11 +354,29 @@ export function PatologiaForm({
       </div>
 
       <Field label="Observações da patologia" tip="Informações complementares sobre a manifestação.">
-        <Textarea
-          rows={3}
-          value={pat.observacoes ?? ""}
-          onChange={(e) => set("observacoes", e.target.value)}
-        />
+        <div className="space-y-3">
+          <Textarea
+            rows={3}
+            value={pat.observacoes ?? ""}
+            onChange={(e) => set("observacoes", e.target.value)}
+          />
+          {(pat.observacoes ?? "").trim().length >= 10 && (
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11 w-full border-primary text-primary hover:bg-accent"
+              onClick={otimizarObs}
+              disabled={loading === "obs"}
+            >
+              {loading === "obs" ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="mr-2 h-4 w-4" />
+              )}
+              {loading === "obs" ? "Otimizando..." : "Otimizar com IA"}
+            </Button>
+          )}
+        </div>
       </Field>
 
       <div className="flex flex-col gap-2 sm:flex-row">
