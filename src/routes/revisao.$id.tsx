@@ -67,12 +67,9 @@ function Revisao() {
   const exportarDocx = async () => {
     setGerando("docx");
     try {
-      const [{ gerarDocx, baixar }] = await Promise.all([import("@/lib/report/docx")]);
-      const blob = await gerarDocx(vistoria);
-      baixar(
-        blob,
-        `LTVP-${(vistoria.imovel.proprietario || "vistoria").replace(/\s+/g, "-")}.docx`,
-      );
+      const { gerarDocx } = await import("@/lib/report/docx");
+      await gerarDocx(vistoria);
+
       concluir();
       toast.success("Laudo em Word gerado");
     } catch {
