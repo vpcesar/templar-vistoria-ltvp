@@ -27,7 +27,7 @@ import { carregarLogo, type LogoLaudo } from "./logo";
 const BRAND: [number, number, number] = [139, 26, 26];
 const SLATE: [number, number, number] = [45, 55, 72];
 const GRAY: [number, number, number] = [102, 102, 102];
-const M = { left: 20, right: 20, top: 34, bottom: 25 };
+const M = { left: 20, right: 20, top: 26, bottom: 25 };
 const PAGE_W = 210;
 const PAGE_H = 297;
 const W = PAGE_W - M.left - M.right;
