@@ -282,7 +282,7 @@ export function SelectOrText({
       }}
       options={[...options, OUTRO_OPCAO]}
       placeholder={placeholder}
-      campo={campo}
+      {...(campo ? { campo } : {})}
     />
   );
 }
