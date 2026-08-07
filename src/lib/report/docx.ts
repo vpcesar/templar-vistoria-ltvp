@@ -378,7 +378,11 @@ export async function gerarDocx(v: Vistoria) {
         ],
         [3000, 6638],
       ),
-      p(""),
+      p("Determinação do Grau de Risco e Prioridades", {
+        bold: true,
+        size: 24,
+        align: AlignmentType.LEFT,
+      }),
       table(
         [
           ["Gravidade", "Urgência", "Tendência", "Pontuação", "Grau de risco"],

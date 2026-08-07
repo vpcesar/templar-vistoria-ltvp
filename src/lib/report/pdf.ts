@@ -3,7 +3,8 @@ import { enderecoCompleto, gutTotal, riscoDe, type Vistoria } from "../types";
 import {
   EMPRESA,
   GLOSSARIO,
-  NORMAS,
+  normasAplicaveis,
+  textoArt,
   TABELA_GUT_PESOS,
   TABELA_PRIORIDADES,
   anamneseResumo,
