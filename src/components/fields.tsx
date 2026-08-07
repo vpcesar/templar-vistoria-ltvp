@@ -166,7 +166,7 @@ export function TripleToggle({
   value,
   onChange,
 }: {
-  value?: string;
+  value?: string | undefined;
   onChange: (v: "SIM" | "NAO" | "NAO SABE") => void;
 }) {
   const opts: ("SIM" | "NAO" | "NAO SABE")[] = ["SIM", "NAO", "NAO SABE"];
