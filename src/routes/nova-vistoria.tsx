@@ -59,12 +59,21 @@ function NovaVistoria() {
   const [vistoria, setVistoria] = useState<Vistoria | null>(null);
   const [passo, setPasso] = useState(0);
   const [editando, setEditando] = useState<Patologia | null>(null);
+  const [modo, setModo] = useState<"novo" | "editar">("novo");
+  const [excluindo, setExcluindo] = useState<Patologia | null>(null);
+  const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
     const existente = id ? obterVistoria(id) : undefined;
     const v = existente ?? novaVistoria();
     setVistoria(v);
-    if (!existente) salvarVistoria(v);
+    if (!existente) {
+      try {
+        salvarVistoria(v);
+      } catch {
+        /* rascunho fica apenas em memória se o armazenamento estiver cheio */
+      }
+    }
   }, [id]);
 
   if (!vistoria) return null;
@@ -72,7 +81,12 @@ function NovaVistoria() {
   const persistir = (v: Vistoria) => {
     const atualizada = { ...v, atualizadoEm: new Date().toISOString() };
     setVistoria(atualizada);
-    salvarVistoria(atualizada);
+    try {
+      salvarVistoria(atualizada);
+    } catch {
+      /* rascunho segue em memória; a compactação acontece ao finalizar */
+    }
+    return atualizada;
   };
 
   const setImovel = <K extends keyof Vistoria["imovel"]>(k: K, val: Vistoria["imovel"][K]) =>
@@ -87,25 +101,39 @@ function NovaVistoria() {
         : [...vistoria.patologias, p],
     });
     setEditando(null);
+    setModo("novo");
     setPasso(2);
-    toast.success("Patologia salva com sucesso!");
+    toast.success(existe ? "Patologia atualizada!" : "Patologia salva!", { duration: 3000 });
   };
 
-  const finalizar = () => {
+  const confirmarExclusao = () => {
+    if (!excluindo) return;
+    persistir({
+      ...vistoria,
+      patologias: vistoria.patologias.filter((x) => x.id !== excluindo.id),
+    });
+    setExcluindo(null);
+    toast.success("Patologia excluída.");
+  };
+
+  const finalizar = async () => {
     if (vistoria.patologias.length === 0) {
       toast.error("Registre ao menos uma patologia antes de finalizar.");
       return;
     }
-    try {
-      persistir({ ...vistoria, status: "AGUARDANDO REVISAO" });
-      setEditando(null);
-      setPasso(0);
-      toast.success("Coleta finalizada! Revise as informações no escritório para gerar o laudo.");
-      navigate({ to: "/" });
-    } catch {
-      toast.error("Erro ao finalizar coleta. Tente novamente.");
+    setSalvando(true);
+    const res = await salvarVistoriaSegura({ ...vistoria, status: "AGUARDANDO REVISAO" });
+    setSalvando(false);
+    if (!res.ok) {
+      toast.error(res.erro);
+      return;
     }
+    setVistoria(res.vistoria);
+    setEditando(null);
+    toast.success("Coleta finalizada! Revise as informações no escritório para gerar o laudo.");
+    navigate({ to: "/" });
   };
+
 
   return (
     <AppShell>
