@@ -1,0 +1,234 @@
+import { enderecoCompleto, gutTotal, riscoDe, type Vistoria } from "./types";
+import { ANAMNESE_ITENS } from "./catalogos";
+
+export const EMPRESA = {
+  nome: "TEMPLAR ENGENHARIA",
+  slogan: "Vistorias • Inspeções • Laudos • Perícias",
+  site: "www.templarengenharia.com.br",
+  siteUrl: "https://www.templarengenharia.com.br",
+  email: "templarengenharia@hotmail.com",
+  whats: "WhatsApp (21) 98180-8812",
+  whatsUrl: "https://wa.me/5521981808812",
+};
+
+export const formatarData = (iso: string) => {
+  if (!iso) return "—";
+  const [y, m, d] = iso.slice(0, 10).split("-");
+  return d && m && y ? `${d}/${m}/${y}` : iso;
+};
+
+export const patologiasOrdenadas = (v: Vistoria) =>
+  [...v.patologias].sort((a, b) => gutTotal(b) - gutTotal(a));
+
+export function nivelInspecao(v: Vistoria) {
+  const pav = parseInt(v.imovel.pavimentos || "1", 10);
+  if (v.imovel.tipoEdificacao === "Residencial Unifamiliar" && pav <= 2)
+    return "Nível 1 — inspeção predial de menor complexidade técnica, realizada por profissional habilitado, em edificações com sistemas construtivos simples e sem manutenção programada formalizada.";
+  if (pav >= 5 || v.imovel.tipoEdificacao === "Misto")
+    return "Nível 3 — inspeção predial de maior complexidade, em edificações com múltiplos sistemas construtivos, exigindo equipe multidisciplinar e análise documental ampliada.";
+  return "Nível 2 — inspeção predial de complexidade média, em edificações com sistemas construtivos e manutenção de média complexidade.";
+}
+
+export function grauRiscoGlobal(v: Vistoria) {
+  const totais = v.patologias.map(gutTotal);
+  const max = totais.length ? Math.max(...totais) : 0;
+  return riscoDe(max);
+}
+
+export const GLOSSARIO: [string, string][] = [
+  [
+    "Agentes de degradação",
+    "Tudo aquilo que atua sobre a edificação contribuindo para reduzir seu desempenho ao longo do tempo.",
+  ],
+  [
+    "Anomalia",
+    "Irregularidade oriunda de problemas construtivos, de projeto, de materiais ou de agentes naturais e externos.",
+  ],
+  [
+    "Desempenho",
+    "Comportamento em uso de uma edificação e de seus sistemas frente às exigências dos usuários.",
+  ],
+  [
+    "Deterioração",
+    "Perda progressiva de desempenho de um sistema, elemento ou componente construtivo.",
+  ],
+  [
+    "Falha",
+    "Irregularidade decorrente da operação, do uso ou da manutenção inadequada ou inexistente da edificação.",
+  ],
+  [
+    "Manifestação patológica",
+    "Sintoma perceptível resultante de anomalia ou falha, que evidencia a perda de desempenho.",
+  ],
+  [
+    "Plano de manutenção",
+    "Documento que define as atividades, periodicidades e responsáveis pela manutenção da edificação (NBR 5674).",
+  ],
+  [
+    "Sistema",
+    "Conjunto principal de elementos e componentes destinados a atender a uma função da edificação.",
+  ],
+  [
+    "Vida útil",
+    "Período estimado em que a edificação ou seus sistemas mantêm o desempenho previsto, desde que atendida a manutenção.",
+  ],
+];
+
+export const TABELA_GUT_PESOS: [string, string, string, string][] = [
+  ["5", "Gravidade extremamente grave", "Urgência imediata", "Agrava-se rapidamente"],
+  ["4", "Gravidade muito grave", "Urgência com alguma urgência", "Agrava-se em curto prazo"],
+  ["3", "Gravidade grave", "Urgência o mais cedo possível", "Agrava-se em médio prazo"],
+  ["2", "Gravidade pouco grave", "Urgência pode aguardar", "Agrava-se em longo prazo"],
+  ["1", "Gravidade sem gravidade", "Urgência sem pressa", "Não se agrava"],
+];
+
+export const TABELA_PRIORIDADES: [string, string, string][] = [
+  ["1ª", "81 a 150", "Até 30 dias"],
+  ["2ª", "75 a 80", "30 dias a 120 dias"],
+  ["3ª", "60 a 64", "120 dias a 150 dias"],
+  ["4ª", "30 a 59", "150 dias a 210 dias"],
+  ["5ª", "10 a 29", "210 dias a 240 dias"],
+  ["6ª", "1 a 9", "240 dias a 360 dias"],
+];
+
+export const NORMAS = [
+  "ABNT NBR 16747 — Inspeção predial: diretrizes, conceitos, terminologia e procedimento",
+  "ABNT NBR 5674 — Manutenção de edificações: requisitos para o sistema de gestão de manutenção",
+  "ABNT NBR 15575 — Edificações habitacionais: desempenho",
+  "ABNT NBR 9575 — Impermeabilização: seleção e projeto",
+  "ABNT NBR 5410 — Instalações elétricas de baixa tensão",
+  "ABNT NBR 5626 — Sistemas prediais de água fria e água quente",
+  "ABNT NBR 8160 — Sistemas prediais de esgoto sanitário",
+  "ABNT NBR 6118 — Projeto de estruturas de concreto",
+  "ABNT NBR 13755 — Revestimentos cerâmicos de fachadas",
+  "ABNT NBR 9050 — Acessibilidade a edificações, mobiliário, espaços e equipamentos urbanos",
+  "Norma de Inspeção Predial Nacional — IBAPE",
+];
+
+export const LISTA_VERIFICACAO_BASE = [
+  "Estrutura (pilares, vigas e lajes)",
+  "Alvenarias e vedações",
+  "Revestimentos e pinturas",
+  "Cobertura, telhado e calhas",
+  "Impermeabilização de áreas molhadas",
+  "Instalações elétricas e QDC",
+  "Instalações hidrossanitárias",
+  "Esquadrias e vidros",
+  "Pisos e pavimentação",
+  "Acessibilidade e circulação",
+];
+
+export function listaVerificacao(v: Vistoria) {
+  return LISTA_VERIFICACAO_BASE.map((desc, i) => {
+    const relacionadas = v.patologias.filter((p) =>
+      desc.toLowerCase().includes(p.elemento.split(" ")[0]?.toLowerCase() ?? "@"),
+    );
+    return {
+      item: String(i + 1),
+      descricao: desc,
+      verificado: "SIM",
+      observacao: relacionadas.length
+        ? `${relacionadas.length} não conformidade(s) registrada(s).`
+        : "Sem não conformidade registrada nesta inspeção.",
+    };
+  });
+}
+
+export function sistemasInspecionados(v: Vistoria) {
+  const set = new Set(v.patologias.map((p) => p.elemento).filter(Boolean));
+  return set.size ? [...set] : ["Não foram registrados sistemas com não conformidade."];
+}
+
+export function anamneseResumo(v: Vistoria) {
+  return ANAMNESE_ITENS.map((i) => ({
+    pergunta: i.pergunta,
+    resposta: v.anamnese.respostas[i.id] ?? "NÃO INFORMADO",
+  }));
+}
+
+export function textoSecao1(v: Vistoria) {
+  return `O presente Laudo Técnico de Vistoria Predial (LTVP) foi elaborado a pedido de ${
+    v.imovel.proprietario || "solicitante"
+  }, responsável pelo imóvel situado em ${enderecoCompleto(v.imovel)}, com o objetivo de verificar o estado de conservação e o desempenho dos sistemas construtivos da edificação. Para os fins deste laudo, adota-se a terminologia da ABNT NBR 16747, na qual ANOMALIA é a irregularidade decorrente de problemas de projeto, de execução, de materiais ou da ação de agentes naturais e externos, enquanto FALHA é a irregularidade decorrente da operação, do uso ou da manutenção inadequada ou inexistente da edificação.`;
+}
+
+export function textoSecao12(v: Vistoria) {
+  return `Com o intuito de subsidiar a administração da edificação em relação às principais não conformidades, as anomalias e falhas de manutenção constatadas e analisadas na inspeção predial da ${
+    v.imovel.tipoEdificacao || "edificação"
+  } situada em ${enderecoCompleto(
+    v.imovel,
+  )}, foram classificadas conforme apresentado nas tabelas a seguir. É recomendável ainda que o imóvel estabeleça uma programação de manutenção, inicialmente, corretiva, com posterior implantação de procedimentos de manutenção preventiva, com base em suas características e nas legislações e normas técnicas aplicáveis.`;
+}
+
+export function textoConclusao(v: Vistoria) {
+  const risco = grauRiscoGlobal(v);
+  const ordenadas = patologiasOrdenadas(v);
+  const criticos = ordenadas.filter((p) => gutTotal(p) >= 81);
+  const sistemasCriticos = [...new Set(criticos.map((p) => p.elemento))];
+  return [
+    `A partir da inspeção realizada em ${formatarData(v.imovel.dataVistoria)}, foram constatadas ${
+      v.patologias.length
+    } não conformidades, cuja análise pela Matriz GUT resultou na classificação global de ${risco.label.toUpperCase()} para a edificação.`,
+    sistemasCriticos.length
+      ? `Os sistemas construtivos que demandam intervenção prioritária são: ${sistemasCriticos.join(
+          "; ",
+        )}.`
+      : "Não foram identificadas não conformidades classificadas como de risco crítico nesta inspeção.",
+    `Recomenda-se a execução imediata das medidas corretivas indicadas para os itens de maior pontuação GUT, seguida da implantação de um plano de manutenção preventiva conforme a ABNT NBR 5674, de modo a preservar o desempenho e a vida útil da edificação.`,
+  ];
+}
+
+export function textoEncerramento(v: Vistoria) {
+  return `Nada mais havendo a relatar, encerra-se o presente Laudo Técnico de Vistoria Predial, composto por ${
+    12 + v.patologias.length
+  } folhas digitadas de um só lado, elaborado sob a responsabilidade técnica de ${
+    v.imovel.inspetor || "responsável técnico"
+  }, CREA ${v.imovel.crea || "—"}, que o assina para os devidos fins.`;
+}
+
+export function metodologia() {
+  return [
+    [
+      "7.1 Fase inicial e documental",
+      "Levantamento das informações disponíveis sobre a edificação, análise da documentação apresentada, aplicação de anamnese junto aos usuários e definição do nível de inspeção conforme a ABNT NBR 16747 e a Norma de Inspeção Predial do IBAPE.",
+    ],
+    [
+      "7.2 Vistoria das áreas",
+      "Varredura sistemática dos setores da edificação (perímetro externo e fachadas, cobertura e telhado, ambientes internos e sistemas/instalações globais), com inspeção sensorial, registro fotográfico e caracterização das manifestações patológicas identificadas.",
+    ],
+    [
+      "7.3 Elaboração do laudo",
+      "Consolidação dos dados coletados, classificação das anomalias e falhas quanto à origem, atribuição de grau de risco pela Matriz GUT, definição de recomendações técnicas corretivas e ordenação das prioridades de intervenção.",
+    ],
+  ] as [string, string][];
+}
+
+export function grausRiscoIbape() {
+  return [
+    [
+      "Risco Crítico",
+      "Pode provocar danos contra a saúde e segurança das pessoas e do meio ambiente, perda excessiva de desempenho e funcionalidade, causando possíveis paralisações, aumento de custo e comprometimento sensível de vida útil.",
+    ],
+    [
+      "Risco Médio",
+      "Pode provocar a perda parcial de desempenho e funcionalidade da edificação sem prejuízo à operação direta de sistemas, além de deterioração precoce.",
+    ],
+    [
+      "Risco Baixo",
+      "Pode provocar pequenos prejuízos à estética ou atividade programável e planejada, sem incidência ou probabilidade de ocorrência dos riscos críticos e médios.",
+    ],
+  ] as [string, string][];
+}
+
+export function classificacoesTexto() {
+  return [
+    ["Anomalia Endógena", "Originária da própria edificação (projeto, materiais ou execução)."],
+    ["Anomalia Exógena", "Provocada por fatores externos à edificação, por ação de terceiros."],
+    ["Anomalia Natural", "Provocada por fenômenos da natureza."],
+    ["Anomalia Funcional", "Originária da degradação natural dos sistemas por fim da vida útil."],
+    ["Falha de Planejamento", "Decorrente de falhas de procedimentos e especificações inadequadas."],
+    ["Falha de Execução", "Proveniente da execução inadequada de procedimentos de manutenção."],
+    ["Falha Operacional", "Relativa aos procedimentos internos de operação e uso da edificação."],
+    ["Falha Gerencial", "Decorrente da ausência de gestão da manutenção e de controles."],
+  ] as [string, string][];
+}

@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as NovaVistoriaRouteImport } from './routes/nova-vistoria'
+import { Route as RevisaoIdRouteImport } from './routes/revisao.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NovaVistoriaRoute = NovaVistoriaRouteImport.update({
+  id: '/nova-vistoria',
+  path: '/nova-vistoria',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RevisaoIdRoute = RevisaoIdRouteImport.update({
+  id: '/revisao/$id',
+  path: '/revisao/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/nova-vistoria': typeof NovaVistoriaRoute
+  '/revisao/$id': typeof RevisaoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/nova-vistoria': typeof NovaVistoriaRoute
+  '/revisao/$id': typeof RevisaoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/nova-vistoria': typeof NovaVistoriaRoute
+  '/revisao/$id': typeof RevisaoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/nova-vistoria' | '/revisao/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/nova-vistoria' | '/revisao/$id'
+  id: '__root__' | '/' | '/nova-vistoria' | '/revisao/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  NovaVistoriaRoute: typeof NovaVistoriaRoute
+  RevisaoIdRoute: typeof RevisaoIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +68,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/nova-vistoria': {
+      id: '/nova-vistoria'
+      path: '/nova-vistoria'
+      fullPath: '/nova-vistoria'
+      preLoaderRoute: typeof NovaVistoriaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/revisao/$id': {
+      id: '/revisao/$id'
+      path: '/revisao/$id'
+      fullPath: '/revisao/$id'
+      preLoaderRoute: typeof RevisaoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  NovaVistoriaRoute: NovaVistoriaRoute,
+  RevisaoIdRoute: RevisaoIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
