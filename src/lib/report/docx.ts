@@ -145,7 +145,7 @@ export async function gerarDocx(v: Vistoria) {
   if (logo) {
     const ratio = logo.width / logo.height;
     const MAX_W = 440; // largura útil da página (pt)
-    let capaH = 180;
+    let capaH = 270;
     let capaW = Math.round(ratio * capaH);
     if (capaW > MAX_W) {
       capaW = MAX_W;
