@@ -13,7 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
-import { LoginScreen } from "@/components/LoginScreen";
+import LoginScreen from "@/components/LoginScreen";
 
 function NotFoundComponent() {
   return (
