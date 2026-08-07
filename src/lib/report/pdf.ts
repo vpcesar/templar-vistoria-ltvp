@@ -27,7 +27,7 @@ import { carregarLogo, type LogoLaudo } from "./logo";
 const BRAND: [number, number, number] = [139, 26, 26];
 const SLATE: [number, number, number] = [45, 55, 72];
 const GRAY: [number, number, number] = [102, 102, 102];
-const M = { left: 20, right: 20, top: 34, bottom: 25 };
+const M = { left: 20, right: 20, top: 26, bottom: 25 };
 const PAGE_W = 210;
 const PAGE_H = 297;
 const W = PAGE_W - M.left - M.right;
@@ -134,28 +134,18 @@ class Builder {
 
   finalize() {
     const total = this.doc.getNumberOfPages();
-    const logoH = 9;
-    const logoW = this.logo ? (this.logo.width / this.logo.height) * logoH : 0;
     for (let i = 1; i <= total; i++) {
       this.doc.setPage(i);
-      // Cabeçalho: escudo/logo + nome + slogan (centralizados)
-      if (this.logo) {
-        try {
-          this.doc.addImage(this.logo.dataUrl, (PAGE_W - logoW) / 2, 7, logoW, logoH);
-        } catch {
-          /* ignora logo inválido */
-        }
-      }
+      // Cabeçalho: nome à esquerda, slogan à direita, linha vermelha abaixo
       this.doc.setFont("helvetica", "bold");
-      this.doc.setFontSize(9);
+      this.doc.setFontSize(8);
       this.doc.setTextColor(...BRAND);
-      this.doc.text(EMPRESA.nome, PAGE_W / 2, 21, { align: "center" });
+      this.doc.text(EMPRESA.nome, M.left, 14);
       this.doc.setFont("helvetica", "normal");
-      this.doc.setFontSize(7.5);
-      this.doc.setTextColor(...GRAY);
-      this.doc.text(EMPRESA.slogan, PAGE_W / 2, 25, { align: "center" });
+      this.doc.text(EMPRESA.slogan, PAGE_W - M.right, 14, { align: "right" });
       this.doc.setDrawColor(...BRAND);
-      this.doc.line(M.left, 27.5, PAGE_W - M.right, 27.5);
+      this.doc.line(M.left, 17, PAGE_W - M.right, 17);
+
       // Rodapé
       this.doc.line(M.left, PAGE_H - 20, PAGE_W - M.right, PAGE_H - 20);
       this.doc.setFontSize(7.5);
@@ -179,15 +169,26 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   const ordenadas = patologiasOrdenadas(v);
   const risco = grauRiscoGlobal(v);
 
-  // Capa
-  b.y = 70;
+  // Capa — escudo centralizado no corpo da página
+  b.y = 72;
+  if (logo) {
+    const h = 28;
+    const w = (logo.width / logo.height) * h;
+    try {
+      b.doc.addImage(logo.dataUrl, (PAGE_W - w) / 2, b.y, w, h);
+    } catch {
+      /* ignora logo inválido */
+    }
+    b.y += h + 8;
+  }
   b.text(EMPRESA.nome, { bold: true, size: 22, center: true });
   b.text(EMPRESA.slogan, { size: 10, center: true });
-  b.y += 20;
-  b.text("LAUDO TÉCNICO DE VISTORIA PREDIAL (LTVP)", { bold: true, size: 16, center: true });
+  b.y += 24;
+  b.text("LAUDO TÉCNICO DE VISTORIA PREDIAL (LTVP)", { bold: true, size: 17, center: true });
   b.y += 6;
   b.text(enderecoCompleto(v.imovel), { size: 12, center: true });
   b.text(`Data da vistoria: ${formatarData(v.imovel.dataVistoria)}`, { size: 11, center: true });
+
   b.doc.addPage();
   b.y = M.top;
 
