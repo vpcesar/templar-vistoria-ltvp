@@ -286,7 +286,7 @@ export async function gerarDocx(v: Vistoria) {
     );
   }
 
-  children.push(h("6. CLASSIFICAÇÃO DA INSPEÇÃO"), p(nivelInspecao(v)));
+  children.push(h("6. CLASSIFICAÇÃO DA INSPEÇÃO"), ...nivelInspecao(v).map((t) => p(t)));
 
   children.push(h("7. METODOLOGIA"));
   metodologia(v).forEach(([titulo, texto]: [string, string]) =>

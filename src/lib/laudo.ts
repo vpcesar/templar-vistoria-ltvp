@@ -92,7 +92,7 @@ export const TABELA_PRIORIDADES: [string, string, string][] = [
 
 /** Normas técnicas sempre aplicáveis: [identificação com ano vigente, descrição]. */
 export const NORMAS_BASE: [string, string][] = [
-  ["ABNT NBR 5410:2004", "Instalações elétricas de baixa tensão"],
+  ["ABNT NBR 5410:2004 (versão corrigida 2008)", "Instalações elétricas de baixa tensão"],
   ["ABNT NBR 5419:2015", "Proteção de estruturas contra descargas atmosféricas"],
   ["ABNT NBR 5626:2020", "Instalações prediais de água fria"],
   [
@@ -101,13 +101,13 @@ export const NORMAS_BASE: [string, string][] = [
   ],
   ["ABNT NBR 6118:2023", "Projeto de estruturas de concreto — Procedimento"],
   ["ABNT NBR 7200:1998", "Execução de impermeabilização"],
-  ["ABNT NBR 8160:1999", "Sistemas prediais de esgoto sanitário — Projeto e execução"],
+  ["ABNT NBR 8160:2023", "Sistemas prediais de esgoto sanitário — Projeto e execução"],
   ["ABNT NBR 9574:2008", "Impermeabilização — Diretrizes para elaboração de projetos"],
   ["ABNT NBR 9575:2010", "Impermeabilização — Seleção e projeto"],
   ["ABNT NBR 10844:1989", "Instalações prediais de águas pluviais"],
   ["ABNT NBR 12962:2017", "Recuperação de estruturas de concreto — Requisitos"],
-  ["ABNT NBR 13752:2017", "Perícias de engenharia na construção civil"],
-  ["ABNT NBR 15575:2013", "Edificações habitacionais — Desempenho"],
+  ["ABNT NBR 13752:2024", "Perícias de engenharia na construção civil"],
+  ["ABNT NBR 15575:2024", "Edificações habitacionais — Desempenho"],
   [
     "ABNT NBR 16747:2020",
     "Inspeção predial — Diretrizes, conceitos, terminologia e procedimento",

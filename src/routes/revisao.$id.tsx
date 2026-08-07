@@ -123,7 +123,7 @@ function Revisao() {
             {[
               ["Data da vistoria", formatarData(vistoria.imovel.dataVistoria)],
               ["Responsável técnico", vistoria.imovel.inspetor || "—"],
-              ["Nível de inspeção", nivelInspecao(vistoria)],
+              ["Nível de inspeção", "Nível 1"],
               ["Grau de risco global", risco.label],
             ].map(([k, v]) => (
               <div key={k} className="rounded-lg border border-border bg-muted/40 p-3">

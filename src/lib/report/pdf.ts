@@ -298,7 +298,7 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   }
 
   b.h1("6. CLASSIFICAÇÃO DA INSPEÇÃO");
-  b.text(nivelInspecao(v));
+  nivelInspecao(v).forEach((t) => b.text(t));
 
   b.h1("7. METODOLOGIA");
   metodologia(v).forEach(([t, txt]) => {
