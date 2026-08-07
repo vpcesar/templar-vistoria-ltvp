@@ -20,7 +20,7 @@ import {
 import { AppShell } from "@/components/AppShell";
 import { Field } from "@/components/InfoTip";
 import { PatologiaForm } from "@/components/PatologiaForm";
-import { SearchSelect, TripleToggle } from "@/components/fields";
+import { FotoUploader, SearchSelect, TripleToggle } from "@/components/fields";
 import { ANAMNESE_ITENS, PAVIMENTOS, TIPOS_EDIFICACAO, TOOLTIPS } from "@/lib/catalogos";
 import {
   novaVistoria,
@@ -133,7 +133,6 @@ function NovaVistoria() {
     toast.success("Coleta finalizada! Revise as informações no escritório para gerar o laudo.");
     navigate({ to: "/" });
   };
-
 
   return (
     <AppShell>
@@ -263,6 +262,13 @@ function NovaVistoria() {
                 rows={3}
                 value={vistoria.imovel.observacoes ?? ""}
                 onChange={(e) => setImovel("observacoes", e.target.value)}
+              />
+            </Field>
+            <Field label="Foto da edificação" tip={TOOLTIPS.fotosEdificacao}>
+              <FotoUploader
+                fotos={vistoria.imovel.fotosEdificacao ?? []}
+                onChange={(f) => setImovel("fotosEdificacao", f)}
+                label="Tirar foto ou enviar imagem da fachada"
               />
             </Field>
           </div>
@@ -415,11 +421,7 @@ function NovaVistoria() {
                 })}
 
                 {vistoria.patologias.length > 0 && (
-                  <Button
-                    variant="outline"
-                    className="min-h-12 w-full"
-                    onClick={() => setPasso(3)}
-                  >
+                  <Button variant="outline" className="min-h-12 w-full" onClick={() => setPasso(3)}>
                     <CheckCircle2 className="mr-2 h-4 w-4" />
                     Finalizar coleta
                   </Button>
@@ -446,7 +448,6 @@ function NovaVistoria() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-
 
         {passo === 3 && (
           <div className="space-y-4 rounded-xl border border-border bg-card p-4 shadow-card sm:p-6">

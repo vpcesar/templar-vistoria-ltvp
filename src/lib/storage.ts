@@ -20,6 +20,7 @@ export const imovelVazio = (): DadosImovel => ({
   inspetor: "Vinicius Paulino Cesar",
   crea: "",
   observacoes: "",
+  fotosEdificacao: [],
 });
 
 export const anamneseVazia = (): Anamnese => ({ respostas: {}, observacoes: "" });
@@ -63,7 +64,11 @@ export function sanitizarVistoria(v: Vistoria): Vistoria {
     status: v.status || "EM ANDAMENTO",
     criadoEm: v.criadoEm || new Date().toISOString(),
     atualizadoEm: new Date().toISOString(),
-    imovel: { ...imovelVazio(), ...i },
+    imovel: {
+      ...imovelVazio(),
+      ...i,
+      fotosEdificacao: (i.fotosEdificacao || []).filter((f) => !!f?.dataUrl),
+    },
     anamnese: {
       respostas: v.anamnese?.respostas || {},
       observacoes: v.anamnese?.observacoes || "",
@@ -83,7 +88,8 @@ export function sanitizarVistoria(v: Vistoria): Vistoria {
 /** Recompacta uma imagem base64 reduzindo dimensão e qualidade. */
 export function comprimirDataUrl(dataUrl: string, maxLado = 1000, quality = 0.6): Promise<string> {
   return new Promise((resolve) => {
-    if (typeof document === "undefined" || !dataUrl.startsWith("data:image")) return resolve(dataUrl);
+    if (typeof document === "undefined" || !dataUrl.startsWith("data:image"))
+      return resolve(dataUrl);
     const img = new Image();
     img.onload = () => {
       try {
@@ -116,7 +122,13 @@ async function comprimirFotos(v: Vistoria, maxLado: number, quality: number): Pr
       ),
     })),
   );
-  return { ...v, patologias };
+  const fotosEdificacao = await Promise.all(
+    (v.imovel.fotosEdificacao || []).map(async (f) => ({
+      ...f,
+      dataUrl: await comprimirDataUrl(f.dataUrl, maxLado, quality),
+    })),
+  );
+  return { ...v, patologias, imovel: { ...v.imovel, fotosEdificacao } };
 }
 
 const isQuota = (e: unknown) =>
