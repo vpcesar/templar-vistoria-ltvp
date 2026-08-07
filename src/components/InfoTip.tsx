@@ -1,35 +1,44 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Info } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
+/**
+ * Dica de campo controlada por toque (mobile-first, sem dependência de hover).
+ */
 export function InfoTip({ text }: { text: string }) {
-  // Controlado por toque: em campo o inspetor usa o celular, onde hover não existe.
   const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent | TouchEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [open]);
 
   return (
-    <TooltipProvider delayDuration={0}>
-      <Tooltip open={open} onOpenChange={setOpen}>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            aria-label="Informação sobre o campo"
-            onClick={() => setOpen((o) => !o)}
-            className="text-muted-foreground transition hover:text-primary"
-          >
-            <Info className="h-3.5 w-3.5" />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent className="max-w-[260px] text-xs leading-relaxed">{text}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <span ref={ref} className="relative inline-flex">
+      <button
+        type="button"
+        aria-label="Informação sobre o campo"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className="text-muted-foreground transition hover:text-primary"
+      >
+        <Info className="h-3.5 w-3.5" />
+      </button>
+      {open && (
+        <span
+          role="tooltip"
+          className="absolute left-1/2 top-6 z-50 w-[250px] -translate-x-1/2 rounded-md bg-slate-brand px-3 py-2 text-xs font-normal normal-case leading-relaxed text-primary-foreground shadow-lg"
+        >
+          {text}
+        </span>
+      )}
+    </span>
   );
 }
-
 
 export function Field({
   label,
