@@ -178,12 +178,24 @@ export function textoConclusao(v: Vistoria) {
   ];
 }
 
-export function textoEncerramento(v: Vistoria) {
-  return `Nada mais havendo a relatar, encerra-se o presente Laudo Técnico de Vistoria Predial, composto por ${
-    12 + v.patologias.length
-  } folhas digitadas de um só lado, elaborado sob a responsabilidade técnica de ${
-    v.imovel.inspetor || "responsável técnico"
-  }, CREA ${v.imovel.crea || "—"}, que o assina para os devidos fins.`;
+export const ENCERRAMENTO_PARTE_1 =
+  "Nada mais havendo a relatar, encerra-se o presente Laudo Técnico de Vistoria Predial, composto por ";
+export const ENCERRAMENTO_PARTE_2 =
+  " folhas digitadas de um só lado, elaborado sob a responsabilidade técnica do Engenheiro Civil Vinicius Paulino Cesar, CREA RJ 20241001977, que o assina para os devidos fins.";
+
+export function textoEncerramento(paginas: string | number = "xx") {
+  return `${ENCERRAMENTO_PARTE_1}${paginas}${ENCERRAMENTO_PARTE_2}`;
+}
+
+/** Legenda de foto: "Foto 3.2 — Manifestações. Local / Posição" */
+export function legendaFoto(
+  pat: { manifestacoes: string[]; local: string; posicao: string },
+  indiceSistema: number,
+  indiceFoto: number,
+) {
+  const manif = pat.manifestacoes.filter(Boolean).join(", ") || "Registro fotográfico";
+  const lugar = [pat.local, pat.posicao].filter(Boolean).join(" / ");
+  return `Foto ${indiceSistema}.${indiceFoto} — ${manif}.${lugar ? ` ${lugar}` : ""}`;
 }
 
 export function metodologia() {
