@@ -55,6 +55,101 @@ export function salvarTodas(lista: Vistoria[]) {
   window.localStorage.setItem(KEY, JSON.stringify(lista));
 }
 
+/** Garante que nenhum campo obrigatório fique undefined antes de serializar. */
+export function sanitizarVistoria(v: Vistoria): Vistoria {
+  const i = v.imovel || imovelVazio();
+  return {
+    id: v.id || uid(),
+    status: v.status || "EM ANDAMENTO",
+    criadoEm: v.criadoEm || new Date().toISOString(),
+    atualizadoEm: new Date().toISOString(),
+    imovel: { ...imovelVazio(), ...i },
+    anamnese: {
+      respostas: v.anamnese?.respostas || {},
+      observacoes: v.anamnese?.observacoes || "",
+    },
+    patologias: (v.patologias || []).map((p) => ({
+      ...patologiaVazia(),
+      ...p,
+      id: p.id || uid(),
+      fotos: (p.fotos || []).filter((f) => !!f?.dataUrl),
+      manifestacoes: p.manifestacoes || [],
+      recomendacao: p.recomendacao || "",
+      observacoes: p.observacoes || "",
+    })),
+  };
+}
+
+/** Recompacta uma imagem base64 reduzindo dimensão e qualidade. */
+export function comprimirDataUrl(dataUrl: string, maxLado = 1000, quality = 0.6): Promise<string> {
+  return new Promise((resolve) => {
+    if (typeof document === "undefined" || !dataUrl.startsWith("data:image")) return resolve(dataUrl);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const escala = Math.min(1, maxLado / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(img.width * escala));
+        canvas.height = Math.max(1, Math.round(img.height * escala));
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return resolve(dataUrl);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      } catch {
+        resolve(dataUrl);
+      }
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
+async function comprimirFotos(v: Vistoria, maxLado: number, quality: number): Promise<Vistoria> {
+  const patologias = await Promise.all(
+    v.patologias.map(async (p) => ({
+      ...p,
+      fotos: await Promise.all(
+        p.fotos.map(async (f) => ({
+          ...f,
+          dataUrl: await comprimirDataUrl(f.dataUrl, maxLado, quality),
+        })),
+      ),
+    })),
+  );
+  return { ...v, patologias };
+}
+
+const isQuota = (e: unknown) =>
+  e instanceof Error && /quota|exceed/i.test(`${e.name} ${e.message}`);
+
+/**
+ * Salva a vistoria com fallbacks e compactação progressiva das fotos
+ * caso o localStorage estoure a cota.
+ */
+export async function salvarVistoriaSegura(
+  entrada: Vistoria,
+): Promise<{ ok: true; vistoria: Vistoria } | { ok: false; erro: string }> {
+  let v = sanitizarVistoria(entrada);
+  const tentativas: Array<[number, number] | null> = [null, [1000, 0.6], [720, 0.5], [480, 0.4]];
+
+  for (const t of tentativas) {
+    try {
+      if (t) v = await comprimirFotos(v, t[0], t[1]);
+      salvarVistoria(v);
+      return { ok: true, vistoria: v };
+    } catch (e) {
+      if (!isQuota(e)) {
+        return { ok: false, erro: "Erro ao salvar a vistoria. Tente novamente." };
+      }
+    }
+  }
+
+  return {
+    ok: false,
+    erro: "Não foi possível salvar. Reduza o número ou tamanho das fotos.",
+  };
+}
+
 export function obterVistoria(id: string): Vistoria | undefined {
   return listarVistorias().find((v) => v.id === id);
 }
