@@ -459,9 +459,9 @@ function NovaVistoria() {
                 {ANAMNESE_ITENS.length}
               </p>
             </div>
-            <Button className="min-h-12 w-full" onClick={finalizar}>
+            <Button className="min-h-12 w-full" onClick={finalizar} disabled={salvando}>
               <CheckCircle2 className="mr-2 h-4 w-4" />
-              Finalizar coleta e revisar
+              {salvando ? "Salvando coleta..." : "Finalizar coleta e revisar"}
             </Button>
           </div>
         )}
