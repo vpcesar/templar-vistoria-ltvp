@@ -143,8 +143,14 @@ export async function gerarDocx(v: Vistoria) {
   // CAPA — escudo no corpo da página, centralizado
   children.push(new Paragraph({ spacing: { after: 2400 }, children: [] }));
   if (logo) {
-    const capaH = 90;
-    const capaW = Math.round((logo.width / logo.height) * capaH);
+    const ratio = logo.width / logo.height;
+    const MAX_W = 440; // largura útil da página (pt)
+    let capaH = 180;
+    let capaW = Math.round(ratio * capaH);
+    if (capaW > MAX_W) {
+      capaW = MAX_W;
+      capaH = Math.round(MAX_W / ratio);
+    }
     children.push(
       new Paragraph({
         alignment: AlignmentType.CENTER,

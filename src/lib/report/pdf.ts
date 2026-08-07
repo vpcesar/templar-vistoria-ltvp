@@ -201,8 +201,13 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   // Capa — escudo centralizado no corpo da página
   b.y = 72;
   if (logo) {
-    const h = 28;
-    const w = (logo.width / logo.height) * h;
+    const ratio = logo.width / logo.height;
+    let h = 56; // ~160px, dobro do tamanho anterior
+    let w = ratio * h;
+    if (w > W) {
+      w = W;
+      h = W / ratio;
+    }
     try {
       b.doc.addImage(logo.dataUrl, (PAGE_W - w) / 2, b.y, w, h);
     } catch {
