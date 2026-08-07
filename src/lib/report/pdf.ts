@@ -169,15 +169,26 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   const ordenadas = patologiasOrdenadas(v);
   const risco = grauRiscoGlobal(v);
 
-  // Capa
-  b.y = 70;
+  // Capa — escudo centralizado no corpo da página
+  b.y = 72;
+  if (logo) {
+    const h = 28;
+    const w = (logo.width / logo.height) * h;
+    try {
+      b.doc.addImage(logo.dataUrl, (PAGE_W - w) / 2, b.y, w, h);
+    } catch {
+      /* ignora logo inválido */
+    }
+    b.y += h + 8;
+  }
   b.text(EMPRESA.nome, { bold: true, size: 22, center: true });
   b.text(EMPRESA.slogan, { size: 10, center: true });
-  b.y += 20;
-  b.text("LAUDO TÉCNICO DE VISTORIA PREDIAL (LTVP)", { bold: true, size: 16, center: true });
+  b.y += 24;
+  b.text("LAUDO TÉCNICO DE VISTORIA PREDIAL (LTVP)", { bold: true, size: 17, center: true });
   b.y += 6;
   b.text(enderecoCompleto(v.imovel), { size: 12, center: true });
   b.text(`Data da vistoria: ${formatarData(v.imovel.dataVistoria)}`, { size: 11, center: true });
+
   b.doc.addPage();
   b.y = M.top;
 
