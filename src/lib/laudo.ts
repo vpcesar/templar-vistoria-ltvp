@@ -91,18 +91,54 @@ export const TABELA_PRIORIDADES: [string, string, string][] = [
   ["6ª", "1 a 9", "240 dias a 360 dias"],
 ];
 
-export const NORMAS = [
-  "ABNT NBR 16747 — Inspeção predial: diretrizes, conceitos, terminologia e procedimento",
-  "ABNT NBR 5674 — Manutenção de edificações: requisitos para o sistema de gestão de manutenção",
-  "ABNT NBR 15575 — Edificações habitacionais: desempenho",
-  "ABNT NBR 9575 — Impermeabilização: seleção e projeto",
-  "ABNT NBR 5410 — Instalações elétricas de baixa tensão",
-  "ABNT NBR 5626 — Sistemas prediais de água fria e água quente",
-  "ABNT NBR 8160 — Sistemas prediais de esgoto sanitário",
-  "ABNT NBR 6118 — Projeto de estruturas de concreto",
-  "ABNT NBR 13755 — Revestimentos cerâmicos de fachadas",
-  "ABNT NBR 9050 — Acessibilidade a edificações, mobiliário, espaços e equipamentos urbanos",
-  "Norma de Inspeção Predial Nacional — IBAPE",
+/** Normas técnicas aplicáveis: [identificação com ano vigente, descrição]. */
+export const NORMAS: [string, string][] = [
+  ["ABNT NBR 5410:2004", "Instalações elétricas de baixa tensão"],
+  ["ABNT NBR 5419:2015", "Proteção de estruturas contra descargas atmosféricas"],
+  ["ABNT NBR 5626:2020", "Instalações prediais de água fria"],
+  [
+    "ABNT NBR 5674:2024",
+    "Manutenção de edificações — Requisitos para o sistema de gestão de manutenção",
+  ],
+  ["ABNT NBR 6118:2014", "Projeto de estruturas de concreto — Procedimento"],
+  ["ABNT NBR 7200:1998", "Impermeabilização — Seleção e projeto"],
+  ["ABNT NBR 8160:1999", "Sistemas prediais de esgoto sanitário — Projeto e execução"],
+  ["ABNT NBR 9574:2008", "Impermeabilização — Diretrizes para elaboração de projetos"],
+  ["ABNT NBR 9575:2010", "Impermeabilização — Seleção e projeto"],
+  ["ABNT NBR 10844:1989", "Instalações prediais de águas pluviais"],
+  ["ABNT NBR 10898:2013", "Sistema de iluminação de emergência"],
+  [
+    "ABNT NBR 12190:2013",
+    "Inspeção predial — Diretrizes, conceitos, metodologia e procedimento",
+  ],
+  ["ABNT NBR 12962:2017", "Recuperação de estruturas de concreto — Requisitos"],
+  [
+    "ABNT NBR 13103:2022",
+    "Fogões domésticos e aquecedores de água para uso com gás liquefeito de petróleo (GLP)",
+  ],
+  ["ABNT NBR 13127:2020", "Portas corta-fogo com núcleo de madeira para edificações"],
+  ["ABNT NBR 13933:2019", "Acessibilidade a edificações e ao mobiliário urbano"],
+  [
+    "ABNT NBR 14037:2024",
+    "Diretrizes para elaboração de manuais de uso, operação e manutenção das edificações",
+  ],
+  [
+    "ABNT NBR 14712:2020",
+    "Elevadores elétricos — Requisitos de segurança para construção e instalação",
+  ],
+  [
+    "ABNT NBR 14718:2020",
+    "Escadas e esteiras rolantes — Requisitos de segurança para construção e instalação",
+  ],
+  [
+    "ABNT NBR 15575:2013",
+    "Edificações habitacionais — Desempenho (com partes atualizadas em 2020/2021)",
+  ],
+  [
+    "ABNT NBR 16747:2020",
+    "Inspeção predial — Avaliação da manutenção de edificações — Diretrizes, conceitos, metodologia e procedimento",
+  ],
+  ["Norma de Inspeção Predial do IBAPE/SP", ""],
 ];
 
 export const LISTA_VERIFICACAO_BASE = [
