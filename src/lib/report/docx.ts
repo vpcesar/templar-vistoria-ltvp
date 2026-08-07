@@ -136,14 +136,39 @@ export async function gerarDocx(v: Vistoria) {
   const risco = grauRiscoGlobal(v);
   const children: (Paragraph | Table)[] = [];
 
-  // CAPA
+  const logo = await carregarLogo();
+
+  // CAPA — escudo no corpo da página, centralizado
+  children.push(new Paragraph({ spacing: { after: 2400 }, children: [] }));
+  if (logo) {
+    const capaH = 90;
+    const capaW = Math.round((logo.width / logo.height) * capaH);
+    children.push(
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 200 },
+        children: [
+          new ImageRun({
+            type: imageType(logo.dataUrl),
+            data: dataUrlToBytes(logo.dataUrl),
+            transformation: { width: capaW, height: capaH },
+            altText: {
+              title: "TEMPLAR ENGENHARIA",
+              description: "Escudo Templar",
+              name: "escudo-capa",
+            },
+          }),
+        ],
+      }),
+    );
+  }
   children.push(
     p(EMPRESA.nome, { bold: true, size: 34, align: AlignmentType.CENTER }),
     p(EMPRESA.slogan, { size: 20, align: AlignmentType.CENTER }),
-    new Paragraph({ spacing: { after: 600 }, children: [] }),
+    new Paragraph({ spacing: { after: 1200 }, children: [] }),
     p("LAUDO TÉCNICO DE VISTORIA PREDIAL (LTVP)", {
       bold: true,
-      size: 32,
+      size: 36,
       align: AlignmentType.CENTER,
     }),
     p(enderecoCompleto(v.imovel), { size: 24, align: AlignmentType.CENTER }),
@@ -153,6 +178,7 @@ export async function gerarDocx(v: Vistoria) {
     }),
     new Paragraph({ pageBreakBefore: true, children: [] }),
   );
+
 
   children.push(h("1. IDENTIFICAÇÃO DO SOLICITANTE"), p(textoSecao1(v)));
 
