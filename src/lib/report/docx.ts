@@ -165,7 +165,6 @@ export async function gerarDocx(v: Vistoria) {
     );
   }
   children.push(
-    p(EMPRESA.nome, { bold: true, size: 34, align: AlignmentType.CENTER }),
     p(EMPRESA.slogan, { size: 20, align: AlignmentType.CENTER }),
     new Paragraph({ spacing: { after: 1200 }, children: [] }),
     p("LAUDO TÉCNICO DE VISTORIA PREDIAL (LTVP)", {
@@ -242,33 +241,41 @@ export async function gerarDocx(v: Vistoria) {
   );
 
   const fotosEdificacao = v.imovel.fotosEdificacao ?? [];
+  const fotosSatelite = v.imovel.fotosSatelite ?? [];
   children.push(h("5. FOTO DA EDIFICAÇÃO"));
-  if (fotosEdificacao.length > 0) {
-    fotosEdificacao.forEach((f, i) => {
-      children.push(
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          children: [
-            new ImageRun({
-              type: imageType(f.dataUrl),
-              data: dataUrlToBytes(f.dataUrl),
-              transformation: { width: 400, height: 280 },
-              altText: {
-                title: "Edificação",
-                description: "Vista da edificação",
-                name: `fachada-${i}`,
-              },
-            }),
-          ],
-        }),
-        p(`Foto da edificação ${i + 1} — fachada do imóvel vistoriado.`, {
-          size: 18,
-          align: AlignmentType.CENTER,
-        }),
-      );
-    });
+  const pushFoto = (dataUrl: string, legenda: string, nome: string) =>
+    children.push(
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [
+          new ImageRun({
+            type: imageType(dataUrl),
+            data: dataUrlToBytes(dataUrl),
+            transformation: { width: 400, height: 280 },
+            altText: { title: legenda, description: legenda, name: nome },
+          }),
+        ],
+      }),
+      p(legenda, { size: 18, align: AlignmentType.CENTER }),
+    );
+
+  if (fotosEdificacao.length === 0 && fotosSatelite.length === 0) {
+    children.push(p("Não há registro fotográfico da edificação nesta vistoria."));
   } else {
-    children.push(p("Não há registro fotográfico da fachada nesta vistoria."));
+    fotosEdificacao.forEach((f, i) =>
+      pushFoto(
+        f.dataUrl,
+        `Foto da fachada (in loco)${fotosEdificacao.length > 1 ? ` ${i + 1}` : ""} — fachada do imóvel vistoriado.`,
+        `fachada-${i}`,
+      ),
+    );
+    fotosSatelite.forEach((f, i) =>
+      pushFoto(
+        f.dataUrl,
+        `Foto de satélite (Google Earth)${fotosSatelite.length > 1 ? ` ${i + 1}` : ""} — localização do imóvel.`,
+        `satelite-${i}`,
+      ),
+    );
   }
 
   children.push(h("6. CLASSIFICAÇÃO DA INSPEÇÃO"), p(nivelInspecao(v)));
@@ -409,7 +416,26 @@ export async function gerarDocx(v: Vistoria) {
   );
 
   children.push(h("14. NORMAS TÉCNICAS"));
-  NORMAS.forEach((n: string) => children.push(p(`• ${n}`, { align: AlignmentType.LEFT })));
+  NORMAS.forEach(([nome, desc]: [string, string], i: number) =>
+    children.push(
+      new Paragraph({
+        alignment: AlignmentType.JUSTIFIED,
+        spacing: { after: 100 },
+        children: [
+          new TextRun({
+            text: `${i + 1}. ${nome}`,
+            bold: true,
+            size: 20,
+            font: "Arial",
+            color: SLATE,
+          }),
+          ...(desc
+            ? [new TextRun({ text: ` — ${desc}`, size: 20, font: "Arial", color: SLATE })]
+            : []),
+        ],
+      }),
+    ),
+  );
 
   children.push(
     h("15. ENCERRAMENTO"),
