@@ -15,12 +15,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Web app for civil engineering field inspections, generating structured technical reports.",
+          "Aplicativo de vistorias e inspeções prediais da TEMPLAR ENGENHARIA, com geração de Laudo Técnico de Vistoria Predial (LTVP).",
       },
       { property: "og:title", content: "Inspeção Predial | TEMPLAR ENGENHARIA" },
       {
         property: "og:description",
-        content: "Web app for civil engineering field inspections, generating structured technical reports.",
+        content:
+          "Aplicativo de vistorias e inspeções prediais da TEMPLAR ENGENHARIA, com geração de Laudo Técnico de Vistoria Predial (LTVP).",
       },
     ],
   }),
@@ -37,9 +38,7 @@ function Dashboard() {
     setVistorias(listarVistorias());
   };
 
-  const criticas = vistorias.filter((v) =>
-    v.patologias.some((p) => gutTotal(p) >= 81),
-  ).length;
+  const criticas = vistorias.filter((v) => v.patologias.some((p) => gutTotal(p) >= 81)).length;
   const revisao = vistorias.filter((v) => v.status === "AGUARDANDO REVISAO").length;
 
   return (
@@ -80,7 +79,9 @@ function Dashboard() {
           {vistorias.length === 0 && (
             <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
               <ClipboardList className="mx-auto h-8 w-8 text-muted-foreground" />
-              <p className="mt-3 text-sm font-medium text-foreground">Nenhuma vistoria registrada</p>
+              <p className="mt-3 text-sm font-medium text-foreground">
+                Nenhuma vistoria registrada
+              </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Inicie uma nova vistoria para começar a coleta de campo.
               </p>

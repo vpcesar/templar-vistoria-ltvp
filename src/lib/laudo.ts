@@ -27,7 +27,6 @@ export function nivelInspecao(_v: Vistoria): string[] {
   ];
 }
 
-
 export function grauRiscoGlobal(v: Vistoria) {
   const totais = v.patologias.map(gutTotal);
   const max = totais.length ? Math.max(...totais) : 0;
@@ -112,10 +111,7 @@ export const NORMAS_BASE: [string, string][] = [
     "Diretrizes para elaboração de manuais de uso, operação e manutenção das edificações",
   ],
   ["ABNT NBR 15575:2024", "Edificações habitacionais — Desempenho"],
-  [
-    "ABNT NBR 16747:2020",
-    "Inspeção predial — Diretrizes, conceitos, terminologia e procedimento",
-  ],
+  ["ABNT NBR 16747:2020", "Inspeção predial — Diretrizes, conceitos, terminologia e procedimento"],
   ["Norma de Inspeção Predial do IBAPE/SP", ""],
 ];
 
@@ -137,7 +133,6 @@ export function normasAplicaveis(v: Vistoria): [string, string][] {
   }
   return lista;
 }
-
 
 export const LISTA_VERIFICACAO_BASE = [
   "Estrutura (pilares, vigas e lajes)",

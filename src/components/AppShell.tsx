@@ -40,7 +40,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [config, setConfig] = useState(false);
 
-
   return (
     <div className="min-h-screen bg-surface">
       <header className="sticky top-0 z-40 border-b border-border bg-card shadow-sm">
@@ -77,7 +76,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   {ROTEIRO.map((r) => (
                     <div key={r.titulo} className="rounded-lg border border-border bg-muted/40 p-3">
                       <p className="text-sm font-bold text-foreground">{r.titulo}</p>
-                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{r.texto}</p>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        {r.texto}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -94,7 +95,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Button>
             <ConfiguracoesDialog open={config} onOpenChange={setConfig} />
 
-
             <div className="hidden text-right sm:block">
               <p className="text-[10px] text-muted-foreground">Logado como</p>
               <p className="text-xs font-medium text-muted-foreground">{userEmail}</p>
@@ -108,7 +108,35 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-6 pb-20">{children}</main>
+      <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
+
+      <footer className="border-t border-border bg-card">
+        <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-6 text-xs text-muted-foreground">
+          <p className="font-semibold text-foreground">TEMPLAR ENGENHARIA</p>
+          <p>Vistorias • Inspeções • Laudos • Perícias</p>
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+            <a
+              className="hover:text-primary"
+              href="https://www.templarengenharia.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              www.templarengenharia.com.br
+            </a>
+            <a className="hover:text-primary" href="mailto:templarengenharia@hotmail.com">
+              templarengenharia@hotmail.com
+            </a>
+            <a
+              className="hover:text-primary"
+              href="https://wa.me/5521981808812"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp (21) 98180-8812
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

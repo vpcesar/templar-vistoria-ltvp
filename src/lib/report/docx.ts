@@ -17,7 +17,6 @@ import {
   TabStopType,
   TextRun,
   WidthType,
-
 } from "docx";
 import { enderecoCompleto, gutTotal, riscoDe, type Vistoria } from "../types";
 import {
@@ -186,7 +185,6 @@ export async function gerarDocx(v: Vistoria) {
     }),
     new Paragraph({ pageBreakBefore: true, children: [] }),
   );
-
 
   children.push(h("1. IDENTIFICAÇÃO DO SOLICITANTE"), p(textoSecao1(v)));
 
@@ -487,7 +485,6 @@ export async function gerarDocx(v: Vistoria) {
       ],
     }),
   ];
-
 
   const doc = new Document({
     styles: { default: { document: { run: { font: "Arial", size: 22, color: SLATE } } } },

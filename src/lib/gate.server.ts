@@ -17,6 +17,7 @@ function sessionConfig() {
 }
 
 export function gateSession() {
+  // eslint-disable-next-line react-hooks/rules-of-hooks -- useSession is a server session helper, not a React hook
   return useSession<GateSession>(sessionConfig());
 }
 
