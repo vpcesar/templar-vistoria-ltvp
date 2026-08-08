@@ -11,16 +11,16 @@ import { formatarData } from "@/lib/laudo";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Vistorias Prediais | TEMPLAR ENGENHARIA" },
+      { title: "Inspeção Predial | TEMPLAR ENGENHARIA" },
       {
         name: "description",
         content:
-          "Plataforma de vistorias de campo da TEMPLAR ENGENHARIA: coleta em campo, matriz GUT e laudos LTVP conforme ABNT e IBAPE.",
+          "Web app for civil engineering field inspections, generating structured technical reports.",
       },
-      { property: "og:title", content: "Vistorias Prediais | TEMPLAR ENGENHARIA" },
+      { property: "og:title", content: "Inspeção Predial | TEMPLAR ENGENHARIA" },
       {
         property: "og:description",
-        content: "Coleta de campo, análise de risco e geração de laudos técnicos LTVP.",
+        content: "Web app for civil engineering field inspections, generating structured technical reports.",
       },
     ],
   }),
