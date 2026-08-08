@@ -22,6 +22,8 @@ export function ConfiguracoesDialog({
 }) {
   const [nome, setNome] = useState("Vinicius Paulino Cesar");
   const [crea, setCrea] = useState("RJ 2024100977");
+  const [chave, setChave] = useState("");
+  const [testando, setTestando] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -29,12 +31,39 @@ export function ConfiguracoesDialog({
     const c = carregarConfig();
     setNome(c.nome);
     setCrea(c.crea);
+    setChave(obterChaveGemini());
   }, [open]);
 
   const salvar = () => {
     salvarConfig({ nome, crea });
     toast.success("Dados do engenheiro salvos!");
   };
+
+  const salvarChave = () => {
+    const valor = chave.trim();
+    if (!valor) {
+      removerChaveGemini();
+      toast.success("Chave do Gemini removida.");
+      return;
+    }
+    salvarChaveGemini(valor);
+    toast.success("Chave do Gemini salva neste dispositivo!");
+  };
+
+  const testar = async () => {
+    const valor = chave.trim();
+    if (!valor) {
+      toast.error("Informe a chave do Gemini antes de testar.");
+      return;
+    }
+    salvarChaveGemini(valor);
+    setTestando(true);
+    const res = await testarChaveGemini();
+    setTestando(false);
+    if (res.ok) toast.success("Chave válida!");
+    else toast.error(`Chave inválida. ${res.erro}`);
+  };
+
 
   const importar = async (file?: File | null) => {
     if (!file) return;
