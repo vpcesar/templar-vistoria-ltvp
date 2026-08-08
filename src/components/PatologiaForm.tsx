@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { Camera, Loader2, Save, Sparkles, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,12 +16,7 @@ import {
   SETORES,
   TOOLTIPS,
 } from "@/lib/catalogos";
-import {
-  gerarRecomendacao,
-  otimizarObservacaoIA,
-  sugerirClassificacao,
-  sugerirGUT,
-} from "@/lib/ai.functions";
+import { chamarGeminiAPI, mensagemErroIA, obterChaveGemini } from "@/lib/gemini";
 import { comprimirDataUrl, uid } from "@/lib/storage";
 import { gutTotal, riscoDe, type DadosImovel, type Patologia } from "@/lib/types";
 
@@ -45,23 +39,10 @@ export function PatologiaForm({
   const [loading, setLoading] = useState<"class" | "rec" | "gut" | "obs" | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const classFn = useServerFn(sugerirClassificacao);
-  const recFn = useServerFn(gerarRecomendacao);
-  const gutFn = useServerFn(sugerirGUT);
-  const obsFn = useServerFn(otimizarObservacaoIA);
 
   const set = <K extends keyof Patologia>(k: K, val: Patologia[K]) =>
     setPat((p) => ({ ...p, [k]: val }));
 
-  const contexto = {
-    elemento: pat.elemento,
-    local: pat.local,
-    posicao: pat.posicao,
-    manifestacoes: pat.manifestacoes,
-    classificacao: pat.classificacao,
-    tipoEdificacao: imovel.tipoEdificacao,
-    idadeAparente: imovel.idadeAparente,
-  };
 
   const podeIA = !!pat.elemento && !!pat.local && pat.manifestacoes.length > 0;
   const total = gutTotal(pat);
@@ -137,8 +118,8 @@ export function PatologiaForm({
         setPat((p) => ({
           ...p,
           classificacao: match ?? limpo,
-          iaConfianca: undefined,
-          iaJustificativa: undefined,
+          iaConfianca: "",
+          iaJustificativa: "",
         }));
       },
     );
@@ -189,9 +170,9 @@ export function PatologiaForm({
           urgencia: u ? clamp(Number(u[1])) : p.urgencia,
           tendencia: t ? clamp(Number(t[1])) : p.tendencia,
           gutAjustado: false,
-          justificativaG: undefined,
-          justificativaU: undefined,
-          justificativaT: undefined,
+          justificativaG: "",
+          justificativaU: "",
+          justificativaT: "",
         }));
       },
     );
