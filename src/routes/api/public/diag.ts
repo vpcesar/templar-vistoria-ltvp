@@ -1,13 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { sessaoAtual } from "@/lib/gate.server";
+import { classificar } from "@/lib/ai.server";
 
 export const Route = createFileRoute("/api/public/diag")({
   server: {
     handlers: {
       GET: async () => {
         try {
-          const s = await sessaoAtual();
-          return new Response(JSON.stringify({ ok: true, s }));
+          const r = await classificar({
+            elemento: "Alvenaria",
+            local: "Sala",
+            manifestacoes: ["Fissura diagonal"],
+          });
+          return new Response(JSON.stringify({ ok: true, r }));
         } catch (e) {
           return new Response(
             JSON.stringify({ ok: false, msg: String(e), stack: (e as Error)?.stack }),
