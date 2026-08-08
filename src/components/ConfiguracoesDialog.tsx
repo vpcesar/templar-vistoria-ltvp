@@ -12,6 +12,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { carregarConfig, salvarConfig, exportarJSON, importarJSON } from "@/lib/config";
+import {
+  obterChaveGemini,
+  removerChaveGemini,
+  salvarChaveGemini,
+  testarChaveGemini,
+} from "@/lib/gemini";
 
 export function ConfiguracoesDialog({
   open,
