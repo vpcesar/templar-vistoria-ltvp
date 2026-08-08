@@ -17,8 +17,10 @@ function sessionConfig() {
 }
 
 export function gateSession() {
+  // eslint-disable-next-line react-hooks/rules-of-hooks -- useSession is a server session helper, not a React hook
   return useSession<GateSession>(sessionConfig());
 }
+
 
 function matches(input: string, expected: string): boolean {
   const a = createHash("sha256").update(input, "utf8").digest();
