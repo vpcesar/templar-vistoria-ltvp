@@ -75,9 +75,12 @@ export function ConfiguracoesDialog({
         toast.error("Limite de requisições excedido. Aguarde alguns segundos.", {
           duration: 5000,
         });
+      } else if (codigo === "MODEL_UNAVAILABLE") {
+        toast.error("Nenhum modelo do Gemini disponível para esta chave.", { duration: 5000 });
       } else {
         toast.error("Erro de conexão. Verifique sua internet.", { duration: 5000 });
       }
+
     } finally {
       setTestando(false);
     }
