@@ -24,7 +24,7 @@ const riskClass = { critico: "bg-risk-high", medio: "bg-risk-mid", baixo: "bg-ri
 
 export function PatologiaForm({
   inicial,
-  imovel,
+  
   modo = "novo",
   onSalvar,
   onCancelar,
