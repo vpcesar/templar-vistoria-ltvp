@@ -26,7 +26,7 @@ const contexto = z.object({
  */
 async function executar<T extends object>(
   tarefa: () => Promise<T>,
-): Promise<(T & { erro?: undefined }) | { erro: string }> {
+): Promise<(T & { erro?: never }) | { erro: string }> {
   try {
     const { email } = await sessaoAtual();
     if (!email) return { erro: "Sessão expirada. Faça login novamente para usar a IA." };
@@ -34,7 +34,7 @@ async function executar<T extends object>(
     if (!resultado || Object.keys(resultado).length === 0) {
       return { erro: "A IA não retornou resposta. Tente novamente." };
     }
-    return resultado as T & { erro?: undefined };
+    return resultado as T & { erro?: never };
   } catch (error) {
     console.error("Erro ao chamar a IA:", error);
     return { erro: "Não foi possível consultar a IA agora. Tente novamente em instantes." };

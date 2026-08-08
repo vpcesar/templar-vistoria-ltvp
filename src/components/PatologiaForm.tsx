@@ -94,7 +94,7 @@ export function PatologiaForm({
     setLoading("class");
     try {
       const r = await classFn({ data: contexto });
-      if (r.erro) {
+      if ("erro" in r) {
         toast.error(r.erro);
         return;
       }
@@ -119,7 +119,7 @@ export function PatologiaForm({
     setLoading("rec");
     try {
       const r = await recFn({ data: contexto });
-      if (r.erro) {
+      if ("erro" in r) {
         toast.error(r.erro);
         return;
       }
@@ -146,7 +146,7 @@ export function PatologiaForm({
     setLoading("obs");
     try {
       const r = await obsFn({ data: { texto: base } });
-      if (r.erro) {
+      if ("erro" in r) {
         toast.error(r.erro);
         return;
       }
@@ -166,7 +166,7 @@ export function PatologiaForm({
     setLoading("gut");
     try {
       const r = await gutFn({ data: contexto });
-      if (r.erro) {
+      if ("erro" in r) {
         toast.error(r.erro);
         return;
       }
