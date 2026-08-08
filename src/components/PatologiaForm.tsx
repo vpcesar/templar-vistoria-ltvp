@@ -135,7 +135,6 @@ export function PatologiaForm({
     setLoading(null);
   };
 
-
   const rodarGut = async () => {
     if (faltaContexto()) return;
     setLoading("gut");
@@ -307,7 +306,7 @@ export function PatologiaForm({
             onChange={(v) => set("classificacao", v)}
             options={CLASSIFICACOES}
           />
-          {(
+          {
             <Button
               type="button"
               variant="outline"
@@ -320,9 +319,9 @@ export function PatologiaForm({
               ) : (
                 <Sparkles className="mr-2 h-4 w-4" />
               )}
-              {loading === "class" ? "Analisando..." : "Sugerir Classificação com IA"}
+              {loading === "class" ? "Gerando..." : "Sugerir classificação com IA"}
             </Button>
-          )}
+          }
           {pat.iaJustificativa && (
             <div className="rounded-lg border border-border bg-muted/50 p-3">
               <Badge variant="secondary" className="mb-2">
@@ -342,7 +341,7 @@ export function PatologiaForm({
             onChange={(e) => set("recomendacao", e.target.value)}
             placeholder="Gere com IA e valide, ou escreva a recomendação técnica."
           />
-          {(
+          {
             <Button
               type="button"
               variant="outline"
@@ -355,9 +354,9 @@ export function PatologiaForm({
               ) : (
                 <Sparkles className="mr-2 h-4 w-4" />
               )}
-              {loading === "rec" ? "Gerando recomendação..." : "Gerar Recomendação com IA"}
+              {loading === "rec" ? "Gerando..." : "Sugerir recomendação com IA"}
             </Button>
-          )}
+          }
         </div>
       </Field>
 
@@ -376,7 +375,7 @@ export function PatologiaForm({
         {sliderGut("gravidade", "Gravidade (G)", TOOLTIPS.gravidade, pat.justificativaG)}
         {sliderGut("urgencia", "Urgência (U)", TOOLTIPS.urgencia, pat.justificativaU)}
         {sliderGut("tendencia", "Tendência (T)", TOOLTIPS.tendencia, pat.justificativaT)}
-        {(
+        {
           <Button
             type="button"
             variant="outline"
@@ -389,9 +388,9 @@ export function PatologiaForm({
             ) : (
               <Sparkles className="mr-2 h-4 w-4" />
             )}
-            {loading === "gut" ? "Analisando risco..." : "Sugerir GUT com IA"}
+            {loading === "gut" ? "Gerando..." : "Sugerir GUT com IA"}
           </Button>
-        )}
+        }
       </div>
 
       <Field
@@ -404,7 +403,7 @@ export function PatologiaForm({
             value={pat.observacoes ?? ""}
             onChange={(e) => set("observacoes", e.target.value)}
           />
-          {(
+          {
             <Button
               type="button"
               variant="outline"
@@ -417,9 +416,9 @@ export function PatologiaForm({
               ) : (
                 <Sparkles className="mr-2 h-4 w-4" />
               )}
-              {loading === "obs" ? "Otimizando..." : "Otimizar com IA"}
+              {loading === "obs" ? "Gerando..." : "Sugerir observação com IA"}
             </Button>
-          )}
+          }
         </div>
       </Field>
 
