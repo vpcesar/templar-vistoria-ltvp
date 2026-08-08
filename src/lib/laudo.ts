@@ -92,7 +92,7 @@ export const TABELA_PRIORIDADES: [string, string, string][] = [
 
 /** Normas técnicas sempre aplicáveis: [identificação com ano vigente, descrição]. */
 export const NORMAS_BASE: [string, string][] = [
-  ["ABNT NBR 5410:2004 (versão corrigida 2008)", "Instalações elétricas de baixa tensão"],
+  ["ABNT NBR 5410:2008", "Instalações elétricas de baixa tensão"],
   ["ABNT NBR 5419:2015", "Proteção de estruturas contra descargas atmosféricas"],
   ["ABNT NBR 5626:2020", "Instalações prediais de água fria"],
   [
@@ -107,6 +107,10 @@ export const NORMAS_BASE: [string, string][] = [
   ["ABNT NBR 10844:1989", "Instalações prediais de águas pluviais"],
   ["ABNT NBR 12962:2017", "Recuperação de estruturas de concreto — Requisitos"],
   ["ABNT NBR 13752:2024", "Perícias de engenharia na construção civil"],
+  [
+    "ABNT NBR 14037:2024",
+    "Diretrizes para elaboração de manuais de uso, operação e manutenção das edificações",
+  ],
   ["ABNT NBR 15575:2024", "Edificações habitacionais — Desempenho"],
   [
     "ABNT NBR 16747:2020",
@@ -122,31 +126,18 @@ export function normasAplicaveis(v: Vistoria): [string, string][] {
   const naoResidencial = tipo === "Comercial" || tipo === "Misto";
   const lista: [string, string][] = [...NORMAS_BASE];
 
-  if (naoResidencial || pav > 1) {
-    lista.push(
-      ["ABNT NBR 10898:2013", "Sistema de iluminação de emergência"],
-      ["ABNT NBR 13933:2019", "Acessibilidade a edificações e ao mobiliário urbano"],
-    );
-  }
   if (naoResidencial || pav >= 4) {
-    lista.push(
+    // Insere antes da norma do IBAPE, que permanece como último item.
+    lista.splice(
+      lista.length - 1,
+      0,
       ["ABNT NBR 14712:2020", "Elevadores elétricos — Requisitos de segurança"],
       ["ABNT NBR 14718:2020", "Escadas e esteiras rolantes — Requisitos de segurança"],
     );
   }
-  lista.push(
-    [
-      "ABNT NBR 13103:2022",
-      "Fogões domésticos e aquecedores de água para uso com gás liquefeito de petróleo (GLP)",
-    ],
-    ["ABNT NBR 13127:2020", "Portas corta-fogo com núcleo de madeira para edificações"],
-    [
-      "ABNT NBR 14037:2024",
-      "Diretrizes para elaboração de manuais de uso, operação e manutenção das edificações",
-    ],
-  );
   return lista;
 }
+
 
 export const LISTA_VERIFICACAO_BASE = [
   "Estrutura (pilares, vigas e lajes)",
