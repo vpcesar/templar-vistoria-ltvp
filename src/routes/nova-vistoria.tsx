@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AppShell } from "@/components/AppShell";
 import { Field } from "@/components/InfoTip";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PatologiaForm } from "@/components/PatologiaForm";
 import { FotoUploader, SearchSelect, TripleToggle } from "@/components/fields";
 import { ANAMNESE_ITENS, PAVIMENTOS, TIPOS_EDIFICACAO, TOOLTIPS } from "@/lib/catalogos";
