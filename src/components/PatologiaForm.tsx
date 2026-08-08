@@ -123,19 +123,22 @@ export function PatologiaForm({
     if (faltaContexto()) return;
     await executarIA(
       "class",
-      `Como engenheiro civil perito com especialização em Patologia das construções, analise as seguintes manifestações patológicas: ${pat.manifestacoes.join(", ")}. O elemento construtivo é: ${pat.elemento || "não informado"}. Local: ${pat.local || "não informado"}. Sugira a classificação técnica entre: ${CLASSIFICACOES.join(", ")}. Responda apenas com o nome da classificação, sem explicações. Ao final dê uma breve explicação de o porque da decisão.`,
+      `Como engenheiro civil perito com especialização em Patologia das construções, analise as seguintes manifestações patológicas: ${pat.manifestacoes.join(", ")}. O elemento construtivo é: ${pat.elemento || "não informado"}. Local: ${pat.local || "não informado"}. Sugira a classificação técnica entre: Anomalia Endógena, Anomalia Exógena, Anomalia Natural ou Anomalia Funcional. Primeiro responda apenas com o nome da classificação. Em seguida, em uma nova linha, dê uma breve explicação do porquê da decisão.`,
       (texto) => {
-        const limpo = texto.replace(/[*#`]/g, "").split("\n")[0]?.trim() ?? texto;
+        const limpo = texto.replace(/[*#`]/g, "").trim();
+        const [primeira, ...resto] = limpo.split("\n");
+        const classificacao = primeira?.trim() ?? limpo;
+        const explicacao = resto.map((l) => l.trim()).filter(Boolean).join(" ") ?? "";
         const match = CLASSIFICACOES.find(
           (c) =>
-            c.toLowerCase() === limpo.toLowerCase() ||
-            limpo.toLowerCase().includes(c.toLowerCase()),
+            c.toLowerCase() === classificacao.toLowerCase() ||
+            classificacao.toLowerCase().includes(c.toLowerCase()),
         );
         setPat((p) => ({
           ...p,
-          classificacao: match ?? limpo,
+          classificacao: match ?? classificacao,
           iaConfianca: "",
-          iaJustificativa: "",
+          iaJustificativa: explicacao,
         }));
       },
     );
