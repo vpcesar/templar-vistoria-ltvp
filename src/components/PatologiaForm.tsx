@@ -79,7 +79,16 @@ export function PatologiaForm({
     });
   };
 
+  const faltaContexto = () => {
+    if (podeIA) return false;
+    toast.error(
+      "Para usar a IA, preencha o elemento, o local e selecione ao menos uma manifestação.",
+    );
+    return true;
+  };
+
   const rodarClassificacao = async () => {
+    if (faltaContexto()) return;
     setLoading("class");
     try {
       const r = await classFn({ data: contexto });
@@ -96,6 +105,7 @@ export function PatologiaForm({
   };
 
   const rodarRecomendacao = async () => {
+    if (faltaContexto()) return;
     setLoading("rec");
     try {
       const r = await recFn({ data: contexto });
@@ -108,16 +118,23 @@ export function PatologiaForm({
 
   const otimizarObs = async () => {
     const texto = (pat.observacoes ?? "").trim();
-    if (texto.length < 10) return;
+    if (texto.length < 10 && faltaContexto()) return;
+    const base =
+      texto.length >= 10
+        ? texto
+        : `Observação técnica complementar sobre ${
+            pat.manifestacoes.join(", ") || "a manifestação registrada"
+          } em ${[pat.elemento, pat.local, pat.posicao].filter(Boolean).join(" / ")}, incluindo causas prováveis e urgência de intervenção.`;
     setLoading("obs");
     try {
-      const r = await obsFn({ data: { texto } });
+      const r = await obsFn({ data: { texto: base } });
       set("observacoes", r.texto_otimizado);
     } catch {
       toast.error("Não foi possível otimizar. Edite manualmente.");
     }
     setLoading(null);
   };
+
 
   const rodarGut = async () => {
     setLoading("gut");
