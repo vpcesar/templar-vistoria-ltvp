@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { Camera, Loader2, Save, Sparkles, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,12 +16,7 @@ import {
   SETORES,
   TOOLTIPS,
 } from "@/lib/catalogos";
-import {
-  gerarRecomendacao,
-  otimizarObservacaoIA,
-  sugerirClassificacao,
-  sugerirGUT,
-} from "@/lib/ai.functions";
+import { chamarGeminiAPI, mensagemErroIA, obterChaveGemini } from "@/lib/gemini";
 import { comprimirDataUrl, uid } from "@/lib/storage";
 import { gutTotal, riscoDe, type DadosImovel, type Patologia } from "@/lib/types";
 
@@ -45,23 +39,10 @@ export function PatologiaForm({
   const [loading, setLoading] = useState<"class" | "rec" | "gut" | "obs" | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const classFn = useServerFn(sugerirClassificacao);
-  const recFn = useServerFn(gerarRecomendacao);
-  const gutFn = useServerFn(sugerirGUT);
-  const obsFn = useServerFn(otimizarObservacaoIA);
 
   const set = <K extends keyof Patologia>(k: K, val: Patologia[K]) =>
     setPat((p) => ({ ...p, [k]: val }));
 
-  const contexto = {
-    elemento: pat.elemento,
-    local: pat.local,
-    posicao: pat.posicao,
-    manifestacoes: pat.manifestacoes,
-    classificacao: pat.classificacao,
-    tipoEdificacao: imovel.tipoEdificacao,
-    idadeAparente: imovel.idadeAparente,
-  };
 
   const podeIA = !!pat.elemento && !!pat.local && pat.manifestacoes.length > 0;
   const total = gutTotal(pat);
@@ -87,49 +68,72 @@ export function PatologiaForm({
     return true;
   };
 
+  const resumoContexto = () =>
+    [
+      `Elemento construtivo: ${pat.elemento || "não informado"}`,
+      `Local/ambiente: ${pat.local || "não informado"}`,
+      pat.posicao ? `Posição: ${pat.posicao}` : "",
+      `Manifestações patológicas: ${pat.manifestacoes.join(", ") || "não informado"}`,
+      pat.classificacao ? `Classificação de origem: ${pat.classificacao}` : "",
+      imovel.tipoEdificacao ? `Tipologia: ${imovel.tipoEdificacao}` : "",
+      imovel.idadeAparente ? `Idade aparente: ${imovel.idadeAparente} anos` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+  const executarIA = async (
+    tipo: "class" | "rec" | "gut" | "obs",
+    prompt: string,
+    aplicar: (texto: string) => void,
+  ) => {
+    if (!obterChaveGemini()) {
+      toast.error("Configure a chave do Gemini nas Configurações (engrenagem).");
+      return;
+    }
+    setLoading(tipo);
+    try {
+      const texto = await chamarGeminiAPI(prompt);
+      aplicar(texto);
+      toast.success("Sugestão gerada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao chamar a IA:", error);
+      toast.error(mensagemErroIA(error));
+    } finally {
+      setLoading(null);
+    }
+  };
+
   const rodarClassificacao = async (e?: React.MouseEvent) => {
     e?.preventDefault();
     e?.stopPropagation();
     if (faltaContexto()) return;
-    setLoading("class");
-    try {
-      const r = await classFn({ data: contexto });
-      if ("erro" in r) {
-        toast.error(r.erro);
-        return;
-      }
-      setPat((p) => ({
-        ...p,
-        classificacao: r.classificacao,
-        iaConfianca: r.confianca,
-        iaJustificativa: r.justificativa,
-      }));
-    } catch (error) {
-      console.error("Erro ao chamar IA:", error);
-      toast.error("Não foi possível consultar a IA. Selecione a classificação manualmente.");
-    } finally {
-      setLoading(null);
-    }
+    await executarIA(
+      "class",
+      `Como engenheiro civil perito em inspeção predial (ABNT NBR 16747, NBR 5674 e IBAPE), analise:\n${resumoContexto()}\n\nSugira a classificação de origem entre exatamente uma destas opções: ${CLASSIFICACOES.join(", ")}. Responda apenas com o nome da classificação, sem explicações.`,
+      (texto) => {
+        const limpo = texto.replace(/[*#`]/g, "").split("\n")[0]?.trim() ?? texto;
+        const match = CLASSIFICACOES.find(
+          (c) => c.toLowerCase() === limpo.toLowerCase() || limpo.toLowerCase().includes(c.toLowerCase()),
+        );
+        setPat((p) => ({
+          ...p,
+          classificacao: match ?? limpo,
+          iaConfianca: "",
+          iaJustificativa: "",
+        }));
+      },
+    );
   };
 
   const rodarRecomendacao = async (e?: React.MouseEvent) => {
     e?.preventDefault();
     e?.stopPropagation();
     if (faltaContexto()) return;
-    setLoading("rec");
-    try {
-      const r = await recFn({ data: contexto });
-      if ("erro" in r) {
-        toast.error(r.erro);
-        return;
-      }
-      set("recomendacao", r.acao_principal);
-    } catch (error) {
-      console.error("Erro ao chamar IA:", error);
-      toast.error("Não foi possível gerar a recomendação. Escreva manualmente.");
-    } finally {
-      setLoading(null);
-    }
+    await executarIA(
+      "rec",
+      `Como engenheiro civil perito, redija uma recomendação técnica corretiva para a patologia abaixo:\n${resumoContexto()}\n\nA recomendação deve ser objetiva, em um único parágrafo, em linguagem clara que um proprietário leigo entenda, seguindo as normas ABNT aplicáveis. Máximo 3 linhas. Responda apenas com o texto da recomendação, em português do Brasil.`,
+      (texto) => set("recomendacao", texto.replace(/[*#`]/g, "").trim()),
+    );
   };
 
   const otimizarObs = async (e?: React.MouseEvent) => {
@@ -137,56 +141,41 @@ export function PatologiaForm({
     e?.stopPropagation();
     const texto = (pat.observacoes ?? "").trim();
     if (texto.length < 10 && faltaContexto()) return;
-    const base =
+    const prompt =
       texto.length >= 10
-        ? texto
-        : `Observação técnica complementar sobre ${
-            pat.manifestacoes.join(", ") || "a manifestação registrada"
-          } em ${[pat.elemento, pat.local, pat.posicao].filter(Boolean).join(" / ")}, incluindo causas prováveis e urgência de intervenção.`;
-    setLoading("obs");
-    try {
-      const r = await obsFn({ data: { texto: base } });
-      if ("erro" in r) {
-        toast.error(r.erro);
-        return;
-      }
-      set("observacoes", r.texto_otimizado);
-    } catch (error) {
-      console.error("Erro ao chamar IA:", error);
-      toast.error("Não foi possível otimizar. Edite manualmente.");
-    } finally {
-      setLoading(null);
-    }
+        ? `Como engenheiro civil perito, reescreva o texto abaixo de forma curta, objetiva e tecnicamente adequada para um laudo de inspeção predial. Não adicione informações novas. Máximo 3 linhas. Responda apenas com o texto, em português do Brasil.\n\nTexto original: ${texto}`
+        : `Como engenheiro civil, redija uma observação técnica complementar para a patologia abaixo:\n${resumoContexto()}\n\nInclua considerações sobre causas prováveis e urgência de intervenção. Máximo 2 linhas. Responda apenas com o texto da observação, em português do Brasil.`;
+    await executarIA("obs", prompt, (r) => set("observacoes", r.replace(/[*#`]/g, "").trim()));
   };
 
   const rodarGut = async (e?: React.MouseEvent) => {
     e?.preventDefault();
     e?.stopPropagation();
     if (faltaContexto()) return;
-    setLoading("gut");
-    try {
-      const r = await gutFn({ data: contexto });
-      if ("erro" in r) {
-        toast.error(r.erro);
-        return;
-      }
-      const clamp = (n: number) => Math.min(5, Math.max(1, Math.round(n)));
-      setPat((p) => ({
-        ...p,
-        gravidade: clamp(r.gravidade),
-        urgencia: clamp(r.urgencia),
-        tendencia: clamp(r.tendencia),
-        gutAjustado: false,
-        justificativaG: r.justificativa_g,
-        justificativaU: r.justificativa_u,
-        justificativaT: r.justificativa_t,
-      }));
-    } catch (error) {
-      console.error("Erro ao chamar IA:", error);
-      toast.error("Não foi possível avaliar o risco. Ajuste os sliders manualmente.");
-    } finally {
-      setLoading(null);
-    }
+    await executarIA(
+      "gut",
+      `Como engenheiro civil perito, avalie pela Matriz GUT a gravidade (1 a 5), urgência (1 a 5) e tendência (1 a 5) da patologia abaixo:\n${resumoContexto()}\n\nConsidere risco estrutural e a pessoas, prazo de intervenção e velocidade de agravamento. Responda no formato exato: G=X, U=X, T=X (X é um número de 1 a 5). Sem explicações adicionais.`,
+      (texto) => {
+        const g = texto.match(/G\s*=\s*(\d)/i);
+        const u = texto.match(/U\s*=\s*(\d)/i);
+        const t = texto.match(/T\s*=\s*(\d)/i);
+        if (!g && !u && !t) {
+          toast.error("A IA não retornou notas válidas. Ajuste os sliders manualmente.");
+          return;
+        }
+        const clamp = (n: number) => Math.min(5, Math.max(1, n));
+        setPat((p) => ({
+          ...p,
+          gravidade: g ? clamp(Number(g[1])) : p.gravidade,
+          urgencia: u ? clamp(Number(u[1])) : p.urgencia,
+          tendencia: t ? clamp(Number(t[1])) : p.tendencia,
+          gutAjustado: false,
+          justificativaG: "",
+          justificativaU: "",
+          justificativaT: "",
+        }));
+      },
+    );
   };
 
   const salvar = () => {

@@ -12,6 +12,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { carregarConfig, salvarConfig, exportarJSON, importarJSON } from "@/lib/config";
+import {
+  obterChaveGemini,
+  removerChaveGemini,
+  salvarChaveGemini,
+  testarChaveGemini,
+} from "@/lib/gemini";
 
 export function ConfiguracoesDialog({
   open,
@@ -22,6 +28,8 @@ export function ConfiguracoesDialog({
 }) {
   const [nome, setNome] = useState("Vinicius Paulino Cesar");
   const [crea, setCrea] = useState("RJ 2024100977");
+  const [chave, setChave] = useState("");
+  const [testando, setTestando] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -29,12 +37,39 @@ export function ConfiguracoesDialog({
     const c = carregarConfig();
     setNome(c.nome);
     setCrea(c.crea);
+    setChave(obterChaveGemini());
   }, [open]);
 
   const salvar = () => {
     salvarConfig({ nome, crea });
     toast.success("Dados do engenheiro salvos!");
   };
+
+  const salvarChave = () => {
+    const valor = chave.trim();
+    if (!valor) {
+      removerChaveGemini();
+      toast.success("Chave do Gemini removida.");
+      return;
+    }
+    salvarChaveGemini(valor);
+    toast.success("Chave do Gemini salva neste dispositivo!");
+  };
+
+  const testar = async () => {
+    const valor = chave.trim();
+    if (!valor) {
+      toast.error("Informe a chave do Gemini antes de testar.");
+      return;
+    }
+    salvarChaveGemini(valor);
+    setTestando(true);
+    const res = await testarChaveGemini();
+    setTestando(false);
+    if (res.ok) toast.success("Chave válida!");
+    else toast.error(`Chave inválida. ${res.erro}`);
+  };
+
 
   const importar = async (file?: File | null) => {
     if (!file) return;
@@ -72,14 +107,45 @@ export function ConfiguracoesDialog({
           </Button>
         </section>
 
-        <section className="space-y-2 rounded-xl border border-border bg-muted/30 p-4">
-          <h3 className="text-sm font-bold text-foreground">Chave de IA (Google Gemini)</h3>
+        <section className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
+          <h3 className="text-sm font-bold text-foreground">Chave da API do Google Gemini</h3>
+          <div className="space-y-2">
+            <Label htmlFor="cfg-gemini">Chave da API do Google Gemini</Label>
+            <Input
+              id="cfg-gemini"
+              type="password"
+              autoComplete="off"
+              placeholder="Cole aqui sua API Key do Gemini (AIza...)"
+              value={chave}
+              onChange={(e) => setChave(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button className="min-h-11 flex-1" onClick={salvarChave}>
+              Salvar chave
+            </Button>
+            <Button
+              variant="outline"
+              className="min-h-11 flex-1"
+              onClick={testar}
+              disabled={testando}
+            >
+              {testando ? "Testando..." : "Testar chave"}
+            </Button>
+          </div>
           <p className="flex gap-2 text-xs leading-relaxed text-muted-foreground">
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
             <span>
-              A chave de IA fica armazenada exclusivamente no back-end da aplicação, por segurança —
-              nenhuma chave é guardada neste dispositivo nem exposta no navegador. As sugestões
-              técnicas já funcionam sem configuração adicional.
+              A chave fica salva apenas neste navegador e é usada para chamar diretamente a API do
+              Google Gemini. Obtenha sua chave em:{" "}
+              <a
+                href="https://aistudio.google.com/apikey"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary underline"
+              >
+                https://aistudio.google.com/apikey
+              </a>
             </span>
           </p>
         </section>
