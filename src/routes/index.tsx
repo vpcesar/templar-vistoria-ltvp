@@ -15,13 +15,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Web app for civil engineering field inspections, generating structured technical reports.",
+          "Aplicativo de vistorias e inspeções prediais da TEMPLAR ENGENHARIA, com geração de Laudo Técnico de Vistoria Predial (LTVP).",
       },
       { property: "og:title", content: "Inspeção Predial | TEMPLAR ENGENHARIA" },
       {
         property: "og:description",
         content:
-          "Web app for civil engineering field inspections, generating structured technical reports.",
+          "Aplicativo de vistorias e inspeções prediais da TEMPLAR ENGENHARIA, com geração de Laudo Técnico de Vistoria Predial (LTVP).",
       },
     ],
   }),

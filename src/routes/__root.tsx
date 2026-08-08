@@ -29,7 +29,7 @@ function NotFoundComponent() {
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Go home
+            Ir para o início
           </Link>
         </div>
       </div>
@@ -61,13 +61,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            Tentar novamente
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            Ir para o início
           </a>
         </div>
       </div>
@@ -84,14 +84,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Web app for civil engineering field inspections, generating structured technical reports.",
+          "Aplicativo de vistorias e inspeções prediais da TEMPLAR ENGENHARIA, com geração de Laudo Técnico de Vistoria Predial (LTVP).",
       },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "Inspeção Predial | TEMPLAR ENGENHARIA" },
       {
         property: "og:description",
         content:
-          "Web app for civil engineering field inspections, generating structured technical reports.",
+          "Aplicativo de vistorias e inspeções prediais da TEMPLAR ENGENHARIA, com geração de Laudo Técnico de Vistoria Predial (LTVP).",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -100,7 +100,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "twitter:description",
         content:
-          "Web app for civil engineering field inspections, generating structured technical reports.",
+          "Aplicativo de vistorias e inspeções prediais da TEMPLAR ENGENHARIA, com geração de Laudo Técnico de Vistoria Predial (LTVP).",
       },
       {
         property: "og:image",
