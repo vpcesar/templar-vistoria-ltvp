@@ -14,7 +14,7 @@ import { addOpcaoCustom, comprimirDataUrl, opcoesCustom, uid } from "@/lib/stora
 import type { Foto } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const OUTRO_OPCAO = "✚ Outro (digitar)";
+const OUTRO_OPCAO = "✚ Outro (adicionar)";
 
 export function SearchSelect({
   value,
@@ -228,7 +228,7 @@ export function SegmentedOptions({
   );
 }
 
-/** Menu suspenso pesquisável com opção "Outro (digitar)" para texto livre. */
+/** Menu suspenso pesquisável com opção "Outro (adicionar)" para texto livre. */
 export function SelectOrText({
   value,
   onChange,
