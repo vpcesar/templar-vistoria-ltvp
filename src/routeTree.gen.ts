@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NovaVistoriaRouteImport } from './routes/nova-vistoria'
 import { Route as RevisaoIdRouteImport } from './routes/revisao.$id'
+import { Route as ApiPublicDiagRouteImport } from './routes/api/public/diag'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,44 @@ const RevisaoIdRoute = RevisaoIdRouteImport.update({
   path: '/revisao/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicDiagRoute = ApiPublicDiagRouteImport.update({
+  id: '/api/public/diag',
+  path: '/api/public/diag',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/nova-vistoria': typeof NovaVistoriaRoute
   '/revisao/$id': typeof RevisaoIdRoute
+  '/api/public/diag': typeof ApiPublicDiagRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/nova-vistoria': typeof NovaVistoriaRoute
   '/revisao/$id': typeof RevisaoIdRoute
+  '/api/public/diag': typeof ApiPublicDiagRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/nova-vistoria': typeof NovaVistoriaRoute
   '/revisao/$id': typeof RevisaoIdRoute
+  '/api/public/diag': typeof ApiPublicDiagRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/nova-vistoria' | '/revisao/$id'
+  fullPaths: '/' | '/nova-vistoria' | '/revisao/$id' | '/api/public/diag'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/nova-vistoria' | '/revisao/$id'
-  id: '__root__' | '/' | '/nova-vistoria' | '/revisao/$id'
+  to: '/' | '/nova-vistoria' | '/revisao/$id' | '/api/public/diag'
+  id: '__root__' | '/' | '/nova-vistoria' | '/revisao/$id' | '/api/public/diag'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   NovaVistoriaRoute: typeof NovaVistoriaRoute
   RevisaoIdRoute: typeof RevisaoIdRoute
+  ApiPublicDiagRoute: typeof ApiPublicDiagRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RevisaoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/diag': {
+      id: '/api/public/diag'
+      path: '/api/public/diag'
+      fullPath: '/api/public/diag'
+      preLoaderRoute: typeof ApiPublicDiagRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   NovaVistoriaRoute: NovaVistoriaRoute,
   RevisaoIdRoute: RevisaoIdRoute,
+  ApiPublicDiagRoute: ApiPublicDiagRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
