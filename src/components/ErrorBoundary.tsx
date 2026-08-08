@@ -10,18 +10,18 @@ export class ErrorBoundary extends Component<
   { children: ReactNode; titulo?: string },
   { erro: boolean }
 > {
-  state = { erro: false };
+  override state = { erro: false };
 
   static getDerivedStateFromError() {
     return { erro: true };
   }
 
-  componentDidCatch(error: Error, info: ErrorInfo) {
+  override componentDidCatch(error: Error, info: ErrorInfo) {
     console.error("Falha capturada:", error, info.componentStack);
     toast.error("Ocorreu um erro nesta seção. Seus dados foram preservados.");
   }
 
-  render() {
+  override render() {
     if (!this.state.erro) return this.props.children;
     return (
       <div className="space-y-3 rounded-xl border border-destructive/40 bg-card p-6 text-center">
