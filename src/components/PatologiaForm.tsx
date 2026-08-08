@@ -24,7 +24,7 @@ const riskClass = { critico: "bg-risk-high", medio: "bg-risk-mid", baixo: "bg-ri
 
 export function PatologiaForm({
   inicial,
-  
+
   modo = "novo",
   onSalvar,
   onCancelar,
@@ -39,10 +39,8 @@ export function PatologiaForm({
   const [loading, setLoading] = useState<"class" | "rec" | "gut" | "obs" | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-
   const set = <K extends keyof Patologia>(k: K, val: Patologia[K]) =>
     setPat((p) => ({ ...p, [k]: val }));
-
 
   const podeIA = !!pat.elemento && !!pat.local && pat.manifestacoes.length > 0;
   const total = gutTotal(pat);
@@ -67,7 +65,6 @@ export function PatologiaForm({
     );
     return true;
   };
-
 
   const executarIA = async (
     tipo: "class" | "rec" | "gut" | "obs",
@@ -115,7 +112,6 @@ export function PatologiaForm({
       } else {
         toast.error("Erro ao gerar sugestão. Tente novamente.", { duration: 5000 });
       }
-
     } finally {
       setLoading(null);
     }
@@ -131,7 +127,9 @@ export function PatologiaForm({
       (texto) => {
         const limpo = texto.replace(/[*#`]/g, "").split("\n")[0]?.trim() ?? texto;
         const match = CLASSIFICACOES.find(
-          (c) => c.toLowerCase() === limpo.toLowerCase() || limpo.toLowerCase().includes(c.toLowerCase()),
+          (c) =>
+            c.toLowerCase() === limpo.toLowerCase() ||
+            limpo.toLowerCase().includes(c.toLowerCase()),
         );
         setPat((p) => ({
           ...p,
