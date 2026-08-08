@@ -20,7 +20,6 @@ export default function LoginScreen() {
     setLoading(false);
   };
 
-
   const inputCls =
     "w-full rounded-lg border border-input bg-background py-3 pl-11 pr-11 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring/30";
 
@@ -36,7 +35,6 @@ export default function LoginScreen() {
           <p className="mt-1 text-sm text-muted-foreground">
             Acesse com suas credenciais para continuar.
           </p>
-
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div className="relative">
@@ -72,9 +70,6 @@ export default function LoginScreen() {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-
-
-
 
             {error && (
               <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">

@@ -79,7 +79,6 @@ export function PatologiaForm({
     });
   };
 
-
   const rodarClassificacao = async () => {
     setLoading("class");
     try {
@@ -155,7 +154,6 @@ export function PatologiaForm({
     onSalvar(pat);
   };
 
-
   const sliderGut = (
     key: "gravidade" | "urgencia" | "tendencia",
     label: string,
@@ -214,12 +212,24 @@ export function PatologiaForm({
           {pat.fotos.length > 0 && (
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
               {pat.fotos.map((f) => (
-                <div key={f.id} className="relative overflow-hidden rounded-lg border border-border">
-                  <img src={f.dataUrl} alt="Registro da patologia" className="h-20 w-full object-cover" />
+                <div
+                  key={f.id}
+                  className="relative overflow-hidden rounded-lg border border-border"
+                >
+                  <img
+                    src={f.dataUrl}
+                    alt="Registro da patologia"
+                    className="h-20 w-full object-cover"
+                  />
                   <button
                     type="button"
                     aria-label="Remover foto"
-                    onClick={() => set("fotos", pat.fotos.filter((x) => x.id !== f.id))}
+                    onClick={() =>
+                      set(
+                        "fotos",
+                        pat.fotos.filter((x) => x.id !== f.id),
+                      )
+                    }
                     className="absolute right-1 top-1 rounded-full bg-destructive p-1 text-destructive-foreground"
                   >
                     <Trash2 className="h-3 w-3" />
@@ -338,7 +348,9 @@ export function PatologiaForm({
           <h4 className="text-sm font-bold text-foreground">Matriz GUT</h4>
           <div className="flex items-center gap-2">
             {pat.gutAjustado && <Badge variant="outline">Ajustado pelo inspetor</Badge>}
-            <span className={`rounded-full px-3 py-1 text-xs font-bold text-primary-foreground ${riskClass[risco.tone]}`}>
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-bold text-primary-foreground ${riskClass[risco.tone]}`}
+            >
               {total} — {risco.label}
             </span>
           </div>
@@ -364,7 +376,10 @@ export function PatologiaForm({
         )}
       </div>
 
-      <Field label="Observações da patologia" tip="Informações complementares sobre a manifestação.">
+      <Field
+        label="Observações da patologia"
+        tip="Informações complementares sobre a manifestação."
+      >
         <div className="space-y-3">
           <Textarea
             rows={3}

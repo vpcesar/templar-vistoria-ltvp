@@ -144,14 +144,16 @@ export const ANAMNESE_ITENS: { id: string; pergunta: string; tip: string }[] = [
 ];
 
 export const TOOLTIPS = {
-  tipoEdificacao: "Define a tipologia da edificação para enquadramento normativo e nível de inspeção.",
+  tipoEdificacao:
+    "Define a tipologia da edificação para enquadramento normativo e nível de inspeção.",
   cep: "Código postal do imóvel vistoriado; compõe a identificação no laudo.",
   logradouro: "Rua/avenida do imóvel, conforme documentação.",
   numero: "Número do imóvel ou lote.",
   bairro: "Bairro do imóvel vistoriado.",
   cidade: "Município do imóvel.",
   uf: "Unidade federativa (sigla, ex.: RJ).",
-  idadeAparente: "Idade estimada da edificação em anos, base para análise de vida útil (NBR 15575).",
+  idadeAparente:
+    "Idade estimada da edificação em anos, base para análise de vida útil (NBR 15575).",
   pavimentos: "Quantidade de pavimentos; influencia a classificação do nível de inspeção (IBAPE).",
   areaConstruida: "Área construída total em m², usada na descrição do imóvel.",
   proprietario: "Nome do solicitante/proprietário que contratou a vistoria.",
@@ -172,7 +174,8 @@ export const TOOLTIPS = {
   local: "Ambiente específico em que a anomalia ou falha foi constatada.",
   posicao: "Posição da manifestação dentro do ambiente, para localização precisa no laudo.",
   manifestacoes: "Sintomas observados. Selecione todos os que se aplicam.",
-  classificacao: "Origem da não conformidade: anomalia (construtiva/natural) ou falha (manutenção/uso/gestão).",
+  classificacao:
+    "Origem da não conformidade: anomalia (construtiva/natural) ou falha (manutenção/uso/gestão).",
   recomendacao: "Ação corretiva técnica com etapas de execução e norma de referência.",
   gravidade: "G — impacto do problema sobre pessoas e edificação (1 a 5).",
   urgencia: "U — prazo necessário para intervenção (1 a 5).",

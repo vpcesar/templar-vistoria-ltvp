@@ -270,7 +270,10 @@ function NovaVistoria() {
                 onChange={(e) => setImovel("observacoes", e.target.value)}
               />
             </Field>
-            <Field label="Equipamentos adicionais utilizados (opcional)" tip={TOOLTIPS.equipamentos}>
+            <Field
+              label="Equipamentos adicionais utilizados (opcional)"
+              tip={TOOLTIPS.equipamentos}
+            >
               <Textarea
                 rows={2}
                 placeholder="Ex.: Termômetro infravermelho, durômetro, broscópio, etc."

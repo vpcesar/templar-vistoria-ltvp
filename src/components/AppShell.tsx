@@ -40,7 +40,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [config, setConfig] = useState(false);
 
-
   return (
     <div className="min-h-screen bg-surface">
       <header className="sticky top-0 z-40 border-b border-border bg-card shadow-sm">
@@ -77,7 +76,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   {ROTEIRO.map((r) => (
                     <div key={r.titulo} className="rounded-lg border border-border bg-muted/40 p-3">
                       <p className="text-sm font-bold text-foreground">{r.titulo}</p>
-                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{r.texto}</p>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        {r.texto}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -93,7 +94,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Settings className="h-5 w-5" />
             </Button>
             <ConfiguracoesDialog open={config} onOpenChange={setConfig} />
-
 
             <div className="hidden text-right sm:block">
               <p className="text-[10px] text-muted-foreground">Logado como</p>

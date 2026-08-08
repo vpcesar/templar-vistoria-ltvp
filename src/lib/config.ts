@@ -17,7 +17,9 @@ export function carregarConfig(): ConfigInspetor {
   if (typeof window === "undefined") return CONFIG_PADRAO;
   try {
     const raw = window.localStorage.getItem(CFG_KEY);
-    return raw ? { ...CONFIG_PADRAO, ...(JSON.parse(raw) as Partial<ConfigInspetor>) } : CONFIG_PADRAO;
+    return raw
+      ? { ...CONFIG_PADRAO, ...(JSON.parse(raw) as Partial<ConfigInspetor>) }
+      : CONFIG_PADRAO;
   } catch {
     return CONFIG_PADRAO;
   }
@@ -37,14 +39,19 @@ export function exportarJSON() {
   URL.revokeObjectURL(url);
 }
 
-export async function importarJSON(file: File): Promise<{ ok: true } | { ok: false; erro: string }> {
+export async function importarJSON(
+  file: File,
+): Promise<{ ok: true } | { ok: false; erro: string }> {
   try {
     const texto = await file.text();
-    const parsed = JSON.parse(texto) as { vistorias?: Vistoria[]; config?: ConfigInspetor } | Vistoria[];
+    const parsed = JSON.parse(texto) as
+      { vistorias?: Vistoria[]; config?: ConfigInspetor } | Vistoria[];
     const vistorias = Array.isArray(parsed) ? parsed : parsed.vistorias;
-    if (!Array.isArray(vistorias)) return { ok: false, erro: "Arquivo inválido: vistorias não encontradas." };
+    if (!Array.isArray(vistorias))
+      return { ok: false, erro: "Arquivo inválido: vistorias não encontradas." };
     salvarTodas(vistorias);
-    if (!Array.isArray(parsed) && parsed.config) salvarConfig({ ...CONFIG_PADRAO, ...parsed.config });
+    if (!Array.isArray(parsed) && parsed.config)
+      salvarConfig({ ...CONFIG_PADRAO, ...parsed.config });
     return { ok: true };
   } catch {
     return { ok: false, erro: "Não foi possível importar o arquivo JSON." };
