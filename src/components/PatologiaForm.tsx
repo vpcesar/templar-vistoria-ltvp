@@ -68,18 +68,6 @@ export function PatologiaForm({
     return true;
   };
 
-  const resumoContexto = () =>
-    [
-      `Elemento construtivo: ${pat.elemento || "não informado"}`,
-      `Local/ambiente: ${pat.local || "não informado"}`,
-      pat.posicao ? `Posição: ${pat.posicao}` : "",
-      `Manifestações patológicas: ${pat.manifestacoes.join(", ") || "não informado"}`,
-      pat.classificacao ? `Classificação de origem: ${pat.classificacao}` : "",
-      imovel.tipoEdificacao ? `Tipologia: ${imovel.tipoEdificacao}` : "",
-      imovel.idadeAparente ? `Idade aparente: ${imovel.idadeAparente} anos` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
 
   const executarIA = async (
     tipo: "class" | "rec" | "gut" | "obs",
