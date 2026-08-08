@@ -118,9 +118,16 @@ export function PatologiaForm({
         });
       } else if (codigo === "EMPTY_RESPONSE") {
         toast.error("A IA não retornou resposta. Tente novamente.", { duration: 5000 });
+      } else if (codigo === "MODEL_UNAVAILABLE") {
+        toast.error("Nenhum modelo do Gemini disponível para esta chave.", { duration: 5000 });
+      } else if (codigo === "CONNECTION_ERROR") {
+        toast.error("Não foi possível conectar ao Gemini. Verifique sua internet.", {
+          duration: 5000,
+        });
       } else {
-        toast.error("Erro de conexão com o Gemini. Verifique sua internet.", { duration: 5000 });
+        toast.error("Erro ao gerar sugestão. Tente novamente.", { duration: 5000 });
       }
+
     } finally {
       setLoading(null);
     }
