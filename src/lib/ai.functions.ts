@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSessao } from "./gate.server";
 import {
   avaliarGut,
   classificar,
@@ -20,16 +21,28 @@ const contexto = z.object({
 
 export const sugerirClassificacao = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => contexto.parse(data))
-  .handler(({ data }) => classificar(data as ContextoPatologia));
+  .handler(async ({ data }) => {
+    await requireSessao();
+    return classificar(data as ContextoPatologia);
+  });
 
 export const gerarRecomendacao = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => contexto.parse(data))
-  .handler(({ data }) => recomendar(data as ContextoPatologia));
+  .handler(async ({ data }) => {
+    await requireSessao();
+    return recomendar(data as ContextoPatologia);
+  });
 
 export const sugerirGUT = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => contexto.parse(data))
-  .handler(({ data }) => avaliarGut(data as ContextoPatologia));
+  .handler(async ({ data }) => {
+    await requireSessao();
+    return avaliarGut(data as ContextoPatologia);
+  });
 
 export const otimizarObservacaoIA = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => z.object({ texto: z.string().min(10) }).parse(data))
-  .handler(({ data }) => otimizarObservacao(data.texto));
+  .inputValidator((data: unknown) => z.object({ texto: z.string().min(10).max(5000) }).parse(data))
+  .handler(async ({ data }) => {
+    await requireSessao();
+    return otimizarObservacao(data.texto);
+  });
