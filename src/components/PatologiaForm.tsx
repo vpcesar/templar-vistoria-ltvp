@@ -87,7 +87,9 @@ export function PatologiaForm({
     aplicar: (texto: string) => void,
   ) => {
     if (!obterChaveGemini()) {
-      toast.error("Configure a chave do Gemini nas Configurações (engrenagem).");
+      toast.error("Configure a chave do Gemini nas Configurações (engrenagem).", {
+        duration: 5000,
+      });
       return;
     }
     setLoading(tipo);

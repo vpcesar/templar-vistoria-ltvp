@@ -123,7 +123,7 @@ export function ConfiguracoesDialog({
         <section className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
           <h3 className="text-sm font-bold text-foreground">Chave da API do Google Gemini</h3>
           <div className="space-y-2">
-            <Label htmlFor="cfg-gemini">Chave da API do Google Gemini</Label>
+            <Label htmlFor="gemini-key-input">Chave da API do Google Gemini</Label>
             <Input
               id="gemini-key-input"
               type="password"
