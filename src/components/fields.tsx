@@ -191,7 +191,7 @@ export function TripleToggle({
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          {o === "NAO" ? "NÃO" : o === "NAO SABE" ? "NÃO SABE" : "SIM"}
+          {o === "NAO" ? "Não" : o === "NAO SABE" ? "Não sei" : "Sim"}
         </button>
       ))}
     </div>

@@ -79,7 +79,16 @@ export function PatologiaForm({
     });
   };
 
+  const faltaContexto = () => {
+    if (podeIA) return false;
+    toast.error(
+      "Para usar a IA, preencha o elemento, o local e selecione ao menos uma manifestação.",
+    );
+    return true;
+  };
+
   const rodarClassificacao = async () => {
+    if (faltaContexto()) return;
     setLoading("class");
     try {
       const r = await classFn({ data: contexto });
@@ -96,6 +105,7 @@ export function PatologiaForm({
   };
 
   const rodarRecomendacao = async () => {
+    if (faltaContexto()) return;
     setLoading("rec");
     try {
       const r = await recFn({ data: contexto });
@@ -108,10 +118,16 @@ export function PatologiaForm({
 
   const otimizarObs = async () => {
     const texto = (pat.observacoes ?? "").trim();
-    if (texto.length < 10) return;
+    if (texto.length < 10 && faltaContexto()) return;
+    const base =
+      texto.length >= 10
+        ? texto
+        : `Observação técnica complementar sobre ${
+            pat.manifestacoes.join(", ") || "a manifestação registrada"
+          } em ${[pat.elemento, pat.local, pat.posicao].filter(Boolean).join(" / ")}, incluindo causas prováveis e urgência de intervenção.`;
     setLoading("obs");
     try {
-      const r = await obsFn({ data: { texto } });
+      const r = await obsFn({ data: { texto: base } });
       set("observacoes", r.texto_otimizado);
     } catch {
       toast.error("Não foi possível otimizar. Edite manualmente.");
@@ -120,6 +136,7 @@ export function PatologiaForm({
   };
 
   const rodarGut = async () => {
+    if (faltaContexto()) return;
     setLoading("gut");
     try {
       const r = await gutFn({ data: contexto });
@@ -289,7 +306,7 @@ export function PatologiaForm({
             onChange={(v) => set("classificacao", v)}
             options={CLASSIFICACOES}
           />
-          {podeIA && (
+          {
             <Button
               type="button"
               variant="outline"
@@ -302,9 +319,9 @@ export function PatologiaForm({
               ) : (
                 <Sparkles className="mr-2 h-4 w-4" />
               )}
-              {loading === "class" ? "Analisando..." : "Sugerir Classificação com IA"}
+              {loading === "class" ? "Gerando..." : "Sugerir classificação com IA"}
             </Button>
-          )}
+          }
           {pat.iaJustificativa && (
             <div className="rounded-lg border border-border bg-muted/50 p-3">
               <Badge variant="secondary" className="mb-2">
@@ -324,7 +341,7 @@ export function PatologiaForm({
             onChange={(e) => set("recomendacao", e.target.value)}
             placeholder="Gere com IA e valide, ou escreva a recomendação técnica."
           />
-          {podeIA && (
+          {
             <Button
               type="button"
               variant="outline"
@@ -337,9 +354,9 @@ export function PatologiaForm({
               ) : (
                 <Sparkles className="mr-2 h-4 w-4" />
               )}
-              {loading === "rec" ? "Gerando recomendação..." : "Gerar Recomendação com IA"}
+              {loading === "rec" ? "Gerando..." : "Sugerir recomendação com IA"}
             </Button>
-          )}
+          }
         </div>
       </Field>
 
@@ -358,7 +375,7 @@ export function PatologiaForm({
         {sliderGut("gravidade", "Gravidade (G)", TOOLTIPS.gravidade, pat.justificativaG)}
         {sliderGut("urgencia", "Urgência (U)", TOOLTIPS.urgencia, pat.justificativaU)}
         {sliderGut("tendencia", "Tendência (T)", TOOLTIPS.tendencia, pat.justificativaT)}
-        {podeIA && !!pat.classificacao && (
+        {
           <Button
             type="button"
             variant="outline"
@@ -371,9 +388,9 @@ export function PatologiaForm({
             ) : (
               <Sparkles className="mr-2 h-4 w-4" />
             )}
-            {loading === "gut" ? "Analisando risco..." : "Sugerir GUT com IA"}
+            {loading === "gut" ? "Gerando..." : "Sugerir GUT com IA"}
           </Button>
-        )}
+        }
       </div>
 
       <Field
@@ -386,7 +403,7 @@ export function PatologiaForm({
             value={pat.observacoes ?? ""}
             onChange={(e) => set("observacoes", e.target.value)}
           />
-          {(pat.observacoes ?? "").trim().length >= 10 && (
+          {
             <Button
               type="button"
               variant="outline"
@@ -399,9 +416,9 @@ export function PatologiaForm({
               ) : (
                 <Sparkles className="mr-2 h-4 w-4" />
               )}
-              {loading === "obs" ? "Otimizando..." : "Otimizar com IA"}
+              {loading === "obs" ? "Gerando..." : "Sugerir observação com IA"}
             </Button>
-          )}
+          }
         </div>
       </Field>
 
