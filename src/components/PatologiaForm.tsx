@@ -162,8 +162,8 @@ export function PatologiaForm({
     if (texto.length < 10 && faltaContexto()) return;
     const prompt =
       texto.length >= 10
-        ? `Como engenheiro civil perito, reescreva o texto abaixo de forma curta, objetiva e tecnicamente adequada para um laudo de inspeção predial. Não adicione informações novas. Máximo 3 linhas. Responda apenas com o texto, em português do Brasil.\n\nTexto original: ${texto}`
-        : `Como engenheiro civil perito com especialização em Patologia das construções, redija uma observação técnica complementar para a manifestação patológica: ${pat.manifestacoes.join(", ")} em ${pat.elemento || "não informado"} / ${pat.local || "não informado"}. Inclua considerações sobre causas prováveis e urgência de intervenção. Máximo 2 linhas. Responda apenas com o texto da observação.`;
+        ? `Como engenheiro civil perito, reescreva o texto abaixo de forma curta, objetiva e tecnicamente adequada para um laudo de inspeção predial. A informação deve ser clara para entendimento de todos — nem muito técnica, nem popular demais (meio termo). Não adicione informações novas. Máximo 2 linhas. Responda apenas com o texto, em português do Brasil.\n\nTexto original: ${texto}`
+        : `Como engenheiro civil perito com especialização em Patologia das construções, redija uma observação técnica complementar para a manifestação patológica: ${pat.manifestacoes.join(", ")} em ${pat.elemento || "não informado"} / ${pat.local || "não informado"}. A informação deve ser clara para entendimento de todos — nem muito técnica, nem popular demais (meio termo). Inclua considerações sobre causas prováveis e urgência de intervenção. Máximo 2 linhas. Responda apenas com o texto da observação.`;
     await executarIA("obs", prompt, (r) => set("observacoes", r.replace(/[*#`]/g, "").trim()));
   };
 
