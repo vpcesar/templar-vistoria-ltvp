@@ -3,8 +3,6 @@
  * A chave NUNCA é hardcoded: fica apenas no localStorage do usuário.
  */
 export const GEMINI_KEY_STORAGE = "templar_gemini_key";
-const MODELO = "gemini-2.0-flash";
-
 export function obterChaveGemini(): string {
   if (typeof window === "undefined") return "";
   return (window.localStorage.getItem(GEMINI_KEY_STORAGE) ?? "").trim();
@@ -19,19 +17,34 @@ export function removerChaveGemini() {
 }
 
 export async function chamarGeminiAPI(prompt: string): Promise<string> {
-  const apiKey = obterChaveGemini();
+  const apiKeyRaw = window.localStorage.getItem(GEMINI_KEY_STORAGE);
+  const apiKey = apiKeyRaw ? apiKeyRaw.trim() : "";
   if (!apiKey) throw new Error("API_KEY_MISSING");
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${MODELO}:generateContent?key=${encodeURIComponent(apiKey)}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-    },
-  );
+  console.log("Chave sendo usada (primeiros 10 chars):", `${apiKey.substring(0, 10)}...`);
 
-  if (!response.ok) throw new Error(`API_ERROR_${response.status}`);
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+  });
+
+  if (!response.ok) {
+    let errorMsg = "";
+    try {
+      const errorData = (await response.json()) as { error?: { message?: string } };
+      errorMsg = errorData?.error?.message ?? "";
+      console.error("Erro da API do Gemini:", response.status, errorMsg);
+    } catch {
+      console.error("Erro da API do Gemini:", response.status);
+    }
+
+    if (response.status === 400) throw new Error("INVALID_KEY");
+    if (response.status === 403) throw new Error("ACCESS_DENIED");
+    if (response.status === 429) throw new Error("RATE_LIMIT");
+    throw new Error(`API_ERROR_${response.status}`);
+  }
 
   const data = (await response.json()) as {
     candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
@@ -41,25 +54,3 @@ export async function chamarGeminiAPI(prompt: string): Promise<string> {
   return texto.trim();
 }
 
-/** Faz uma chamada mínima só para validar a chave informada. */
-export async function testarChaveGemini(): Promise<{ ok: true } | { ok: false; erro: string }> {
-  try {
-    await chamarGeminiAPI("Responda apenas: OK");
-    return { ok: true };
-  } catch (error) {
-    return { ok: false, erro: mensagemErroIA(error) };
-  }
-}
-
-export function mensagemErroIA(error: unknown): string {
-  const codigo = error instanceof Error ? error.message : "";
-  if (codigo === "API_KEY_MISSING")
-    return "Configure a chave do Gemini nas Configurações (engrenagem).";
-  if (codigo === "API_ERROR_400") return "Chave do Gemini inválida. Verifique nas Configurações.";
-  if (codigo === "API_ERROR_403")
-    return "Acesso negado. Verifique se a chave do Gemini está ativa.";
-  if (codigo === "API_ERROR_429")
-    return "Limite de requisições do Gemini excedido. Tente novamente em alguns segundos.";
-  if (codigo === "EMPTY_RESPONSE") return "A IA não retornou resposta. Tente reformular os dados.";
-  return "Erro ao gerar sugestão. Tente novamente.";
-}

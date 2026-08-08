@@ -16,7 +16,7 @@ import {
   SETORES,
   TOOLTIPS,
 } from "@/lib/catalogos";
-import { chamarGeminiAPI, mensagemErroIA, obterChaveGemini } from "@/lib/gemini";
+import { chamarGeminiAPI, obterChaveGemini } from "@/lib/gemini";
 import { comprimirDataUrl, uid } from "@/lib/storage";
 import { gutTotal, riscoDe, type DadosImovel, type Patologia } from "@/lib/types";
 
@@ -96,8 +96,29 @@ export function PatologiaForm({
       aplicar(texto);
       toast.success("Sugestão gerada com sucesso!");
     } catch (error) {
-      console.error("Erro ao chamar a IA:", error);
-      toast.error(mensagemErroIA(error));
+      const codigo = error instanceof Error ? error.message : "";
+      console.error("Erro capturado:", codigo);
+      if (codigo === "API_KEY_MISSING") {
+        toast.error("Configure a chave do Gemini nas Configurações (engrenagem).", {
+          duration: 5000,
+        });
+      } else if (codigo === "INVALID_KEY") {
+        toast.error("Chave do Gemini inválida. Vá nas Configurações e clique em 'Testar chave'.", {
+          duration: 5000,
+        });
+      } else if (codigo === "ACCESS_DENIED") {
+        toast.error("Acesso negado. Verifique se a chave está ativa no Google AI Studio.", {
+          duration: 5000,
+        });
+      } else if (codigo === "RATE_LIMIT") {
+        toast.error("Limite de requisições excedido. Aguarde 30 segundos e tente novamente.", {
+          duration: 5000,
+        });
+      } else if (codigo === "EMPTY_RESPONSE") {
+        toast.error("A IA não retornou resposta. Tente novamente.", { duration: 5000 });
+      } else {
+        toast.error("Erro de conexão com o Gemini. Verifique sua internet.", { duration: 5000 });
+      }
     } finally {
       setLoading(null);
     }
