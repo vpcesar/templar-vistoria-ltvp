@@ -215,7 +215,7 @@ export async function gerarDocx(v: Vistoria) {
       [
         ["Item", "Descrição"],
         ["Responsável", v.imovel.inspetor || "—"],
-        ["RRT – Registro de Responsabilidade Técnica", `CREA – nº ${v.imovel.crea || "—"}`],
+        ["CREA", v.imovel.crea || "—"],
         ["ART – Anotação de Responsabilidade Técnica", textoArt(v)],
       ],
       [3200, 6438],
