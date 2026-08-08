@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AppShell } from "@/components/AppShell";
 import { Field } from "@/components/InfoTip";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PatologiaForm } from "@/components/PatologiaForm";
 import { FotoUploader, SearchSelect, TripleToggle } from "@/components/fields";
 import { ANAMNESE_ITENS, PAVIMENTOS, TIPOS_EDIFICACAO, TOOLTIPS } from "@/lib/catalogos";
@@ -337,16 +338,18 @@ function NovaVistoria() {
         {passo === 2 && (
           <div className="space-y-4">
             {editando ? (
-              <PatologiaForm
-                inicial={editando}
-                imovel={vistoria.imovel}
-                modo={modo}
-                onSalvar={salvarPatologia}
-                onCancelar={() => {
-                  setEditando(null);
-                  setModo("novo");
-                }}
-              />
+              <ErrorBoundary titulo="Não foi possível exibir a ficha de patologia.">
+                <PatologiaForm
+                  inicial={editando}
+                  imovel={vistoria.imovel}
+                  modo={modo}
+                  onSalvar={salvarPatologia}
+                  onCancelar={() => {
+                    setEditando(null);
+                    setModo("novo");
+                  }}
+                />
+              </ErrorBoundary>
             ) : (
               <>
                 <p className="text-sm font-semibold text-muted-foreground">

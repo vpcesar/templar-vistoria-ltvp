@@ -87,36 +87,54 @@ export function PatologiaForm({
     return true;
   };
 
-  const rodarClassificacao = async () => {
+  const rodarClassificacao = async (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     if (faltaContexto()) return;
     setLoading("class");
     try {
       const r = await classFn({ data: contexto });
+      if ("erro" in r) {
+        toast.error(r.erro);
+        return;
+      }
       setPat((p) => ({
         ...p,
         classificacao: r.classificacao,
         iaConfianca: r.confianca,
         iaJustificativa: r.justificativa,
       }));
-    } catch {
+    } catch (error) {
+      console.error("Erro ao chamar IA:", error);
       toast.error("Não foi possível consultar a IA. Selecione a classificação manualmente.");
+    } finally {
+      setLoading(null);
     }
-    setLoading(null);
   };
 
-  const rodarRecomendacao = async () => {
+  const rodarRecomendacao = async (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     if (faltaContexto()) return;
     setLoading("rec");
     try {
       const r = await recFn({ data: contexto });
+      if ("erro" in r) {
+        toast.error(r.erro);
+        return;
+      }
       set("recomendacao", r.acao_principal);
-    } catch {
+    } catch (error) {
+      console.error("Erro ao chamar IA:", error);
       toast.error("Não foi possível gerar a recomendação. Escreva manualmente.");
+    } finally {
+      setLoading(null);
     }
-    setLoading(null);
   };
 
-  const otimizarObs = async () => {
+  const otimizarObs = async (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     const texto = (pat.observacoes ?? "").trim();
     if (texto.length < 10 && faltaContexto()) return;
     const base =
@@ -128,18 +146,30 @@ export function PatologiaForm({
     setLoading("obs");
     try {
       const r = await obsFn({ data: { texto: base } });
+      if ("erro" in r) {
+        toast.error(r.erro);
+        return;
+      }
       set("observacoes", r.texto_otimizado);
-    } catch {
+    } catch (error) {
+      console.error("Erro ao chamar IA:", error);
       toast.error("Não foi possível otimizar. Edite manualmente.");
+    } finally {
+      setLoading(null);
     }
-    setLoading(null);
   };
 
-  const rodarGut = async () => {
+  const rodarGut = async (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     if (faltaContexto()) return;
     setLoading("gut");
     try {
       const r = await gutFn({ data: contexto });
+      if ("erro" in r) {
+        toast.error(r.erro);
+        return;
+      }
       const clamp = (n: number) => Math.min(5, Math.max(1, Math.round(n)));
       setPat((p) => ({
         ...p,
@@ -151,10 +181,12 @@ export function PatologiaForm({
         justificativaU: r.justificativa_u,
         justificativaT: r.justificativa_t,
       }));
-    } catch {
+    } catch (error) {
+      console.error("Erro ao chamar IA:", error);
       toast.error("Não foi possível avaliar o risco. Ajuste os sliders manualmente.");
+    } finally {
+      setLoading(null);
     }
-    setLoading(null);
   };
 
   const salvar = () => {
