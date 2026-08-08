@@ -116,7 +116,9 @@ function Revisao() {
                 {enderecoCompleto(vistoria.imovel) || "Endereço não informado"}
               </p>
             </div>
-            <Badge variant="outline">{vistoria.status}</Badge>
+            <Badge variant="outline">
+              {vistoria.status === "AGUARDANDO REVISAO" ? "AGUARDANDO REVISÃO" : vistoria.status}
+            </Badge>
           </div>
 
           <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
