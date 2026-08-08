@@ -251,7 +251,7 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
     [
       ["Item", "Descrição"],
       ["Responsável", v.imovel.inspetor || "—"],
-      ["RRT – Registro de Responsabilidade Técnica", `CREA – nº ${v.imovel.crea || "—"}`],
+      ["CREA", v.imovel.crea || "—"],
       ["ART – Anotação de Responsabilidade Técnica", textoArt(v)],
     ],
     [35, 65],
