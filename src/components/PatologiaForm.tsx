@@ -150,7 +150,7 @@ export function PatologiaForm({
     if (faltaContexto()) return;
     await executarIA(
       "rec",
-      `Como engenheiro civil perito com especialização em Patologia das construções, redija uma recomendação técnica profissional para a manifestação: ${pat.manifestacoes.join(", ")} no elemento: ${pat.elemento || "não informado"}, local: ${pat.local || "não informado"}. A recomendação deve ser objetiva, técnica e seguir as normas ABNT aplicáveis. Recomendando também, de acordo com o caso, testes mais aprofundados e maiores acompanhamentos, se necessário. Você é o técnico e analisará o fato. Máximo 5 linhas. Responda apenas com o texto da recomendação.`,
+      `Como engenheiro civil perito com especialização em Patologia das construções, redija uma recomendação técnica profissional para a manifestação: ${pat.manifestacoes.join(", ")} no elemento: ${pat.elemento || "não informado"}, local: ${pat.local || "não informado"}. A recomendação deve seguir as normas ABNT aplicáveis, mas a informação precisa ser clara para entendimento de todos — nem muito técnica, nem popular demais (meio termo). Recomende também, de acordo com o caso, testes mais aprofundados e acompanhamentos, se necessário. Você é o técnico responsável e analisará o fato. Máximo 3 linhas. Responda apenas com o texto da recomendação.`,
       (texto) => set("recomendacao", texto.replace(/[*#`]/g, "").trim()),
     );
   };
