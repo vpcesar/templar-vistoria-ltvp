@@ -24,7 +24,7 @@ const riskClass = { critico: "bg-risk-high", medio: "bg-risk-mid", baixo: "bg-ri
 
 export function PatologiaForm({
   inicial,
-  imovel,
+
   modo = "novo",
   onSalvar,
   onCancelar,
@@ -39,10 +39,8 @@ export function PatologiaForm({
   const [loading, setLoading] = useState<"class" | "rec" | "gut" | "obs" | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-
   const set = <K extends keyof Patologia>(k: K, val: Patologia[K]) =>
     setPat((p) => ({ ...p, [k]: val }));
-
 
   const podeIA = !!pat.elemento && !!pat.local && pat.manifestacoes.length > 0;
   const total = gutTotal(pat);
@@ -67,19 +65,6 @@ export function PatologiaForm({
     );
     return true;
   };
-
-  const resumoContexto = () =>
-    [
-      `Elemento construtivo: ${pat.elemento || "não informado"}`,
-      `Local/ambiente: ${pat.local || "não informado"}`,
-      pat.posicao ? `Posição: ${pat.posicao}` : "",
-      `Manifestações patológicas: ${pat.manifestacoes.join(", ") || "não informado"}`,
-      pat.classificacao ? `Classificação de origem: ${pat.classificacao}` : "",
-      imovel.tipoEdificacao ? `Tipologia: ${imovel.tipoEdificacao}` : "",
-      imovel.idadeAparente ? `Idade aparente: ${imovel.idadeAparente} anos` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
 
   const executarIA = async (
     tipo: "class" | "rec" | "gut" | "obs",
@@ -127,7 +112,6 @@ export function PatologiaForm({
       } else {
         toast.error("Erro ao gerar sugestão. Tente novamente.", { duration: 5000 });
       }
-
     } finally {
       setLoading(null);
     }
@@ -139,11 +123,13 @@ export function PatologiaForm({
     if (faltaContexto()) return;
     await executarIA(
       "class",
-      `Como engenheiro civil perito em inspeção predial (ABNT NBR 16747, NBR 5674 e IBAPE), analise:\n${resumoContexto()}\n\nSugira a classificação de origem entre exatamente uma destas opções: ${CLASSIFICACOES.join(", ")}. Responda apenas com o nome da classificação, sem explicações.`,
+      `Como engenheiro civil perito com especialização em Patologia das construções, analise as seguintes manifestações patológicas: ${pat.manifestacoes.join(", ")}. O elemento construtivo é: ${pat.elemento || "não informado"}. Local: ${pat.local || "não informado"}. Sugira a classificação técnica entre: ${CLASSIFICACOES.join(", ")}. Responda apenas com o nome da classificação, sem explicações. Ao final dê uma breve explicação de o porque da decisão.`,
       (texto) => {
         const limpo = texto.replace(/[*#`]/g, "").split("\n")[0]?.trim() ?? texto;
         const match = CLASSIFICACOES.find(
-          (c) => c.toLowerCase() === limpo.toLowerCase() || limpo.toLowerCase().includes(c.toLowerCase()),
+          (c) =>
+            c.toLowerCase() === limpo.toLowerCase() ||
+            limpo.toLowerCase().includes(c.toLowerCase()),
         );
         setPat((p) => ({
           ...p,
@@ -161,7 +147,7 @@ export function PatologiaForm({
     if (faltaContexto()) return;
     await executarIA(
       "rec",
-      `Como engenheiro civil perito, redija uma recomendação técnica corretiva para a patologia abaixo:\n${resumoContexto()}\n\nA recomendação deve ser objetiva, em um único parágrafo, em linguagem clara que um proprietário leigo entenda, seguindo as normas ABNT aplicáveis. Máximo 3 linhas. Responda apenas com o texto da recomendação, em português do Brasil.`,
+      `Como engenheiro civil perito com especialização em Patologia das construções, redija uma recomendação técnica profissional para a manifestação: ${pat.manifestacoes.join(", ")} no elemento: ${pat.elemento || "não informado"}, local: ${pat.local || "não informado"}. A recomendação deve ser objetiva, técnica e seguir as normas ABNT aplicáveis. Recomendando também, de acordo com o caso, testes mais aprofundados e maiores acompanhamentos, se necessário. Você é o técnico e analisará o fato. Máximo 5 linhas. Responda apenas com o texto da recomendação.`,
       (texto) => set("recomendacao", texto.replace(/[*#`]/g, "").trim()),
     );
   };
@@ -174,7 +160,7 @@ export function PatologiaForm({
     const prompt =
       texto.length >= 10
         ? `Como engenheiro civil perito, reescreva o texto abaixo de forma curta, objetiva e tecnicamente adequada para um laudo de inspeção predial. Não adicione informações novas. Máximo 3 linhas. Responda apenas com o texto, em português do Brasil.\n\nTexto original: ${texto}`
-        : `Como engenheiro civil, redija uma observação técnica complementar para a patologia abaixo:\n${resumoContexto()}\n\nInclua considerações sobre causas prováveis e urgência de intervenção. Máximo 2 linhas. Responda apenas com o texto da observação, em português do Brasil.`;
+        : `Como engenheiro civil perito com especialização em Patologia das construções, redija uma observação técnica complementar para a manifestação patológica: ${pat.manifestacoes.join(", ")} em ${pat.elemento || "não informado"} / ${pat.local || "não informado"}. Inclua considerações sobre causas prováveis e urgência de intervenção. Máximo 2 linhas. Responda apenas com o texto da observação.`;
     await executarIA("obs", prompt, (r) => set("observacoes", r.replace(/[*#`]/g, "").trim()));
   };
 
@@ -184,7 +170,7 @@ export function PatologiaForm({
     if (faltaContexto()) return;
     await executarIA(
       "gut",
-      `Como engenheiro civil perito, avalie pela Matriz GUT a gravidade (1 a 5), urgência (1 a 5) e tendência (1 a 5) da patologia abaixo:\n${resumoContexto()}\n\nConsidere risco estrutural e a pessoas, prazo de intervenção e velocidade de agravamento. Responda no formato exato: G=X, U=X, T=X (X é um número de 1 a 5). Sem explicações adicionais.`,
+      `Como engenheiro civil perito com especialização em Patologia das construções, avalie a matriz GUT — gravidade (impacto do problema sobre pessoas e edificação) (1 a 5), urgência (prazo necessário para intervenção) (1 a 5) e tendência (velocidade de agravamento se nada for feito) (1 a 5) para a manifestação, de acordo com a tabela abaixo:\n\n${pat.manifestacoes.join(", ")} no elemento: ${pat.elemento || "não informado"}.\n\nConsidere o risco estrutural, a velocidade de propagação e a consequência de não intervir.\n\nTABELA DE PESOS:\nPeso 5: Gravidade extremamente grave | Urgência imediata | Agrava-se rapidamente\nPeso 4: Gravidade muito grave | Urgência com alguma urgência | Agrava-se em curto prazo\nPeso 3: Gravidade grave | Urgência o mais cedo possível | Agrava-se em médio prazo\nPeso 2: Gravidade pouco grave | Urgência pode aguardar | Agrava-se em longo prazo\nPeso 1: Gravidade sem gravidade | Urgência sem pressa | Não se agrava\n\nResponda no formato exato: G=X, U=X, T=X (onde X é um número de 1 a 5). Sem explicações adicionais.`,
       (texto) => {
         const g = texto.match(/G\s*=\s*(\d)/i);
         const u = texto.match(/U\s*=\s*(\d)/i);
