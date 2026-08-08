@@ -12,12 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { carregarConfig, salvarConfig, exportarJSON, importarJSON } from "@/lib/config";
-import {
-  obterChaveGemini,
-  removerChaveGemini,
-  salvarChaveGemini,
-  testarChaveGemini,
-} from "@/lib/gemini";
+import { chamarGeminiAPI, GEMINI_KEY_STORAGE, salvarChaveGemini } from "@/lib/gemini";
 
 export function ConfiguracoesDialog({
   open,
@@ -37,7 +32,8 @@ export function ConfiguracoesDialog({
     const c = carregarConfig();
     setNome(c.nome);
     setCrea(c.crea);
-    setChave(obterChaveGemini());
+    const savedKey = window.localStorage.getItem(GEMINI_KEY_STORAGE) || "";
+    setChave(savedKey);
   }, [open]);
 
   const salvar = () => {
@@ -48,26 +44,43 @@ export function ConfiguracoesDialog({
   const salvarChave = () => {
     const valor = chave.trim();
     if (!valor) {
-      removerChaveGemini();
-      toast.success("Chave do Gemini removida.");
+      toast.error("Digite uma chave válida.", { duration: 5000 });
       return;
     }
     salvarChaveGemini(valor);
-    toast.success("Chave do Gemini salva neste dispositivo!");
+    setChave(valor);
+    toast.success("Chave do Gemini salva com sucesso!", { duration: 5000 });
   };
 
   const testar = async () => {
-    const valor = chave.trim();
-    if (!valor) {
-      toast.error("Informe a chave do Gemini antes de testar.");
+    const key = window.localStorage.getItem(GEMINI_KEY_STORAGE)?.trim();
+    if (!key) {
+      toast.error("Nenhuma chave salva. Digite e salve primeiro.", { duration: 5000 });
       return;
     }
-    salvarChaveGemini(valor);
     setTestando(true);
-    const res = await testarChaveGemini();
-    setTestando(false);
-    if (res.ok) toast.success("Chave válida!");
-    else toast.error(`Chave inválida. ${res.erro}`);
+    try {
+      await chamarGeminiAPI("Responda apenas: OK");
+      toast.success("Chave válida! Gemini está funcionando.", { duration: 5000 });
+    } catch (error) {
+      const codigo = error instanceof Error ? error.message : "";
+      console.error("Erro capturado:", codigo);
+      if (codigo === "INVALID_KEY") {
+        toast.error("Chave inválida. Verifique se copiou corretamente do Google AI Studio.", {
+          duration: 5000,
+        });
+      } else if (codigo === "ACCESS_DENIED") {
+        toast.error("Acesso negado. Verifique se a chave está ativa.", { duration: 5000 });
+      } else if (codigo === "RATE_LIMIT") {
+        toast.error("Limite de requisições excedido. Aguarde alguns segundos.", {
+          duration: 5000,
+        });
+      } else {
+        toast.error("Erro de conexão. Verifique sua internet.", { duration: 5000 });
+      }
+    } finally {
+      setTestando(false);
+    }
   };
 
 
@@ -110,9 +123,9 @@ export function ConfiguracoesDialog({
         <section className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
           <h3 className="text-sm font-bold text-foreground">Chave da API do Google Gemini</h3>
           <div className="space-y-2">
-            <Label htmlFor="cfg-gemini">Chave da API do Google Gemini</Label>
+            <Label htmlFor="gemini-key-input">Chave da API do Google Gemini</Label>
             <Input
-              id="cfg-gemini"
+              id="gemini-key-input"
               type="password"
               autoComplete="off"
               placeholder="Cole aqui sua API Key do Gemini (AIza...)"
