@@ -137,6 +137,7 @@ export function PatologiaForm({
 
 
   const rodarGut = async () => {
+    if (faltaContexto()) return;
     setLoading("gut");
     try {
       const r = await gutFn({ data: contexto });
@@ -306,7 +307,7 @@ export function PatologiaForm({
             onChange={(v) => set("classificacao", v)}
             options={CLASSIFICACOES}
           />
-          {podeIA && (
+          {(
             <Button
               type="button"
               variant="outline"
@@ -341,7 +342,7 @@ export function PatologiaForm({
             onChange={(e) => set("recomendacao", e.target.value)}
             placeholder="Gere com IA e valide, ou escreva a recomendação técnica."
           />
-          {podeIA && (
+          {(
             <Button
               type="button"
               variant="outline"
@@ -375,7 +376,7 @@ export function PatologiaForm({
         {sliderGut("gravidade", "Gravidade (G)", TOOLTIPS.gravidade, pat.justificativaG)}
         {sliderGut("urgencia", "Urgência (U)", TOOLTIPS.urgencia, pat.justificativaU)}
         {sliderGut("tendencia", "Tendência (T)", TOOLTIPS.tendencia, pat.justificativaT)}
-        {podeIA && !!pat.classificacao && (
+        {(
           <Button
             type="button"
             variant="outline"
@@ -403,7 +404,7 @@ export function PatologiaForm({
             value={pat.observacoes ?? ""}
             onChange={(e) => set("observacoes", e.target.value)}
           />
-          {(pat.observacoes ?? "").trim().length >= 10 && (
+          {(
             <Button
               type="button"
               variant="outline"
