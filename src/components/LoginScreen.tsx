@@ -4,34 +4,22 @@ import { useAuth } from "@/context/AuthContext";
 import { TemplarLogo } from "@/components/TemplarLogo";
 
 export default function LoginScreen() {
-  const { login, setupPassword, isFirstAccess } = useAuth();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    setTimeout(() => {
-      if (isFirstAccess) {
-        if (password !== confirmPassword) {
-          setError("As senhas não coincidem.");
-          setLoading(false);
-          return;
-        }
-        const result = setupPassword(email, password);
-        if (!result.success) setError(result.message);
-      } else {
-        const result = login(email, password);
-        if (!result.success) setError(result.message);
-      }
-      setLoading(false);
-    }, 500);
+    const result = await login(email, password);
+    if (!result.success) setError(result.message);
+    setLoading(false);
   };
+
 
   const inputCls =
     "w-full rounded-lg border border-input bg-background py-3 pl-11 pr-11 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring/30";
