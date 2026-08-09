@@ -52,13 +52,14 @@ export function SearchSelect({
         <Button
           variant="outline"
           role="combobox"
-          className="h-12 w-full justify-between bg-background font-normal"
+          className="h-auto min-h-12 w-full justify-between gap-2 whitespace-normal bg-background py-2 text-left font-normal"
         >
-          <span className={cn("truncate", !value && "text-muted-foreground")}>
+          <span className={cn("min-w-0 flex-1 leading-snug", !value && "text-muted-foreground")}>
             {value || placeholder}
           </span>
           <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
         </Button>
+
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
         <Command>
