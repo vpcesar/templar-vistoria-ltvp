@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
  */
 export class ErrorBoundary extends Component<
   { children: ReactNode; titulo?: string },
-  { erro: boolean; mensagem: string | null }
+  { erro: boolean; mensagem: string | null; tentativa: number }
 > {
-  override state = { erro: false, mensagem: null as string | null };
+  override state = { erro: false, mensagem: null as string | null, tentativa: 0 };
 
   static getDerivedStateFromError(error: Error) {
     return { erro: true, mensagem: error?.message ?? null };
@@ -22,7 +22,7 @@ export class ErrorBoundary extends Component<
   }
 
   override render() {
-    if (!this.state.erro) return this.props.children;
+    if (!this.state.erro) return <div key={this.state.tentativa}>{this.props.children}</div>;
     return (
       <div className="space-y-3 rounded-xl border border-destructive/40 bg-card p-6 text-center">
         <p className="text-sm font-medium text-foreground">
@@ -34,7 +34,13 @@ export class ErrorBoundary extends Component<
         <Button
           variant="outline"
           type="button"
-          onClick={() => this.setState({ erro: false, mensagem: null })}
+          onClick={() =>
+            this.setState((estado) => ({
+              erro: false,
+              mensagem: null,
+              tentativa: estado.tentativa + 1,
+            }))
+          }
         >
           Tentar novamente
         </Button>
