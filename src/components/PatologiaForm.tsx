@@ -544,7 +544,7 @@ export function PatologiaForm({
           <Save className="mr-2 h-4 w-4" />
           {modo === "editar" ? "Salvar Alterações" : "Salvar patologia"}
         </Button>
-        <Button variant="outline" onClick={onCancelar} className="min-h-12">
+        <Button variant="outline" onClick={cancelar} className="min-h-12">
           Cancelar
         </Button>
       </div>
