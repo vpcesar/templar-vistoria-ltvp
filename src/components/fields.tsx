@@ -52,9 +52,9 @@ export function SearchSelect({
         <Button
           variant="outline"
           role="combobox"
-          className="h-12 w-full justify-between bg-background font-normal"
+          className="h-auto min-h-12 w-full justify-between gap-2 whitespace-normal bg-background py-2 text-left font-normal"
         >
-          <span className={cn("truncate", !value && "text-muted-foreground")}>
+          <span className={cn("min-w-0 flex-1 leading-snug", !value && "text-muted-foreground")}>
             {value || placeholder}
           </span>
           <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
@@ -127,7 +127,7 @@ export function ChipMulti({
               type="button"
               onClick={() => toggle(opt)}
               className={cn(
-                "min-h-9 rounded-full border px-3 py-1.5 text-xs font-medium transition",
+                "min-h-9 max-w-full whitespace-normal break-words rounded-2xl border px-3 py-1.5 text-left text-xs font-medium leading-snug transition",
                 active
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-accent",
@@ -215,7 +215,7 @@ export function SegmentedOptions({
           type="button"
           onClick={() => onChange(o)}
           className={cn(
-            "min-h-12 rounded-lg border px-3 py-2 text-left text-xs font-semibold transition",
+            "min-h-12 whitespace-normal break-words rounded-lg border px-3 py-2 text-left text-xs font-semibold leading-snug transition",
             value === o
               ? "border-primary bg-accent text-accent-foreground"
               : "border-border bg-background text-foreground hover:bg-muted",
