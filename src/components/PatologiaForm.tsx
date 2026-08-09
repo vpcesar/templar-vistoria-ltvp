@@ -278,8 +278,15 @@ export function PatologiaForm({
       toast.error("Preencha todos os campos obrigatórios.");
       return;
     }
+    limparRascunho();
     onSalvar(pat);
   };
+
+  const cancelar = () => {
+    limparRascunho();
+    onCancelar();
+  };
+
 
   const sliderGut = (
     key: "gravidade" | "urgencia" | "tendencia",
