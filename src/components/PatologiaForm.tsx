@@ -227,7 +227,12 @@ export function PatologiaForm({
     await executarIA(
       "rec",
       `Como engenheiro civil perito com especialização em Patologia das construções, redija uma recomendação técnica profissional para a manifestação: ${pat.manifestacoes.join(", ")} no elemento: ${pat.elemento || "não informado"}, local: ${pat.local || "não informado"}. A recomendação deve seguir as normas ABNT aplicáveis, mas a informação precisa ser clara para entendimento de todos — nem muito técnica, nem popular demais (meio termo). Recomende também, de acordo com o caso, testes mais aprofundados e acompanhamentos, se necessário. Você é o técnico responsável e analisará o fato. Máximo 3 linhas. Responda apenas com o texto da recomendação.`,
-      (texto) => set("recomendacao", texto.replace(/[*#`]/g, "").trim()),
+      (texto) =>
+        setPat((p) => ({
+          ...p,
+          recomendacao: texto.replace(/[*#`]/g, "").trim(),
+          manifestacoes: [...p.manifestacoes],
+        })),
     );
   };
 
@@ -240,7 +245,13 @@ export function PatologiaForm({
       texto.length >= 10
         ? `Como engenheiro civil perito, reescreva o texto abaixo de forma curta, objetiva e tecnicamente adequada para um laudo de inspeção predial. A informação deve ser clara para entendimento de todos — nem muito técnica, nem popular demais (meio termo). Não adicione informações novas. Máximo 2 linhas. Responda apenas com o texto, em português do Brasil.\n\nTexto original: ${texto}`
         : `Como engenheiro civil perito com especialização em Patologia das construções, redija uma observação técnica complementar para a manifestação patológica: ${pat.manifestacoes.join(", ")} em ${pat.elemento || "não informado"} / ${pat.local || "não informado"}. A informação deve ser clara para entendimento de todos — nem muito técnica, nem popular demais (meio termo). Inclua considerações sobre causas prováveis e urgência de intervenção. Máximo 2 linhas. Responda apenas com o texto da observação.`;
-    await executarIA("obs", prompt, (r) => set("observacoes", r.replace(/[*#`]/g, "").trim()));
+    await executarIA("obs", prompt, (r) =>
+      setPat((p) => ({
+        ...p,
+        observacoes: r.replace(/[*#`]/g, "").trim(),
+        manifestacoes: [...p.manifestacoes],
+      })),
+    );
   };
 
   const rodarGut = async (e?: React.MouseEvent) => {
@@ -381,7 +392,7 @@ export function PatologiaForm({
         </div>
       </Field>
 
-      <Field label="Setor vistoriado" tip={TOOLTIPS.setor}>
+      <Field label="Setor visitado" tip={TOOLTIPS.setor}>
         <SearchSelect value={pat.setor} onChange={(v) => set("setor", v)} options={SETORES} />
       </Field>
 
