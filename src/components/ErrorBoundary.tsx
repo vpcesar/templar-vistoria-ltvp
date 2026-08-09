@@ -8,12 +8,12 @@ import { Button } from "@/components/ui/button";
  */
 export class ErrorBoundary extends Component<
   { children: ReactNode; titulo?: string },
-  { erro: boolean }
+  { erro: boolean; mensagem: string | null }
 > {
-  override state = { erro: false };
+  override state = { erro: false, mensagem: null as string | null };
 
-  static getDerivedStateFromError() {
-    return { erro: true };
+  static getDerivedStateFromError(error: Error) {
+    return { erro: true, mensagem: error?.message ?? null };
   }
 
   override componentDidCatch(error: Error, info: ErrorInfo) {
@@ -28,10 +28,18 @@ export class ErrorBoundary extends Component<
         <p className="text-sm font-medium text-foreground">
           {this.props.titulo ?? "Não foi possível exibir esta seção."}
         </p>
-        <Button variant="outline" onClick={() => this.setState({ erro: false })}>
+        {this.state.mensagem && (
+          <p className="text-xs text-muted-foreground">Detalhe: {this.state.mensagem}</p>
+        )}
+        <Button
+          variant="outline"
+          type="button"
+          onClick={() => this.setState({ erro: false, mensagem: null })}
+        >
           Tentar novamente
         </Button>
       </div>
     );
   }
 }
+
