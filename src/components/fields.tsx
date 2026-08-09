@@ -128,11 +128,12 @@ export function ChipMulti({
               type="button"
               onClick={() => toggle(opt)}
               className={cn(
-                "min-h-9 rounded-full border px-3 py-1.5 text-xs font-medium transition",
+                "min-h-9 max-w-full whitespace-normal break-words rounded-2xl border px-3 py-1.5 text-left text-xs font-medium leading-snug transition",
                 active
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-accent",
               )}
+
             >
               {opt}
             </button>
