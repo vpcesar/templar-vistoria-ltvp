@@ -217,11 +217,12 @@ export function SegmentedOptions({
           type="button"
           onClick={() => onChange(o)}
           className={cn(
-            "min-h-12 rounded-lg border px-3 py-2 text-left text-xs font-semibold transition",
+            "min-h-12 whitespace-normal break-words rounded-lg border px-3 py-2 text-left text-xs font-semibold leading-snug transition",
             value === o
               ? "border-primary bg-accent text-accent-foreground"
               : "border-border bg-background text-foreground hover:bg-muted",
           )}
+
         >
           {o}
         </button>
