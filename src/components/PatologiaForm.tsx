@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Camera, Loader2, Save, Sparkles, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,43 @@ import { gutTotal, riscoDe, type DadosImovel, type Patologia } from "@/lib/types
 
 const riskClass = { critico: "bg-risk-high", medio: "bg-risk-mid", baixo: "bg-risk-low" };
 
+const RASCUNHO_KEY = "templar_patologia_rascunho";
+
+/** Guarda a ficha em andamento para que nada seja perdido se a aba recarregar no celular. */
+function gravarRascunho(pat: Patologia) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(RASCUNHO_KEY, JSON.stringify(pat));
+  } catch {
+    try {
+      window.localStorage.setItem(RASCUNHO_KEY, JSON.stringify({ ...pat, fotos: [] }));
+    } catch {
+      /* sem espaço: mantém apenas na memória */
+    }
+  }
+}
+
+function lerRascunho(id: string): Patologia | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(RASCUNHO_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw) as Patologia;
+    return p && p.id === id ? p : null;
+  } catch {
+    return null;
+  }
+}
+
+function limparRascunho() {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(RASCUNHO_KEY);
+  } catch {
+    /* ignora */
+  }
+}
+
 export function PatologiaForm({
   inicial,
 
@@ -38,6 +75,35 @@ export function PatologiaForm({
   const [pat, setPat] = useState<Patologia>(inicial);
   const [loading, setLoading] = useState<"class" | "rec" | "gut" | "obs" | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const patRef = useRef(pat);
+  patRef.current = pat;
+
+  // Restaura o rascunho da mesma patologia após recarregamento da aba.
+  useEffect(() => {
+    const rascunho = lerRascunho(inicial.id);
+    if (rascunho) {
+      setPat((atual) => ({ ...rascunho, fotos: rascunho.fotos?.length ? rascunho.fotos : atual.fotos }));
+      toast.info("Rascunho recuperado automaticamente.");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inicial.id]);
+
+  // Autossalvamento com pequeno atraso para não travar a digitação.
+  useEffect(() => {
+    const t = window.setTimeout(() => gravarRascunho(pat), 500);
+    return () => window.clearTimeout(t);
+  }, [pat]);
+
+  // Salva imediatamente quando o app vai para segundo plano no celular.
+  useEffect(() => {
+    const salvarAgora = () => gravarRascunho(patRef.current);
+    window.addEventListener("pagehide", salvarAgora);
+    document.addEventListener("visibilitychange", salvarAgora);
+    return () => {
+      window.removeEventListener("pagehide", salvarAgora);
+      document.removeEventListener("visibilitychange", salvarAgora);
+    };
+  }, []);
 
   const set = <K extends keyof Patologia>(k: K, val: Patologia[K]) =>
     setPat((p) => ({ ...p, [k]: val }));
@@ -45,6 +111,7 @@ export function PatologiaForm({
   const podeIA = !!pat.elemento && !!pat.local && pat.manifestacoes.length > 0;
   const total = gutTotal(pat);
   const risco = riscoDe(total);
+
 
   const addFotos = (files: FileList | null) => {
     if (!files) return;
