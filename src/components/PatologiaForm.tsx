@@ -138,11 +138,14 @@ export function PatologiaForm({
     prompt: string,
     aplicar: (texto: string) => void,
   ) => {
+    // Garante o rascunho salvo antes de qualquer chamada externa.
+    gravarRascunho(patRef.current);
     if (!obterChaveGemini()) {
       toast.error("Configure a chave do Gemini nas Configurações (engrenagem).", {
         duration: 5000,
       });
       return;
+
     }
     setLoading(tipo);
     try {
