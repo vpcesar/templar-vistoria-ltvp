@@ -82,7 +82,10 @@ export function PatologiaForm({
   useEffect(() => {
     const rascunho = lerRascunho(inicial.id);
     if (rascunho) {
-      setPat((atual) => ({ ...rascunho, fotos: rascunho.fotos?.length ? rascunho.fotos : atual.fotos }));
+      setPat((atual) => ({
+        ...rascunho,
+        fotos: rascunho.fotos?.length ? rascunho.fotos : atual.fotos,
+      }));
       toast.info("Rascunho recuperado automaticamente.");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -111,7 +114,6 @@ export function PatologiaForm({
   const podeIA = !!pat.elemento && !!pat.local && pat.manifestacoes.length > 0;
   const total = gutTotal(pat);
   const risco = riscoDe(total);
-
 
   const addFotos = (files: FileList | null) => {
     if (!files) return;
@@ -145,7 +147,6 @@ export function PatologiaForm({
         duration: 5000,
       });
       return;
-
     }
     setLoading(tipo);
     try {
@@ -198,7 +199,11 @@ export function PatologiaForm({
         const limpo = texto.replace(/[*#`]/g, "").trim();
         const [primeira, ...resto] = limpo.split("\n");
         const classificacao = primeira?.trim() ?? limpo;
-        const explicacao = resto.map((l) => l.trim()).filter(Boolean).join(" ") ?? "";
+        const explicacao =
+          resto
+            .map((l) => l.trim())
+            .filter(Boolean)
+            .join(" ") ?? "";
         const match = CLASSIFICACOES.find(
           (c) =>
             c.toLowerCase() === classificacao.toLowerCase() ||
@@ -286,7 +291,6 @@ export function PatologiaForm({
     limparRascunho();
     onCancelar();
   };
-
 
   const sliderGut = (
     key: "gravidade" | "urgencia" | "tendencia",

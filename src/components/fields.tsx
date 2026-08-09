@@ -59,7 +59,6 @@ export function SearchSelect({
           </span>
           <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
         </Button>
-
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
         <Command>
@@ -133,7 +132,6 @@ export function ChipMulti({
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-accent",
               )}
-
             >
               {opt}
             </button>
@@ -222,7 +220,6 @@ export function SegmentedOptions({
               ? "border-primary bg-accent text-accent-foreground"
               : "border-border bg-background text-foreground hover:bg-muted",
           )}
-
         >
           {o}
         </button>
