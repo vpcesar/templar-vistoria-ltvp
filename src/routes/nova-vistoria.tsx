@@ -401,9 +401,10 @@ function NovaVistoria() {
                           <p className="truncate text-sm font-bold text-foreground">{p.elemento}</p>
                           <p className="truncate text-xs text-muted-foreground">{p.local}</p>
                           <div className="mt-1 flex flex-wrap gap-1">
-                            {p.manifestacoes.map((m) => (
+                            {p.manifestacoes.map((m, i) => (
                               <span
-                                key={m}
+                                key={`mani-${p.id}-${m}-${i}`}
+
                                 className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
                               >
                                 {m}
