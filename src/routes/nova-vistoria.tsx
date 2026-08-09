@@ -338,22 +338,26 @@ function NovaVistoria() {
         {passo === 2 && (
           <div className="space-y-4">
             {editando ? (
-              <ErrorBoundary titulo="Não foi possível exibir a ficha de patologia.">
-                <PatologiaForm
-                  inicial={editando}
-                  imovel={vistoria.imovel}
-                  modo={modo}
-                  onSalvar={salvarPatologia}
-                  onCancelar={() => {
-                    setEditando(null);
-                    setModo("novo");
-                  }}
-                />
-              </ErrorBoundary>
+              <div key="ficha-patologia">
+                <ErrorBoundary titulo="Não foi possível exibir a ficha de patologia.">
+                  <PatologiaForm
+                    key={editando.id}
+                    inicial={editando}
+                    imovel={vistoria.imovel}
+                    modo={modo}
+                    onSalvar={salvarPatologia}
+                    onCancelar={() => {
+                      setEditando(null);
+                      setModo("novo");
+                    }}
+                  />
+                </ErrorBoundary>
+              </div>
             ) : (
-              <>
+              <div key="lista-patologias" className="space-y-4">
                 <p className="text-sm font-semibold text-muted-foreground">
                   {vistoria.patologias.length}{" "}
+
                   {vistoria.patologias.length === 1
                     ? "patologia registrada"
                     : "patologias registradas"}
