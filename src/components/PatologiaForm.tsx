@@ -383,7 +383,7 @@ export function PatologiaForm({
         <SearchSelect value={pat.setor} onChange={(v) => set("setor", v)} options={SETORES} />
       </Field>
 
-      <Field label="Elemento inspecionado" tip={TOOLTIPS.elemento}>
+      <Field label="Elemento construtivo" tip={TOOLTIPS.elemento}>
         <SelectOrText
           value={pat.elemento}
           onChange={(v) => set("elemento", v)}
