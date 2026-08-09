@@ -458,7 +458,7 @@ function NovaVistoria() {
                     Finalizar coleta
                   </Button>
                 )}
-              </>
+              </div>
             )}
           </div>
         )}
