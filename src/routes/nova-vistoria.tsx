@@ -403,7 +403,7 @@ function NovaVistoria() {
                           <div className="mt-1 flex flex-wrap gap-1">
                             {p.manifestacoes.map((m, i) => (
                               <span
-                                key={`mani-${p.id}-${m}-${i}`}
+                                key={`mani-${p.id}-${m}`}
 
                                 className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
                               >
