@@ -212,6 +212,7 @@ export function PatologiaForm({
         setPat((p) => ({
           ...p,
           classificacao: match ?? classificacao,
+          manifestacoes: [...p.manifestacoes],
           iaConfianca: "",
           iaJustificativa: explicacao,
         }));
@@ -226,7 +227,12 @@ export function PatologiaForm({
     await executarIA(
       "rec",
       `Como engenheiro civil perito com especialização em Patologia das construções, redija uma recomendação técnica profissional para a manifestação: ${pat.manifestacoes.join(", ")} no elemento: ${pat.elemento || "não informado"}, local: ${pat.local || "não informado"}. A recomendação deve seguir as normas ABNT aplicáveis, mas a informação precisa ser clara para entendimento de todos — nem muito técnica, nem popular demais (meio termo). Recomende também, de acordo com o caso, testes mais aprofundados e acompanhamentos, se necessário. Você é o técnico responsável e analisará o fato. Máximo 3 linhas. Responda apenas com o texto da recomendação.`,
-      (texto) => set("recomendacao", texto.replace(/[*#`]/g, "").trim()),
+      (texto) =>
+        setPat((p) => ({
+          ...p,
+          recomendacao: texto.replace(/[*#`]/g, "").trim(),
+          manifestacoes: [...p.manifestacoes],
+        })),
     );
   };
 
@@ -239,7 +245,13 @@ export function PatologiaForm({
       texto.length >= 10
         ? `Como engenheiro civil perito, reescreva o texto abaixo de forma curta, objetiva e tecnicamente adequada para um laudo de inspeção predial. A informação deve ser clara para entendimento de todos — nem muito técnica, nem popular demais (meio termo). Não adicione informações novas. Máximo 2 linhas. Responda apenas com o texto, em português do Brasil.\n\nTexto original: ${texto}`
         : `Como engenheiro civil perito com especialização em Patologia das construções, redija uma observação técnica complementar para a manifestação patológica: ${pat.manifestacoes.join(", ")} em ${pat.elemento || "não informado"} / ${pat.local || "não informado"}. A informação deve ser clara para entendimento de todos — nem muito técnica, nem popular demais (meio termo). Inclua considerações sobre causas prováveis e urgência de intervenção. Máximo 2 linhas. Responda apenas com o texto da observação.`;
-    await executarIA("obs", prompt, (r) => set("observacoes", r.replace(/[*#`]/g, "").trim()));
+    await executarIA("obs", prompt, (r) =>
+      setPat((p) => ({
+        ...p,
+        observacoes: r.replace(/[*#`]/g, "").trim(),
+        manifestacoes: [...p.manifestacoes],
+      })),
+    );
   };
 
   const rodarGut = async (e?: React.MouseEvent) => {
@@ -260,6 +272,7 @@ export function PatologiaForm({
         const clamp = (n: number) => Math.min(5, Math.max(1, n));
         setPat((p) => ({
           ...p,
+          manifestacoes: [...p.manifestacoes],
           gravidade: g ? clamp(Number(g[1])) : p.gravidade,
           urgencia: u ? clamp(Number(u[1])) : p.urgencia,
           tendencia: t ? clamp(Number(t[1])) : p.tendencia,
@@ -379,7 +392,7 @@ export function PatologiaForm({
         </div>
       </Field>
 
-      <Field label="Setor vistoriado" tip={TOOLTIPS.setor}>
+      <Field label="Setor visitado" tip={TOOLTIPS.setor}>
         <SearchSelect value={pat.setor} onChange={(v) => set("setor", v)} options={SETORES} />
       </Field>
 
@@ -427,22 +440,19 @@ export function PatologiaForm({
             onChange={(v) => set("classificacao", v)}
             options={CLASSIFICACOES}
           />
-          {
-            <Button
-              type="button"
-              variant="outline"
-              className="min-h-11 w-full"
-              onClick={rodarClassificacao}
-              disabled={loading === "class"}
-            >
-              {loading === "class" ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="mr-2 h-4 w-4" />
-              )}
-              {loading === "class" ? "Gerando..." : "Sugerir classificação com IA"}
-            </Button>
-          }
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11 w-full"
+            onClick={rodarClassificacao}
+            disabled={loading === "class"}
+          >
+            <span className="mr-2 inline-grid h-4 w-4 place-items-center" aria-hidden="true">
+              <Loader2 className={loading === "class" ? "h-4 w-4 animate-spin" : "hidden"} />
+              <Sparkles className={loading === "class" ? "hidden" : "h-4 w-4"} />
+            </span>
+            <span>{loading === "class" ? "Gerando..." : "Sugerir classificação com IA"}</span>
+          </Button>
           {pat.iaJustificativa && (
             <div className="rounded-lg border border-border bg-muted/50 p-3">
               <Badge variant="secondary" className="mb-2">
@@ -462,22 +472,19 @@ export function PatologiaForm({
             onChange={(e) => set("recomendacao", e.target.value)}
             placeholder="Gere com IA e valide, ou escreva a recomendação técnica."
           />
-          {
-            <Button
-              type="button"
-              variant="outline"
-              className="min-h-11 w-full"
-              onClick={rodarRecomendacao}
-              disabled={loading === "rec"}
-            >
-              {loading === "rec" ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="mr-2 h-4 w-4" />
-              )}
-              {loading === "rec" ? "Gerando..." : "Sugerir recomendação com IA"}
-            </Button>
-          }
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11 w-full"
+            onClick={rodarRecomendacao}
+            disabled={loading === "rec"}
+          >
+            <span className="mr-2 inline-grid h-4 w-4 place-items-center" aria-hidden="true">
+              <Loader2 className={loading === "rec" ? "h-4 w-4 animate-spin" : "hidden"} />
+              <Sparkles className={loading === "rec" ? "hidden" : "h-4 w-4"} />
+            </span>
+            <span>{loading === "rec" ? "Gerando..." : "Sugerir recomendação com IA"}</span>
+          </Button>
         </div>
       </Field>
 
@@ -496,22 +503,19 @@ export function PatologiaForm({
         {sliderGut("gravidade", "Gravidade (G)", TOOLTIPS.gravidade, pat.justificativaG)}
         {sliderGut("urgencia", "Urgência (U)", TOOLTIPS.urgencia, pat.justificativaU)}
         {sliderGut("tendencia", "Tendência (T)", TOOLTIPS.tendencia, pat.justificativaT)}
-        {
-          <Button
-            type="button"
-            variant="outline"
-            className="min-h-11 w-full"
-            onClick={rodarGut}
-            disabled={loading === "gut"}
-          >
-            {loading === "gut" ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Sparkles className="mr-2 h-4 w-4" />
-            )}
-            {loading === "gut" ? "Gerando..." : "Sugerir GUT com IA"}
-          </Button>
-        }
+        <Button
+          type="button"
+          variant="outline"
+          className="min-h-11 w-full"
+          onClick={rodarGut}
+          disabled={loading === "gut"}
+        >
+          <span className="mr-2 inline-grid h-4 w-4 place-items-center" aria-hidden="true">
+            <Loader2 className={loading === "gut" ? "h-4 w-4 animate-spin" : "hidden"} />
+            <Sparkles className={loading === "gut" ? "hidden" : "h-4 w-4"} />
+          </span>
+          <span>{loading === "gut" ? "Gerando..." : "Sugerir GUT com IA"}</span>
+        </Button>
       </div>
 
       <Field
@@ -524,22 +528,19 @@ export function PatologiaForm({
             value={pat.observacoes ?? ""}
             onChange={(e) => set("observacoes", e.target.value)}
           />
-          {
-            <Button
-              type="button"
-              variant="outline"
-              className="min-h-11 w-full border-primary text-primary hover:bg-accent"
-              onClick={otimizarObs}
-              disabled={loading === "obs"}
-            >
-              {loading === "obs" ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="mr-2 h-4 w-4" />
-              )}
-              {loading === "obs" ? "Gerando..." : "Sugerir observação com IA"}
-            </Button>
-          }
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11 w-full border-primary text-primary hover:bg-accent"
+            onClick={otimizarObs}
+            disabled={loading === "obs"}
+          >
+            <span className="mr-2 inline-grid h-4 w-4 place-items-center" aria-hidden="true">
+              <Loader2 className={loading === "obs" ? "h-4 w-4 animate-spin" : "hidden"} />
+              <Sparkles className={loading === "obs" ? "hidden" : "h-4 w-4"} />
+            </span>
+            <span>{loading === "obs" ? "Gerando..." : "Sugerir observação com IA"}</span>
+          </Button>
         </div>
       </Field>
 
