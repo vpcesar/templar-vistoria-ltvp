@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { ArrowLeft, FileDown, FileText, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, FileDown, FileText, Loader2, Pencil, Plus, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,9 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AppShell } from "@/components/AppShell";
+import { LaudoEditor } from "@/components/LaudoEditor";
 import { obterVistoria, salvarVistoria } from "@/lib/storage";
-import { enderecoCompleto, gutTotal, riscoDe, type ItemAdicional, type Vistoria } from "@/lib/types";
-import { formatarData, grauRiscoGlobal, nivelInspecao, patologiasOrdenadas } from "@/lib/laudo";
+import {
+  enderecoCompleto,
+  gutTotal,
+  riscoDe,
+  type ItemAdicional,
+  type Vistoria,
+} from "@/lib/types";
+import { formatarData, grauRiscoGlobal, patologiasOrdenadas } from "@/lib/laudo";
+import { resolverLaudo, type LaudoEditavel } from "@/lib/laudo-editavel";
 
 export const Route = createFileRoute("/revisao/$id")({
   head: () => ({
@@ -35,16 +43,34 @@ function Revisao() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const [vistoria, setVistoria] = useState<Vistoria | null>(null);
+  const [laudo, setLaudo] = useState<LaudoEditavel | null>(null);
   const [gerando, setGerando] = useState<"docx" | "pdf" | null>(null);
   const [tituloItem, setTituloItem] = useState("");
   const [conteudoItem, setConteudoItem] = useState("");
+  const [editandoItemId, setEditandoItemId] = useState<string | null>(null);
+  const carregado = useRef(false);
 
   useEffect(() => {
-    setVistoria(obterVistoria(id) ?? null);
+    const v = obterVistoria(id) ?? null;
+    setVistoria(v);
+    setLaudo(v ? resolverLaudo(v) : null);
+    carregado.current = false;
   }, [id]);
 
+  // Persiste as edições do laudo na vistoria (localStorage).
+  useEffect(() => {
+    if (!vistoria || !laudo) return;
+    if (!carregado.current) {
+      carregado.current = true;
+      return;
+    }
+    const atualizada: Vistoria = { ...vistoria, laudoEditavel: laudo };
+    salvarVistoria(atualizada);
+    setVistoria(atualizada);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [laudo]);
 
-  if (!vistoria) {
+  if (!vistoria || !laudo) {
     return (
       <AppShell>
         <div className="rounded-xl border border-border bg-card p-8 text-center">
@@ -65,41 +91,66 @@ function Revisao() {
     const atualizada: Vistoria = {
       ...vistoria,
       itensAdicionais: itens,
+      laudoEditavel: laudo,
       atualizadoEm: new Date().toISOString(),
     };
     salvarVistoria(atualizada);
     setVistoria(atualizada);
   };
 
-  const adicionarItem = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const salvarItem = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
     const titulo = tituloItem.trim();
     const conteudo = conteudoItem.trim();
     if (!titulo || !conteudo) {
-      toast.error("Informe o título e o conteúdo do item.");
+      toast.error("Preencha o título e o conteúdo.");
       return;
     }
-    persistirItens([
-      ...itensAdicionais,
-      { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, titulo, conteudo },
-    ]);
+    if (editandoItemId) {
+      persistirItens(
+        itensAdicionais.map((item) =>
+          item.id === editandoItemId ? { ...item, titulo, conteudo } : item,
+        ),
+      );
+      toast.success("Item atualizado.");
+    } else {
+      persistirItens([
+        ...itensAdicionais,
+        { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, titulo, conteudo },
+      ]);
+      toast.success("Item adicionado ao laudo.");
+    }
     setTituloItem("");
     setConteudoItem("");
-    toast.success("Item adicionado ao laudo.");
+    setEditandoItemId(null);
+  };
+
+  const editarItem = (e: React.MouseEvent<HTMLButtonElement>, item: ItemAdicional) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setTituloItem(item.titulo);
+    setConteudoItem(item.conteudo);
+    setEditandoItemId(item.id);
   };
 
   const removerItem = (e: React.MouseEvent<HTMLButtonElement>, itemId: string) => {
     e.preventDefault();
     e.stopPropagation();
     persistirItens(itensAdicionais.filter((i) => i.id !== itemId));
+    if (editandoItemId === itemId) {
+      setTituloItem("");
+      setConteudoItem("");
+      setEditandoItemId(null);
+    }
     toast.success("Item removido do laudo.");
   };
 
+  const paraLaudo = (): Vistoria => ({ ...vistoria, laudoEditavel: laudo });
 
   const concluir = () => {
     const atualizada: Vistoria = {
-      ...vistoria,
+      ...paraLaudo(),
       status: "CONCLUIDA",
       atualizadoEm: new Date().toISOString(),
     };
@@ -111,7 +162,7 @@ function Revisao() {
     setGerando("docx");
     try {
       const { gerarDocx } = await import("@/lib/report/docx");
-      await gerarDocx(vistoria);
+      await gerarDocx(paraLaudo());
 
       concluir();
       toast.success("Laudo em Word gerado");
@@ -125,7 +176,7 @@ function Revisao() {
     setGerando("pdf");
     try {
       const { gerarPdf } = await import("@/lib/report/pdf");
-      await gerarPdf(vistoria);
+      await gerarPdf(paraLaudo());
       concluir();
       toast.success("Laudo em PDF gerado");
     } catch {
@@ -133,6 +184,9 @@ function Revisao() {
     }
     setGerando(null);
   };
+
+  const atualizarLaudo = (fn: (anterior: LaudoEditavel) => LaudoEditavel) =>
+    setLaudo((prev) => (prev ? fn(prev) : prev));
 
   return (
     <AppShell>
@@ -245,70 +299,87 @@ function Revisao() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-4 shadow-card sm:p-6">
-          <h2 className="text-base font-bold text-foreground">Itens adicionais do laudo</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Incluídos no final do laudo, antes da assinatura.
-          </p>
+        <LaudoEditor
+          laudo={laudo}
+          setLaudo={atualizarLaudo}
+          numeroItensAdicionais={
+            itensAdicionais.filter((i) => i.titulo.trim() || i.conteudo.trim()).length
+          }
+          slotItensAdicionais={
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Incluídos como seções principais, antes do encerramento.
+              </p>
 
-          <div className="mt-4 space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="titulo-item-adicional">Título do item adicional</Label>
-              <Input
-                id="titulo-item-adicional"
-                type="text"
-                value={tituloItem}
-                onChange={(e) => setTituloItem(e.target.value)}
-                placeholder="Ex.: Ressalvas, Considerações Finais, Observações Complementares..."
-                className="min-h-11"
-              />
+              <div className="mt-4 space-y-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="titulo-item-adicional">Título do item adicional</Label>
+                  <Input
+                    id="titulo-item-adicional"
+                    type="text"
+                    value={tituloItem}
+                    onChange={(e) => setTituloItem(e.target.value)}
+                    placeholder="Ex.: Ressalvas, Considerações Finais..."
+                    className="min-h-11"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="conteudo-item-adicional">Conteúdo do item</Label>
+                  <Textarea
+                    id="conteudo-item-adicional"
+                    rows={5}
+                    value={conteudoItem}
+                    onChange={(e) => setConteudoItem(e.target.value)}
+                    placeholder="Digite aqui o conteúdo que será incluído no laudo..."
+                  />
+                </div>
+                <Button type="button" className="min-h-11 w-full sm:w-auto" onClick={salvarItem}>
+                  {editandoItemId ? (
+                    <Save className="mr-2 h-4 w-4" />
+                  ) : (
+                    <Plus className="mr-2 h-4 w-4" />
+                  )}
+                  {editandoItemId ? "Salvar edição" : "Adicionar item"}
+                </Button>
+              </div>
+
+              {itensAdicionais.length > 0 && (
+                <ul className="mt-4 space-y-3">
+                  {itensAdicionais.map((item) => (
+                    <li key={item.id} className="rounded-lg border border-border bg-muted/40 p-3">
+                      <p className="text-sm font-bold text-foreground">{item.titulo}</p>
+                      <p className="mt-1 whitespace-pre-wrap break-words text-sm text-muted-foreground">
+                        {item.conteudo}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="min-h-10"
+                          onClick={(e) => editarItem(e, item)}
+                        >
+                          <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                          Editar
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="min-h-10"
+                          onClick={(e) => removerItem(e, item.id)}
+                        >
+                          <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                          Remover
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="conteudo-item-adicional">Conteúdo do item</Label>
-              <Textarea
-                id="conteudo-item-adicional"
-                rows={5}
-                value={conteudoItem}
-                onChange={(e) => setConteudoItem(e.target.value)}
-                placeholder="Digite aqui o conteúdo que será incluído no final do laudo..."
-              />
-            </div>
-            <Button type="button" className="min-h-11 w-full sm:w-auto" onClick={adicionarItem}>
-              <Plus className="mr-2 h-4 w-4" />
-              Adicionar item
-            </Button>
-          </div>
-
-          {itensAdicionais.length > 0 && (
-            <ul className="mt-4 space-y-3">
-              {itensAdicionais.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex flex-col gap-2 rounded-lg border border-border bg-muted/40 p-3 sm:flex-row sm:items-start sm:justify-between"
-                >
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-foreground">{item.titulo}</p>
-                    <p className="mt-1 whitespace-pre-wrap break-words text-sm text-muted-foreground">
-                      {item.conteudo}
-                    </p>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="min-h-10 shrink-0"
-                    onClick={(e) => removerItem(e, item.id)}
-                  >
-                    <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                    Remover
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-
+          }
+        />
 
         <div className="sticky bottom-4 flex flex-col gap-2 rounded-xl border border-border bg-card p-4 shadow-card sm:flex-row">
           <Button className="min-h-12 flex-1" onClick={exportarDocx} disabled={gerando !== null}>

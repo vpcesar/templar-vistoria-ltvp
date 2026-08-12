@@ -80,12 +80,10 @@ export function ConfiguracoesDialog({
       } else {
         toast.error("Erro de conexão. Verifique sua internet.", { duration: 5000 });
       }
-
     } finally {
       setTestando(false);
     }
   };
-
 
   const importar = async (file?: File | null) => {
     if (!file) return;

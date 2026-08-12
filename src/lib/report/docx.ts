@@ -18,31 +18,17 @@ import {
   TextRun,
   WidthType,
 } from "docx";
-import { enderecoCompleto, gutTotal, riscoDe, type Vistoria } from "../types";
+import { enderecoCompleto, type Vistoria } from "../types";
 import {
   EMPRESA,
-  GLOSSARIO,
-  normasAplicaveis,
-  textoArt,
   TABELA_GUT_PESOS,
   TABELA_PRIORIDADES,
-  anamneseResumo,
   classificacoesTexto,
   formatarData,
   grauRiscoGlobal,
   grausRiscoIbape,
-  listaVerificacao,
-  metodologia,
-  nivelInspecao,
-  patologiasOrdenadas,
-  sistemasInspecionados,
-  legendaFoto,
-  textoConclusao,
-  ENCERRAMENTO_PARTE_1,
-  encerramentoParte2,
-  textoSecao1,
-  textoSecao12,
 } from "../laudo";
+import { TOKEN_PAGINAS, paragrafos, patologiasParaLaudo, resolverLaudo } from "../laudo-editavel";
 import { carregarLogo } from "./logo";
 
 const BRAND = "8B1A1A";
@@ -134,7 +120,8 @@ function dataUrlToBytes(dataUrl: string) {
 }
 
 export async function gerarDocx(v: Vistoria) {
-  const ordenadas = patologiasOrdenadas(v);
+  const L = resolverLaudo(v);
+  const pats = patologiasParaLaudo(v, L);
   const risco = grauRiscoGlobal(v);
   const children: (Paragraph | Table)[] = [];
 
@@ -144,7 +131,7 @@ export async function gerarDocx(v: Vistoria) {
   children.push(new Paragraph({ spacing: { after: 1400 }, children: [] }));
   if (logo) {
     const ratio = logo.width / logo.height;
-    const MAX_W = 440; // largura útil da página (pt)
+    const MAX_W = 440;
     let capaH = 270;
     let capaW = Math.round(ratio * capaH);
     if (capaW > MAX_W) {
@@ -186,14 +173,12 @@ export async function gerarDocx(v: Vistoria) {
     new Paragraph({ pageBreakBefore: true, children: [] }),
   );
 
-  children.push(h("1. IDENTIFICAÇÃO DO SOLICITANTE"), p(textoSecao1(v)));
-
   children.push(
-    h("2. OBJETIVO"),
-    p(
-      "O presente laudo tem por objetivo apresentar o diagnóstico geral do estado de conservação da edificação, identificando as anomalias e falhas existentes, avaliando os riscos associados e indicando as recomendações técnicas corretivas e a ordem de prioridade de intervenção, conforme a ABNT NBR 16747, a ABNT NBR 5674 e a Norma de Inspeção Predial do IBAPE.",
-    ),
+    h("1. IDENTIFICAÇÃO DO SOLICITANTE"),
+    ...paragrafos(L.secao1.texto).map((t) => p(t)),
   );
+
+  children.push(h("2. OBJETIVO"), ...paragrafos(L.secao2.texto).map((t) => p(t)));
 
   children.push(
     h("3. DADOS INICIAIS"),
@@ -201,10 +186,10 @@ export async function gerarDocx(v: Vistoria) {
     table(
       [
         ["Item", "Descrição"],
-        ["Tipo de edificação", v.imovel.tipoEdificacao || "—"],
-        ["Endereço", enderecoCompleto(v.imovel)],
-        ["Área construída", v.imovel.areaConstruida ? `${v.imovel.areaConstruida} m²` : "—"],
-        ["Solicitante", v.imovel.proprietario || "—"],
+        ["Tipo de edificação", L.secao3.tipoEdificacao],
+        ["Endereço", L.secao3.endereco],
+        ["Área construída", L.secao3.areaConstruida],
+        ["Solicitante", L.secao3.solicitante],
       ],
       [3200, 6438],
     ),
@@ -212,38 +197,28 @@ export async function gerarDocx(v: Vistoria) {
     table(
       [
         ["Item", "Descrição"],
-        ["Responsável", v.imovel.inspetor || "—"],
-        ["CREA", v.imovel.crea || "—"],
-        ["ART – Anotação de Responsabilidade Técnica", textoArt(v)],
+        ["Responsável", L.secao3.responsavel],
+        ["CREA", L.secao3.crea],
+        ["ART – Anotação de Responsabilidade Técnica", L.secao3.art],
       ],
       [3200, 6438],
     ),
     h("3.3 Data da vistoria", 2),
-    p(formatarData(v.imovel.dataVistoria)),
+    p(L.secao3.data),
   );
 
   children.push(
     h("4. DESCRIÇÃO DO IMÓVEL"),
-    p(
-      `A edificação está localizada em ${enderecoCompleto(v.imovel)}, possui ${
-        v.imovel.pavimentos || "—"
-      } pavimento(s), é classificada como ${v.imovel.tipoEdificacao || "—"} e apresenta idade aparente de ${
-        v.imovel.idadeAparente
-      } anos, com área construída de ${v.imovel.areaConstruida || "—"} m². Os sistemas componentes verificados incluem estrutura, vedações, revestimentos, cobertura, impermeabilização, instalações elétricas e hidrossanitárias, esquadrias e pisos.`,
-    ),
-    v.imovel.observacoes ? p(`Observações gerais: ${v.imovel.observacoes}`) : p(""),
+    ...paragrafos(L.secao4.texto).map((t) => p(t)),
+    L.secao4.observacoes.trim() ? p(`Observações gerais: ${L.secao4.observacoes}`) : p(""),
     h("4.1 Anamnese prévia", 2),
     table(
-      [
-        ["Questão", "Resposta"],
-        ...anamneseResumo(v).map((a: { pergunta: string; resposta: string }) => [
-          a.pergunta,
-          a.resposta,
-        ]),
-      ],
+      [["Questão", "Resposta"], ...L.secao4.anamnese.map((a) => [a.pergunta, a.resposta])],
       [6800, 2838],
     ),
-    v.anamnese.observacoes ? p(`Observações da anamnese: ${v.anamnese.observacoes}`) : p(""),
+    L.secao4.observacoesAnamnese.trim()
+      ? p(`Observações da anamnese: ${L.secao4.observacoesAnamnese}`)
+      : p(""),
   );
 
   const fotosEdificacao = v.imovel.fotosEdificacao ?? [];
@@ -266,36 +241,26 @@ export async function gerarDocx(v: Vistoria) {
     );
 
   if (fotosEdificacao.length === 0 && fotosSatelite.length === 0) {
-    children.push(p("Não há registro fotográfico da edificação nesta vistoria."));
+    children.push(p(L.secao5.textoSemFoto));
   } else {
     fotosEdificacao.forEach((f, i) =>
-      pushFoto(
-        f.dataUrl,
-        `Foto da fachada (in loco)${fotosEdificacao.length > 1 ? ` ${i + 1}` : ""} — fachada do imóvel vistoriado.`,
-        `fachada-${i}`,
-      ),
+      pushFoto(f.dataUrl, L.secao5.legendasFachada[i] ?? "", `fachada-${i}`),
     );
     fotosSatelite.forEach((f, i) =>
-      pushFoto(
-        f.dataUrl,
-        `Foto de satélite (Google Earth)${fotosSatelite.length > 1 ? ` ${i + 1}` : ""} — localização do imóvel.`,
-        `satelite-${i}`,
-      ),
+      pushFoto(f.dataUrl, L.secao5.legendasSatelite[i] ?? "", `satelite-${i}`),
     );
   }
 
-  children.push(h("6. CLASSIFICAÇÃO DA INSPEÇÃO"), ...nivelInspecao(v).map((t) => p(t)));
+  children.push(h("6. CLASSIFICAÇÃO DA INSPEÇÃO"), ...paragrafos(L.secao6.texto).map((t) => p(t)));
 
   children.push(h("7. METODOLOGIA"));
-  metodologia(v).forEach(([titulo, texto]: [string, string]) =>
-    children.push(h(titulo, 2), p(texto)),
-  );
+  L.secao7.itens.forEach((item) => {
+    children.push(h(item.titulo, 2));
+    paragrafos(item.texto).forEach((t) => children.push(p(t)));
+  });
   children.push(
     h("7.4 Glossário (ABNT NBR 16747)", 2),
-    table(
-      [["Termo", "Definição"], ...GLOSSARIO.map(([t, d]: [string, string]) => [t, d])],
-      [2600, 7038],
-    ),
+    table([["Termo", "Definição"], ...L.secao7.glossario.map(([t, d]) => [t, d])], [2600, 7038]),
   );
 
   children.push(h("8. GRAU DE RISCO E PRIORIDADES"), h("8.1 Graus de risco (IBAPE)", 2));
@@ -314,33 +279,25 @@ export async function gerarDocx(v: Vistoria) {
   );
 
   children.push(h("9. SISTEMAS CONSTRUTIVOS INSPECIONADOS"));
-  sistemasInspecionados(v).forEach((s: string) =>
-    children.push(p(`• ${s}`, { align: AlignmentType.LEFT })),
-  );
+  L.secao9.sistemas
+    .filter((s) => s.trim())
+    .forEach((s) => children.push(p(`• ${s}`, { align: AlignmentType.LEFT })));
 
   children.push(
     h("10. LISTA DE VERIFICAÇÃO"),
     table(
       [
         ["ITEM", "DESCRIÇÃO", "VERIFICADO", "OBSERVAÇÃO"],
-        ...listaVerificacao(v).map(
-          (l: { item: string; descricao: string; verificado: string; observacao: string }) => [
-            l.item,
-            l.descricao,
-            l.verificado,
-            l.observacao,
-          ],
-        ),
+        ...L.secao10.itens.map((l, i) => [String(i + 1), l.descricao, l.verificado, l.observacao]),
       ],
       [800, 3200, 1400, 4238],
     ),
   );
 
   children.push(h("11. VISTORIA DA ÁREA — RELATÓRIO FOTOGRÁFICO"));
-  ordenadas.forEach((pat, idx: number) => {
-    const total = gutTotal(pat);
-    children.push(h(`11.${idx + 1} ${pat.elemento || "Elemento"} — ${pat.local || "Local"}`, 2));
-    pat.fotos.forEach((f, i: number) => {
+  pats.forEach((pat, idx: number) => {
+    children.push(h(`11.${idx + 1} ${pat.titulo || "Elemento"}`, 2));
+    pat.original.fotos.forEach((f, i: number) => {
       children.push(
         new Paragraph({
           alignment: AlignmentType.CENTER,
@@ -351,25 +308,22 @@ export async function gerarDocx(v: Vistoria) {
               transformation: { width: 340, height: 240 },
               altText: {
                 title: `Foto ${i + 1}`,
-                description: pat.manifestacoes.join(", "),
+                description: pat.manifestacoes,
                 name: `foto-${idx}-${i}`,
               },
             }),
           ],
         }),
-        p(legendaFoto(pat, idx + 1, i + 1), {
-          size: 18,
-          align: AlignmentType.CENTER,
-        }),
+        p(pat.legendas[i] ?? "", { size: 18, align: AlignmentType.CENTER }),
       );
     });
     children.push(
       table(
         [
           ["Item", "Descrição"],
-          ["Elemento inspecionado", pat.elemento || "—"],
+          ["Elemento construtivo", pat.elemento || "—"],
           ["Local / posição", `${pat.local || "—"} / ${pat.posicao || "—"}`],
-          ["Manifestações patológicas", pat.manifestacoes.join("; ") || "—"],
+          ["Manifestações patológicas", pat.manifestacoes || "—"],
           ["Classificação", pat.classificacao || "—"],
           ["Recomendações técnicas", pat.recomendacao || "—"],
           ["Observações", pat.observacoes || "—"],
@@ -388,8 +342,8 @@ export async function gerarDocx(v: Vistoria) {
             String(pat.gravidade),
             String(pat.urgencia),
             String(pat.tendencia),
-            String(total),
-            riscoDe(total).label,
+            String(pat.total),
+            pat.risco,
           ],
         ],
         [1900, 1900, 1900, 1900, 2038],
@@ -399,7 +353,7 @@ export async function gerarDocx(v: Vistoria) {
 
   children.push(
     h("12. LISTA DE PRIORIDADES"),
-    p(textoSecao12(v)),
+    ...paragrafos(L.secao12.texto).map((t) => p(t)),
     table(
       [["Prioridade", "Pontuação", "Prazo"], ...TABELA_PRIORIDADES.map((r: string[]) => [...r])],
       [2600, 3000, 4038],
@@ -408,57 +362,56 @@ export async function gerarDocx(v: Vistoria) {
     table(
       [
         ["Ordem", "Elemento / Local", "Pontuação GUT", "Grau de risco"],
-        ...ordenadas.map((pat, i: number) => [
-          `${i + 1}º`,
-          `${pat.elemento} — ${pat.local}`,
-          String(gutTotal(pat)),
-          riscoDe(gutTotal(pat)).label,
-        ]),
+        ...[...pats]
+          .sort((a, b) => b.total - a.total)
+          .map((pat, i: number) => [
+            `${i + 1}º`,
+            `${pat.elemento} — ${pat.local}`,
+            String(pat.total),
+            pat.risco,
+          ]),
       ],
       [1200, 4838, 1800, 1800],
     ),
   );
 
   children.push(h("13. CONCLUSÕES"));
-  textoConclusao(v).forEach((t: string) => children.push(p(t)));
+  paragrafos(L.secao13.texto).forEach((t) => children.push(p(t)));
   children.push(
     p(`Classificação global do grau de risco: ${risco.label.toUpperCase()}.`, { bold: true }),
   );
 
   children.push(h("14. NORMAS TÉCNICAS"));
-  normasAplicaveis(v).forEach(([nome, desc]: [string, string], i: number) =>
-    children.push(
-      new Paragraph({
-        alignment: AlignmentType.JUSTIFIED,
-        spacing: { after: 100 },
-        children: [
-          new TextRun({
-            text: `${i + 1}. ${nome}`,
-            bold: true,
-            size: 20,
-            font: "Arial",
-            color: SLATE,
-          }),
-          ...(desc
-            ? [new TextRun({ text: ` — ${desc}`, size: 20, font: "Arial", color: SLATE })]
-            : []),
-        ],
-      }),
-    ),
-  );
+  L.secao14.normas
+    .map((n) => n.trim())
+    .filter(Boolean)
+    .forEach((norma, i) =>
+      children.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          spacing: { after: 100 },
+          children: [
+            new TextRun({
+              text: `${i + 1}. ${norma}`,
+              size: 20,
+              font: "Arial",
+              color: SLATE,
+            }),
+          ],
+        }),
+      ),
+    );
 
   const itensAdicionais = (v.itensAdicionais ?? []).filter(
     (it) => it.titulo.trim() || it.conteudo.trim(),
   );
   itensAdicionais.forEach((item, i) => {
     children.push(h(`${15 + i}. ${(item.titulo.trim() || "Item adicional").toUpperCase()}`));
-    (item.conteudo || "")
-      .split(/\n+/)
-      .filter((linha) => linha.trim())
-      .forEach((linha) => children.push(p(linha.trim())));
+    paragrafos(item.conteudo).forEach((linha) => children.push(p(linha)));
   });
 
   const numEncerramento = 15 + itensAdicionais.length;
+  const [antes, depois] = L.encerramento.texto.split(TOKEN_PAGINAS);
 
   children.push(
     h(`${numEncerramento}. ENCERRAMENTO`),
@@ -466,9 +419,18 @@ export async function gerarDocx(v: Vistoria) {
       alignment: AlignmentType.JUSTIFIED,
       spacing: { after: 120 },
       children: [
-        new TextRun({ text: ENCERRAMENTO_PARTE_1, size: 22, font: "Arial", color: SLATE }),
-        new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 22, font: "Arial", color: SLATE }),
-        new TextRun({ text: encerramentoParte2(v), size: 22, font: "Arial", color: SLATE }),
+        new TextRun({ text: antes ?? "", size: 22, font: "Arial", color: SLATE }),
+        ...(depois !== undefined
+          ? [
+              new TextRun({
+                children: [PageNumber.TOTAL_PAGES],
+                size: 22,
+                font: "Arial",
+                color: SLATE,
+              }),
+              new TextRun({ text: depois, size: 22, font: "Arial", color: SLATE }),
+            ]
+          : []),
       ],
     }),
   );
@@ -476,16 +438,16 @@ export async function gerarDocx(v: Vistoria) {
   children.push(
     h(`${numEncerramento + 1}. ASSINATURA`),
 
-    p(`${v.imovel.cidade || "—"}, ${formatarData(v.imovel.dataVistoria)}.`, {
+    p(`${L.assinatura.cidade}, ${L.assinatura.data}.`, {
       align: AlignmentType.CENTER,
     }),
     p(""),
     p("_______________________________________", { align: AlignmentType.CENTER }),
-    p(`${v.imovel.inspetor || "Responsável técnico"} — Engenheiro Civil`, {
+    p(`${L.assinatura.nome} — Engenheiro Civil`, {
       bold: true,
       align: AlignmentType.CENTER,
     }),
-    p(`CREA: ${v.imovel.crea || "—"}`, { align: AlignmentType.CENTER }),
+    p(`CREA: ${L.assinatura.crea}`, { align: AlignmentType.CENTER }),
   );
 
   // Cabeçalho de todas as páginas: nome à esquerda, slogan à direita, linha vermelha abaixo

@@ -1,28 +1,15 @@
 import { jsPDF } from "jspdf";
-import { enderecoCompleto, gutTotal, riscoDe, type Vistoria } from "../types";
+import { enderecoCompleto, type Vistoria } from "../types";
 import {
   EMPRESA,
-  GLOSSARIO,
-  normasAplicaveis,
-  textoArt,
   TABELA_GUT_PESOS,
   TABELA_PRIORIDADES,
-  anamneseResumo,
   classificacoesTexto,
   formatarData,
   grauRiscoGlobal,
   grausRiscoIbape,
-  legendaFoto,
-  listaVerificacao,
-  metodologia,
-  nivelInspecao,
-  patologiasOrdenadas,
-  sistemasInspecionados,
-  textoConclusao,
-  textoEncerramento,
-  textoSecao1,
-  textoSecao12,
 } from "../laudo";
+import { TOKEN_PAGINAS, paragrafos, patologiasParaLaudo, resolverLaudo } from "../laudo-editavel";
 import { carregarLogo, type LogoLaudo } from "./logo";
 
 const BRAND: [number, number, number] = [139, 26, 26];
@@ -196,7 +183,8 @@ class Builder {
 
 function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   const b = new Builder(logo);
-  const ordenadas = patologiasOrdenadas(v);
+  const L = resolverLaudo(v);
+  const pats = patologiasParaLaudo(v, L);
   const risco = grauRiscoGlobal(v);
 
   // Capa — escudo centralizado no corpo da página
@@ -227,22 +215,20 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   b.y = M.top;
 
   b.h1("1. IDENTIFICAÇÃO DO SOLICITANTE");
-  b.text(textoSecao1(v));
+  paragrafos(L.secao1.texto).forEach((t) => b.text(t));
 
   b.h1("2. OBJETIVO");
-  b.text(
-    "O presente laudo tem por objetivo apresentar o diagnóstico geral do estado de conservação da edificação, identificando as anomalias e falhas existentes, avaliando os riscos associados e indicando as recomendações técnicas corretivas e a ordem de prioridade de intervenção, conforme a ABNT NBR 16747, a ABNT NBR 5674 e a Norma de Inspeção Predial do IBAPE.",
-  );
+  paragrafos(L.secao2.texto).forEach((t) => b.text(t));
 
   b.h1("3. DADOS INICIAIS");
   b.h2("3.1 Identificação");
   b.table(
     [
       ["Item", "Descrição"],
-      ["Tipo de edificação", v.imovel.tipoEdificacao || "—"],
-      ["Endereço", enderecoCompleto(v.imovel)],
-      ["Área construída", v.imovel.areaConstruida ? `${v.imovel.areaConstruida} m²` : "—"],
-      ["Solicitante", v.imovel.proprietario || "—"],
+      ["Tipo de edificação", L.secao3.tipoEdificacao],
+      ["Endereço", L.secao3.endereco],
+      ["Área construída", L.secao3.areaConstruida],
+      ["Solicitante", L.secao3.solicitante],
     ],
     [35, 65],
   );
@@ -250,63 +236,52 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   b.table(
     [
       ["Item", "Descrição"],
-      ["Responsável", v.imovel.inspetor || "—"],
-      ["CREA", v.imovel.crea || "—"],
-      ["ART – Anotação de Responsabilidade Técnica", textoArt(v)],
+      ["Responsável", L.secao3.responsavel],
+      ["CREA", L.secao3.crea],
+      ["ART – Anotação de Responsabilidade Técnica", L.secao3.art],
     ],
     [35, 65],
   );
   b.h2("3.3 Data da vistoria");
-  b.text(formatarData(v.imovel.dataVistoria), { justify: false });
+  b.text(L.secao3.data, { justify: false });
 
   b.h1("4. DESCRIÇÃO DO IMÓVEL");
-  b.text(
-    `A edificação está localizada em ${enderecoCompleto(v.imovel)}, possui ${
-      v.imovel.pavimentos || "—"
-    } pavimento(s), é classificada como ${v.imovel.tipoEdificacao || "—"} e apresenta idade aparente de ${
-      v.imovel.idadeAparente
-    } anos, com área construída de ${v.imovel.areaConstruida || "—"} m². Os sistemas componentes verificados incluem estrutura, vedações, revestimentos, cobertura, impermeabilização, instalações elétricas e hidrossanitárias, esquadrias e pisos.`,
-  );
-  if (v.imovel.observacoes) b.text(`Observações gerais: ${v.imovel.observacoes}`);
+  paragrafos(L.secao4.texto).forEach((t) => b.text(t));
+  if (L.secao4.observacoes.trim()) b.text(`Observações gerais: ${L.secao4.observacoes}`);
   b.h2("4.1 Anamnese prévia");
   b.table(
-    [["Questão", "Resposta"], ...anamneseResumo(v).map((a) => [a.pergunta, a.resposta])],
+    [["Questão", "Resposta"], ...L.secao4.anamnese.map((a) => [a.pergunta, a.resposta])],
     [70, 30],
   );
-  if (v.anamnese.observacoes) b.text(`Observações da anamnese: ${v.anamnese.observacoes}`);
+  if (L.secao4.observacoesAnamnese.trim())
+    b.text(`Observações da anamnese: ${L.secao4.observacoesAnamnese}`);
 
   b.h1("5. FOTO DA EDIFICAÇÃO");
   const fotosEdificacao = v.imovel.fotosEdificacao ?? [];
   const fotosSatelite = v.imovel.fotosSatelite ?? [];
   if (fotosEdificacao.length === 0 && fotosSatelite.length === 0) {
-    b.text("Não há registro fotográfico da edificação nesta vistoria.");
+    b.text(L.secao5.textoSemFoto);
   } else {
     fotosEdificacao.forEach((f, i) => {
       b.image(f.dataUrl, 130, 90);
-      b.text(
-        `Foto da fachada (in loco)${fotosEdificacao.length > 1 ? ` ${i + 1}` : ""} — fachada do imóvel vistoriado.`,
-        { size: 8.5, center: true },
-      );
+      b.text(L.secao5.legendasFachada[i] ?? "", { size: 8.5, center: true });
     });
     fotosSatelite.forEach((f, i) => {
       b.image(f.dataUrl, 130, 90);
-      b.text(
-        `Foto de satélite (Google Earth)${fotosSatelite.length > 1 ? ` ${i + 1}` : ""} — localização do imóvel.`,
-        { size: 8.5, center: true },
-      );
+      b.text(L.secao5.legendasSatelite[i] ?? "", { size: 8.5, center: true });
     });
   }
 
   b.h1("6. CLASSIFICAÇÃO DA INSPEÇÃO");
-  nivelInspecao(v).forEach((t) => b.text(t));
+  paragrafos(L.secao6.texto).forEach((t) => b.text(t));
 
   b.h1("7. METODOLOGIA");
-  metodologia(v).forEach(([t, txt]) => {
-    b.h2(t);
-    b.text(txt);
+  L.secao7.itens.forEach((item) => {
+    b.h2(item.titulo);
+    paragrafos(item.texto).forEach((t) => b.text(t));
   });
   b.h2("7.4 Glossário (ABNT NBR 16747)");
-  b.table([["Termo", "Definição"], ...GLOSSARIO.map(([t, d]) => [t, d])], [28, 72]);
+  b.table([["Termo", "Definição"], ...L.secao7.glossario.map(([t, d]) => [t, d])], [28, 72]);
 
   b.h1("8. GRAU DE RISCO E PRIORIDADES");
   b.h2("8.1 Graus de risco (IBAPE)");
@@ -320,31 +295,30 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   b.table([["Classificação", "Definição"], ...classificacoesTexto()], [32, 68]);
 
   b.h1("9. SISTEMAS CONSTRUTIVOS INSPECIONADOS");
-  sistemasInspecionados(v).forEach((s) => b.text(`• ${s}`, { justify: false }));
+  L.secao9.sistemas.filter((s) => s.trim()).forEach((s) => b.text(`• ${s}`, { justify: false }));
 
   b.h1("10. LISTA DE VERIFICAÇÃO");
   b.table(
     [
       ["ITEM", "DESCRIÇÃO", "VERIFICADO", "OBSERVAÇÃO"],
-      ...listaVerificacao(v).map((l) => [l.item, l.descricao, l.verificado, l.observacao]),
+      ...L.secao10.itens.map((l, i) => [String(i + 1), l.descricao, l.verificado, l.observacao]),
     ],
     [8, 32, 16, 44],
   );
 
   b.h1("11. VISTORIA DA ÁREA — RELATÓRIO FOTOGRÁFICO");
-  ordenadas.forEach((pat, idx) => {
-    const total = gutTotal(pat);
-    b.h2(`11.${idx + 1} ${pat.elemento || "Elemento"} — ${pat.local || "Local"}`);
-    pat.fotos.forEach((f, i) => {
+  pats.forEach((pat, idx) => {
+    b.h2(`11.${idx + 1} ${pat.titulo || "Elemento"}`);
+    pat.original.fotos.forEach((f, i) => {
       b.image(f.dataUrl);
-      b.text(legendaFoto(pat, idx + 1, i + 1), { size: 8.5, center: true });
+      b.text(pat.legendas[i] ?? "", { size: 8.5, center: true });
     });
     b.table(
       [
         ["Item", "Descrição"],
-        ["Elemento inspecionado", pat.elemento || "—"],
+        ["Elemento construtivo", pat.elemento || "—"],
         ["Local / posição", `${pat.local || "—"} / ${pat.posicao || "—"}`],
-        ["Manifestações patológicas", pat.manifestacoes.join("; ") || "—"],
+        ["Manifestações patológicas", pat.manifestacoes || "—"],
         ["Classificação", pat.classificacao || "—"],
         ["Recomendações técnicas", pat.recomendacao || "—"],
         ["Observações", pat.observacoes || "—"],
@@ -363,8 +337,8 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
           String(pat.gravidade),
           String(pat.urgencia),
           String(pat.tendencia),
-          String(total),
-          riscoDe(total).label,
+          String(pat.total),
+          pat.risco,
         ],
       ],
       [20, 20, 20, 20, 20],
@@ -372,7 +346,7 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   });
 
   b.h1("12. LISTA DE PRIORIDADES");
-  b.text(textoSecao12(v));
+  paragrafos(L.secao12.texto).forEach((t) => b.text(t));
   b.table(
     [["Prioridade", "Pontuação", "Prazo"], ...TABELA_PRIORIDADES.map((r) => [...r])],
     [25, 30, 45],
@@ -380,52 +354,57 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   b.table(
     [
       ["Ordem", "Elemento / Local", "Pontuação GUT", "Grau de risco"],
-      ...ordenadas.map((pat, i) => [
-        `${i + 1}º`,
-        `${pat.elemento} — ${pat.local}`,
-        String(gutTotal(pat)),
-        riscoDe(gutTotal(pat)).label,
-      ]),
+      ...[...pats]
+        .sort((a, z) => z.total - a.total)
+        .map((pat, i) => [
+          `${i + 1}º`,
+          `${pat.elemento} — ${pat.local}`,
+          String(pat.total),
+          pat.risco,
+        ]),
     ],
     [12, 48, 20, 20],
   );
 
   b.h1("13. CONCLUSÕES");
-  textoConclusao(v).forEach((t) => b.text(t));
+  paragrafos(L.secao13.texto).forEach((t) => b.text(t));
   b.text(`Classificação global do grau de risco: ${risco.label.toUpperCase()}.`, {
     bold: true,
     justify: false,
   });
 
   b.h1("14. NORMAS TÉCNICAS");
-  normasAplicaveis(v).forEach(([nome, desc], i) => b.normaItem(i + 1, nome, desc));
+  L.secao14.normas
+    .map((n) => n.trim())
+    .filter(Boolean)
+    .forEach((norma, i) => {
+      const [nome, ...resto] = norma.split(" — ");
+      b.normaItem(i + 1, nome ?? norma, resto.join(" — "));
+    });
 
   const itensAdicionais = (v.itensAdicionais ?? []).filter(
     (it) => it.titulo.trim() || it.conteudo.trim(),
   );
   itensAdicionais.forEach((item, i) => {
     b.h1(`${15 + i}. ${(item.titulo.trim() || "Item adicional").toUpperCase()}`);
-    (item.conteudo || "")
-      .split(/\n+/)
-      .filter((linha) => linha.trim())
-      .forEach((linha) => b.text(linha.trim()));
+    paragrafos(item.conteudo).forEach((linha) => b.text(linha));
   });
 
   const numEncerramento = 15 + itensAdicionais.length;
 
   b.h1(`${numEncerramento}. ENCERRAMENTO`);
-  b.text(textoEncerramento(v, paginas));
+  b.text(L.encerramento.texto.split(TOKEN_PAGINAS).join(String(paginas)));
 
   b.h1(`${numEncerramento + 1}. ASSINATURA`);
 
-  b.text(`${v.imovel.cidade || "—"}, ${formatarData(v.imovel.dataVistoria)}.`, { center: true });
+  b.text(`${L.assinatura.cidade}, ${L.assinatura.data}.`, { center: true });
   b.y += 10;
   b.text("_______________________________________", { center: true });
-  b.text(`${v.imovel.inspetor || "Responsável técnico"} — Engenheiro Civil`, {
+  b.text(`${L.assinatura.nome} — Engenheiro Civil`, {
     bold: true,
     center: true,
   });
-  b.text(`CREA: ${v.imovel.crea || "—"}`, { center: true });
+  b.text(`CREA: ${L.assinatura.crea}`, { center: true });
 
   b.finalize();
   return b.doc;

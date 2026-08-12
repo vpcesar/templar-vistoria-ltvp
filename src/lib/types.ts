@@ -72,6 +72,8 @@ export interface Vistoria {
   anamnese: Anamnese;
   patologias: Patologia[];
   itensAdicionais?: ItemAdicional[];
+  /** Conteúdo do laudo revisado/editado pelo engenheiro na tela de Revisão Técnica. */
+  laudoEditavel?: import("./laudo-editavel").LaudoEditavel;
 }
 
 export const gutTotal = (p: Patologia) => p.gravidade * p.urgencia * p.tendencia;
