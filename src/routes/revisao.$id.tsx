@@ -293,68 +293,89 @@ function Revisao() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-4 shadow-card sm:p-6">
-          <h2 className="text-base font-bold text-foreground">Itens adicionais do laudo</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Incluídos no final do laudo, antes da assinatura.
-          </p>
+        <LaudoEditor
+          laudo={laudo}
+          setLaudo={atualizarLaudo}
+          numeroItensAdicionais={
+            itensAdicionais.filter((i) => i.titulo.trim() || i.conteudo.trim()).length
+          }
+          slotItensAdicionais={
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Incluídos como seções principais, antes do encerramento.
+              </p>
 
-          <div className="mt-4 space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="titulo-item-adicional">Título do item adicional</Label>
-              <Input
-                id="titulo-item-adicional"
-                type="text"
-                value={tituloItem}
-                onChange={(e) => setTituloItem(e.target.value)}
-                placeholder="Ex.: Ressalvas, Considerações Finais, Observações Complementares..."
-                className="min-h-11"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="conteudo-item-adicional">Conteúdo do item</Label>
-              <Textarea
-                id="conteudo-item-adicional"
-                rows={5}
-                value={conteudoItem}
-                onChange={(e) => setConteudoItem(e.target.value)}
-                placeholder="Digite aqui o conteúdo que será incluído no final do laudo..."
-              />
-            </div>
-            <Button type="button" className="min-h-11 w-full sm:w-auto" onClick={adicionarItem}>
-              <Plus className="mr-2 h-4 w-4" />
-              Adicionar item
-            </Button>
-          </div>
+              <div className="mt-4 space-y-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="titulo-item-adicional">Título do item adicional</Label>
+                  <Input
+                    id="titulo-item-adicional"
+                    type="text"
+                    value={tituloItem}
+                    onChange={(e) => setTituloItem(e.target.value)}
+                    placeholder="Ex.: Ressalvas, Considerações Finais..."
+                    className="min-h-11"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="conteudo-item-adicional">Conteúdo do item</Label>
+                  <Textarea
+                    id="conteudo-item-adicional"
+                    rows={5}
+                    value={conteudoItem}
+                    onChange={(e) => setConteudoItem(e.target.value)}
+                    placeholder="Digite aqui o conteúdo que será incluído no laudo..."
+                  />
+                </div>
+                <Button type="button" className="min-h-11 w-full sm:w-auto" onClick={salvarItem}>
+                  {editandoItemId ? (
+                    <Save className="mr-2 h-4 w-4" />
+                  ) : (
+                    <Plus className="mr-2 h-4 w-4" />
+                  )}
+                  {editandoItemId ? "Salvar edição" : "Adicionar item"}
+                </Button>
+              </div>
 
-          {itensAdicionais.length > 0 && (
-            <ul className="mt-4 space-y-3">
-              {itensAdicionais.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex flex-col gap-2 rounded-lg border border-border bg-muted/40 p-3 sm:flex-row sm:items-start sm:justify-between"
-                >
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-foreground">{item.titulo}</p>
-                    <p className="mt-1 whitespace-pre-wrap break-words text-sm text-muted-foreground">
-                      {item.conteudo}
-                    </p>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="min-h-10 shrink-0"
-                    onClick={(e) => removerItem(e, item.id)}
-                  >
-                    <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                    Remover
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+              {itensAdicionais.length > 0 && (
+                <ul className="mt-4 space-y-3">
+                  {itensAdicionais.map((item) => (
+                    <li key={item.id} className="rounded-lg border border-border bg-muted/40 p-3">
+                      <p className="text-sm font-bold text-foreground">{item.titulo}</p>
+                      <p className="mt-1 whitespace-pre-wrap break-words text-sm text-muted-foreground">
+                        {item.conteudo}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="min-h-10"
+                          onClick={(e) => editarItem(e, item)}
+                        >
+                          <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                          Editar
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="min-h-10"
+                          onClick={(e) => removerItem(e, item.id)}
+                        >
+                          <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                          Remover
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          }
+        />
+
+
 
 
 
