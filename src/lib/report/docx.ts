@@ -18,31 +18,22 @@ import {
   TextRun,
   WidthType,
 } from "docx";
-import { enderecoCompleto, gutTotal, riscoDe, type Vistoria } from "../types";
+import { enderecoCompleto, type Vistoria } from "../types";
 import {
   EMPRESA,
-  GLOSSARIO,
-  normasAplicaveis,
-  textoArt,
   TABELA_GUT_PESOS,
   TABELA_PRIORIDADES,
-  anamneseResumo,
   classificacoesTexto,
   formatarData,
   grauRiscoGlobal,
   grausRiscoIbape,
-  listaVerificacao,
-  metodologia,
-  nivelInspecao,
-  patologiasOrdenadas,
-  sistemasInspecionados,
-  legendaFoto,
-  textoConclusao,
-  ENCERRAMENTO_PARTE_1,
-  encerramentoParte2,
-  textoSecao1,
-  textoSecao12,
 } from "../laudo";
+import {
+  TOKEN_PAGINAS,
+  paragrafos,
+  patologiasParaLaudo,
+  resolverLaudo,
+} from "../laudo-editavel";
 import { carregarLogo } from "./logo";
 
 const BRAND = "8B1A1A";
