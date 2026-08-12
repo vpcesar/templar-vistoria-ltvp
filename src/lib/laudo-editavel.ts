@@ -258,7 +258,7 @@ export function patologiasParaLaudo(v: Vistoria, laudo: LaudoEditavel) {
   });
 }
 
-export const parágrafos = (texto: string) =>
+export const paragrafos = (texto: string) =>
   (texto || "")
     .split(/\n+/)
     .map((l) => l.trim())
