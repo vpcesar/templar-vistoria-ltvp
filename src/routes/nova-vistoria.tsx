@@ -357,7 +357,6 @@ function NovaVistoria() {
               <div key="lista-patologias" className="space-y-4">
                 <p className="text-sm font-semibold text-muted-foreground">
                   {vistoria.patologias.length}{" "}
-
                   {vistoria.patologias.length === 1
                     ? "patologia registrada"
                     : "patologias registradas"}
