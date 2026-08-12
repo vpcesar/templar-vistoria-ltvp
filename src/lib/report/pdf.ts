@@ -400,21 +400,24 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   b.h1("14. NORMAS TÉCNICAS");
   normasAplicaveis(v).forEach(([nome, desc], i) => b.normaItem(i + 1, nome, desc));
 
-  b.h1("15. ENCERRAMENTO");
-  b.text(textoEncerramento(v, paginas));
-
   const itensAdicionais = (v.itensAdicionais ?? []).filter(
     (it) => it.titulo.trim() || it.conteudo.trim(),
   );
   itensAdicionais.forEach((item, i) => {
-    b.h2(`16.${i + 1} ${item.titulo.trim() || "Item adicional"}`);
+    b.h1(`${15 + i}. ${(item.titulo.trim() || "Item adicional").toUpperCase()}`);
     (item.conteudo || "")
       .split(/\n+/)
       .filter((linha) => linha.trim())
       .forEach((linha) => b.text(linha.trim()));
   });
 
-  b.h1(`${itensAdicionais.length > 0 ? "17" : "16"}. ASSINATURA`);
+  const numEncerramento = 15 + itensAdicionais.length;
+
+  b.h1(`${numEncerramento}. ENCERRAMENTO`);
+  b.text(textoEncerramento(v, paginas));
+
+  b.h1(`${numEncerramento + 1}. ASSINATURA`);
+
   b.text(`${v.imovel.cidade || "—"}, ${formatarData(v.imovel.dataVistoria)}.`, { center: true });
   b.y += 10;
   b.text("_______________________________________", { center: true });
