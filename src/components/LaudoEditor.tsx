@@ -73,7 +73,12 @@ function CampoTexto({
       {rows ? (
         <Textarea rows={rows} value={value} onChange={(e) => onChange(e.target.value)} />
       ) : (
-        <Input type="text" className="min-h-11" value={value} onChange={(e) => onChange(e.target.value)} />
+        <Input
+          type="text"
+          className="min-h-11"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
       )}
     </div>
   );
@@ -117,8 +122,7 @@ export function LaudoEditor({
     secao: S,
     chave: keyof LaudoEditavel[S],
     valor: LaudoEditavel[S][keyof LaudoEditavel[S]],
-  ) =>
-    setLaudo((prev) => ({ ...prev, [secao]: { ...prev[secao], [chave]: valor } }));
+  ) => setLaudo((prev) => ({ ...prev, [secao]: { ...prev[secao], [chave]: valor } }));
 
   const numEncerramento = 15 + numeroItensAdicionais;
 
@@ -158,7 +162,12 @@ export function LaudoEditor({
         </div>
       </div>
 
-      <Secao numero="1" titulo="Identificação do Solicitante" aberta={abertas.s1} onToggle={() => toggle("s1")}>
+      <Secao
+        numero="1"
+        titulo="Identificação do Solicitante"
+        aberta={abertas.s1}
+        onToggle={() => toggle("s1")}
+      >
         <CampoTexto
           label="Texto da seção"
           rows={7}
@@ -177,19 +186,66 @@ export function LaudoEditor({
       </Secao>
 
       <Secao numero="3" titulo="Dados Iniciais" aberta={abertas.s3} onToggle={() => toggle("s3")}>
-        <CampoTexto label="Tipo de edificação" value={laudo.secao3.tipoEdificacao} onChange={(t) => campo("secao3", "tipoEdificacao", t)} />
-        <CampoTexto label="Endereço" value={laudo.secao3.endereco} onChange={(t) => campo("secao3", "endereco", t)} />
-        <CampoTexto label="Área construída" value={laudo.secao3.areaConstruida} onChange={(t) => campo("secao3", "areaConstruida", t)} />
-        <CampoTexto label="Solicitante" value={laudo.secao3.solicitante} onChange={(t) => campo("secao3", "solicitante", t)} />
-        <CampoTexto label="Responsável técnico" value={laudo.secao3.responsavel} onChange={(t) => campo("secao3", "responsavel", t)} />
-        <CampoTexto label="CREA" value={laudo.secao3.crea} onChange={(t) => campo("secao3", "crea", t)} />
-        <CampoTexto label="ART" value={laudo.secao3.art} onChange={(t) => campo("secao3", "art", t)} />
-        <CampoTexto label="Data da vistoria" value={laudo.secao3.data} onChange={(t) => campo("secao3", "data", t)} />
+        <CampoTexto
+          label="Tipo de edificação"
+          value={laudo.secao3.tipoEdificacao}
+          onChange={(t) => campo("secao3", "tipoEdificacao", t)}
+        />
+        <CampoTexto
+          label="Endereço"
+          value={laudo.secao3.endereco}
+          onChange={(t) => campo("secao3", "endereco", t)}
+        />
+        <CampoTexto
+          label="Área construída"
+          value={laudo.secao3.areaConstruida}
+          onChange={(t) => campo("secao3", "areaConstruida", t)}
+        />
+        <CampoTexto
+          label="Solicitante"
+          value={laudo.secao3.solicitante}
+          onChange={(t) => campo("secao3", "solicitante", t)}
+        />
+        <CampoTexto
+          label="Responsável técnico"
+          value={laudo.secao3.responsavel}
+          onChange={(t) => campo("secao3", "responsavel", t)}
+        />
+        <CampoTexto
+          label="CREA"
+          value={laudo.secao3.crea}
+          onChange={(t) => campo("secao3", "crea", t)}
+        />
+        <CampoTexto
+          label="ART"
+          value={laudo.secao3.art}
+          onChange={(t) => campo("secao3", "art", t)}
+        />
+        <CampoTexto
+          label="Data da vistoria"
+          value={laudo.secao3.data}
+          onChange={(t) => campo("secao3", "data", t)}
+        />
       </Secao>
 
-      <Secao numero="4" titulo="Descrição do Imóvel e Anamnese" aberta={abertas.s4} onToggle={() => toggle("s4")}>
-        <CampoTexto label="Texto descritivo" rows={6} value={laudo.secao4.texto} onChange={(t) => campo("secao4", "texto", t)} />
-        <CampoTexto label="Observações gerais" rows={3} value={laudo.secao4.observacoes} onChange={(t) => campo("secao4", "observacoes", t)} />
+      <Secao
+        numero="4"
+        titulo="Descrição do Imóvel e Anamnese"
+        aberta={abertas.s4}
+        onToggle={() => toggle("s4")}
+      >
+        <CampoTexto
+          label="Texto descritivo"
+          rows={6}
+          value={laudo.secao4.texto}
+          onChange={(t) => campo("secao4", "texto", t)}
+        />
+        <CampoTexto
+          label="Observações gerais"
+          rows={3}
+          value={laudo.secao4.observacoes}
+          onChange={(t) => campo("secao4", "observacoes", t)}
+        />
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Anamnese
@@ -224,15 +280,21 @@ export function LaudoEditor({
         />
       </Secao>
 
-      <Secao numero="5" titulo="Foto da Edificação" aberta={abertas.s5} onToggle={() => toggle("s5")}>
-        {laudo.secao5.legendasFachada.length === 0 && laudo.secao5.legendasSatelite.length === 0 && (
-          <CampoTexto
-            label="Texto quando não há fotos"
-            rows={2}
-            value={laudo.secao5.textoSemFoto}
-            onChange={(t) => campo("secao5", "textoSemFoto", t)}
-          />
-        )}
+      <Secao
+        numero="5"
+        titulo="Foto da Edificação"
+        aberta={abertas.s5}
+        onToggle={() => toggle("s5")}
+      >
+        {laudo.secao5.legendasFachada.length === 0 &&
+          laudo.secao5.legendasSatelite.length === 0 && (
+            <CampoTexto
+              label="Texto quando não há fotos"
+              rows={2}
+              value={laudo.secao5.textoSemFoto}
+              onChange={(t) => campo("secao5", "textoSemFoto", t)}
+            />
+          )}
         {laudo.secao5.legendasFachada.map((leg, i) => (
           <CampoTexto
             key={`fach-${i}`}
@@ -267,7 +329,12 @@ export function LaudoEditor({
         ))}
       </Secao>
 
-      <Secao numero="6" titulo="Classificação da Inspeção" aberta={abertas.s6} onToggle={() => toggle("s6")}>
+      <Secao
+        numero="6"
+        titulo="Classificação da Inspeção"
+        aberta={abertas.s6}
+        onToggle={() => toggle("s6")}
+      >
         <CampoTexto
           label="Texto da classificação (Nível 1)"
           rows={10}
@@ -314,7 +381,12 @@ export function LaudoEditor({
         ))}
       </Secao>
 
-      <Secao numero="9" titulo="Sistemas Construtivos Inspecionados" aberta={abertas.s9} onToggle={() => toggle("s9")}>
+      <Secao
+        numero="9"
+        titulo="Sistemas Construtivos Inspecionados"
+        aberta={abertas.s9}
+        onToggle={() => toggle("s9")}
+      >
         {laudo.secao9.sistemas.map((s, i) => (
           <div key={`sis-${i}`} className="flex gap-2">
             <Input
@@ -369,7 +441,12 @@ export function LaudoEditor({
         </Button>
       </Secao>
 
-      <Secao numero="10" titulo="Lista de Verificação" aberta={abertas.s10} onToggle={() => toggle("s10")}>
+      <Secao
+        numero="10"
+        titulo="Lista de Verificação"
+        aberta={abertas.s10}
+        onToggle={() => toggle("s10")}
+      >
         {laudo.secao10.itens.map((item, i) => (
           <div key={`ver-${i}`} className="space-y-2 rounded-lg border border-border p-3">
             <CampoTexto
@@ -380,9 +457,7 @@ export function LaudoEditor({
                   ...prev,
                   secao10: {
                     ...prev.secao10,
-                    itens: prev.secao10.itens.map((x, j) =>
-                      j === i ? { ...x, descricao: t } : x,
-                    ),
+                    itens: prev.secao10.itens.map((x, j) => (j === i ? { ...x, descricao: t } : x)),
                   },
                 }))
               }
@@ -422,7 +497,12 @@ export function LaudoEditor({
         ))}
       </Secao>
 
-      <Secao numero="11" titulo="Manifestações Patológicas" aberta={abertas.s11} onToggle={() => toggle("s11")}>
+      <Secao
+        numero="11"
+        titulo="Manifestações Patológicas"
+        aberta={abertas.s11}
+        onToggle={() => toggle("s11")}
+      >
         {laudo.secao11.patologias.length === 0 && (
           <p className="text-sm text-muted-foreground">Nenhuma patologia registrada.</p>
         )}
@@ -439,16 +519,50 @@ export function LaudoEditor({
             }));
           const total = pat.gravidade * pat.urgencia * pat.tendencia;
           return (
-            <div key={`pat-${i}`} className="space-y-2 rounded-lg border-l-4 border-primary bg-muted/30 p-3">
+            <div
+              key={`pat-${i}`}
+              className="space-y-2 rounded-lg border-l-4 border-primary bg-muted/30 p-3"
+            >
               <p className="text-sm font-bold text-foreground">11.{i + 1}</p>
-              <CampoTexto label="Título do subitem" value={pat.titulo} onChange={(t) => editarPat("titulo", t)} />
-              <CampoTexto label="Elemento" value={pat.elemento} onChange={(t) => editarPat("elemento", t)} />
+              <CampoTexto
+                label="Título do subitem"
+                value={pat.titulo}
+                onChange={(t) => editarPat("titulo", t)}
+              />
+              <CampoTexto
+                label="Elemento"
+                value={pat.elemento}
+                onChange={(t) => editarPat("elemento", t)}
+              />
               <CampoTexto label="Local" value={pat.local} onChange={(t) => editarPat("local", t)} />
-              <CampoTexto label="Posição" value={pat.posicao} onChange={(t) => editarPat("posicao", t)} />
-              <CampoTexto label="Manifestações" rows={3} value={pat.manifestacoes} onChange={(t) => editarPat("manifestacoes", t)} />
-              <CampoTexto label="Classificação" value={pat.classificacao} onChange={(t) => editarPat("classificacao", t)} />
-              <CampoTexto label="Recomendações técnicas" rows={4} value={pat.recomendacao} onChange={(t) => editarPat("recomendacao", t)} />
-              <CampoTexto label="Observações" rows={3} value={pat.observacoes} onChange={(t) => editarPat("observacoes", t)} />
+              <CampoTexto
+                label="Posição"
+                value={pat.posicao}
+                onChange={(t) => editarPat("posicao", t)}
+              />
+              <CampoTexto
+                label="Manifestações"
+                rows={3}
+                value={pat.manifestacoes}
+                onChange={(t) => editarPat("manifestacoes", t)}
+              />
+              <CampoTexto
+                label="Classificação"
+                value={pat.classificacao}
+                onChange={(t) => editarPat("classificacao", t)}
+              />
+              <CampoTexto
+                label="Recomendações técnicas"
+                rows={4}
+                value={pat.recomendacao}
+                onChange={(t) => editarPat("recomendacao", t)}
+              />
+              <CampoTexto
+                label="Observações"
+                rows={3}
+                value={pat.observacoes}
+                onChange={(t) => editarPat("observacoes", t)}
+              />
               {pat.legendas.map((leg, k) => (
                 <CampoTexto
                   key={`leg-${i}-${k}`}
@@ -505,7 +619,12 @@ export function LaudoEditor({
         })}
       </Secao>
 
-      <Secao numero="12" titulo="Lista de Prioridades" aberta={abertas.s12} onToggle={() => toggle("s12")}>
+      <Secao
+        numero="12"
+        titulo="Lista de Prioridades"
+        aberta={abertas.s12}
+        onToggle={() => toggle("s12")}
+      >
         <CampoTexto
           label="Texto introdutório"
           rows={7}
@@ -526,7 +645,12 @@ export function LaudoEditor({
         />
       </Secao>
 
-      <Secao numero="14" titulo="Normas Técnicas Aplicáveis" aberta={abertas.s14} onToggle={() => toggle("s14")}>
+      <Secao
+        numero="14"
+        titulo="Normas Técnicas Aplicáveis"
+        aberta={abertas.s14}
+        onToggle={() => toggle("s14")}
+      >
         {laudo.secao14.normas.map((norma, i) => (
           <div key={`norma-${i}`} className="flex gap-2">
             <Input
@@ -611,10 +735,26 @@ export function LaudoEditor({
         aberta={abertas.sAss}
         onToggle={() => toggle("sAss")}
       >
-        <CampoTexto label="Cidade" value={laudo.assinatura.cidade} onChange={(t) => campo("assinatura", "cidade", t)} />
-        <CampoTexto label="Data" value={laudo.assinatura.data} onChange={(t) => campo("assinatura", "data", t)} />
-        <CampoTexto label="Nome do engenheiro" value={laudo.assinatura.nome} onChange={(t) => campo("assinatura", "nome", t)} />
-        <CampoTexto label="CREA" value={laudo.assinatura.crea} onChange={(t) => campo("assinatura", "crea", t)} />
+        <CampoTexto
+          label="Cidade"
+          value={laudo.assinatura.cidade}
+          onChange={(t) => campo("assinatura", "cidade", t)}
+        />
+        <CampoTexto
+          label="Data"
+          value={laudo.assinatura.data}
+          onChange={(t) => campo("assinatura", "data", t)}
+        />
+        <CampoTexto
+          label="Nome do engenheiro"
+          value={laudo.assinatura.nome}
+          onChange={(t) => campo("assinatura", "nome", t)}
+        />
+        <CampoTexto
+          label="CREA"
+          value={laudo.assinatura.crea}
+          onChange={(t) => campo("assinatura", "crea", t)}
+        />
       </Secao>
     </div>
   );

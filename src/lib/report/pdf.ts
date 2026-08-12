@@ -9,12 +9,7 @@ import {
   grauRiscoGlobal,
   grausRiscoIbape,
 } from "../laudo";
-import {
-  TOKEN_PAGINAS,
-  paragrafos,
-  patologiasParaLaudo,
-  resolverLaudo,
-} from "../laudo-editavel";
+import { TOKEN_PAGINAS, paragrafos, patologiasParaLaudo, resolverLaudo } from "../laudo-editavel";
 import { carregarLogo, type LogoLaudo } from "./logo";
 
 const BRAND: [number, number, number] = [139, 26, 26];

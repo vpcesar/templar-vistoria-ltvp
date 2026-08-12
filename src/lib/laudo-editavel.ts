@@ -84,9 +84,13 @@ export interface LaudoEditavel {
 }
 
 const legendasPadrao = (n: number, base: string) =>
-  Array.from({ length: n }, (_, i) => `${base}${n > 1 ? ` ${i + 1}` : ""} — ${
-    base.includes("satélite") ? "localização do imóvel." : "fachada do imóvel vistoriado."
-  }`);
+  Array.from(
+    { length: n },
+    (_, i) =>
+      `${base}${n > 1 ? ` ${i + 1}` : ""} — ${
+        base.includes("satélite") ? "localização do imóvel." : "fachada do imóvel vistoriado."
+      }`,
+  );
 
 export function gerarLaudoPadrao(v: Vistoria): LaudoEditavel {
   const ordenadas = patologiasOrdenadas(v);

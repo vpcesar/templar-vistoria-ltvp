@@ -10,7 +10,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { AppShell } from "@/components/AppShell";
 import { LaudoEditor } from "@/components/LaudoEditor";
 import { obterVistoria, salvarVistoria } from "@/lib/storage";
-import { enderecoCompleto, gutTotal, riscoDe, type ItemAdicional, type Vistoria } from "@/lib/types";
+import {
+  enderecoCompleto,
+  gutTotal,
+  riscoDe,
+  type ItemAdicional,
+  type Vistoria,
+} from "@/lib/types";
 import { formatarData, grauRiscoGlobal, patologiasOrdenadas } from "@/lib/laudo";
 import { resolverLaudo, type LaudoEditavel } from "@/lib/laudo-editavel";
 
@@ -374,10 +380,6 @@ function Revisao() {
             </div>
           }
         />
-
-
-
-
 
         <div className="sticky bottom-4 flex flex-col gap-2 rounded-xl border border-border bg-card p-4 shadow-card sm:flex-row">
           <Button className="min-h-12 flex-1" onClick={exportarDocx} disabled={gerando !== null}>

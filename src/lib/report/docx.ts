@@ -28,12 +28,7 @@ import {
   grauRiscoGlobal,
   grausRiscoIbape,
 } from "../laudo";
-import {
-  TOKEN_PAGINAS,
-  paragrafos,
-  patologiasParaLaudo,
-  resolverLaudo,
-} from "../laudo-editavel";
+import { TOKEN_PAGINAS, paragrafos, patologiasParaLaudo, resolverLaudo } from "../laudo-editavel";
 import { carregarLogo } from "./logo";
 
 const BRAND = "8B1A1A";
@@ -178,7 +173,10 @@ export async function gerarDocx(v: Vistoria) {
     new Paragraph({ pageBreakBefore: true, children: [] }),
   );
 
-  children.push(h("1. IDENTIFICAÇÃO DO SOLICITANTE"), ...paragrafos(L.secao1.texto).map((t) => p(t)));
+  children.push(
+    h("1. IDENTIFICAÇÃO DO SOLICITANTE"),
+    ...paragrafos(L.secao1.texto).map((t) => p(t)),
+  );
 
   children.push(h("2. OBJETIVO"), ...paragrafos(L.secao2.texto).map((t) => p(t)));
 
@@ -253,10 +251,7 @@ export async function gerarDocx(v: Vistoria) {
     );
   }
 
-  children.push(
-    h("6. CLASSIFICAÇÃO DA INSPEÇÃO"),
-    ...paragrafos(L.secao6.texto).map((t) => p(t)),
-  );
+  children.push(h("6. CLASSIFICAÇÃO DA INSPEÇÃO"), ...paragrafos(L.secao6.texto).map((t) => p(t)));
 
   children.push(h("7. METODOLOGIA"));
   L.secao7.itens.forEach((item) => {
@@ -293,12 +288,7 @@ export async function gerarDocx(v: Vistoria) {
     table(
       [
         ["ITEM", "DESCRIÇÃO", "VERIFICADO", "OBSERVAÇÃO"],
-        ...L.secao10.itens.map((l, i) => [
-          String(i + 1),
-          l.descricao,
-          l.verificado,
-          l.observacao,
-        ]),
+        ...L.secao10.itens.map((l, i) => [String(i + 1), l.descricao, l.verificado, l.observacao]),
       ],
       [800, 3200, 1400, 4238],
     ),
