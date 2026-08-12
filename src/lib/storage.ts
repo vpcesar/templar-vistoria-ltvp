@@ -86,6 +86,8 @@ export function sanitizarVistoria(v: Vistoria): Vistoria {
       recomendacao: p.recomendacao || "",
       observacoes: p.observacoes || "",
     })),
+    itensAdicionais: v.itensAdicionais || [],
+    ...(v.laudoEditavel ? { laudoEditavel: v.laudoEditavel } : {}),
   };
 }
 
