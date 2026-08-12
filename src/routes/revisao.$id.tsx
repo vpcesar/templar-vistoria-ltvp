@@ -59,6 +59,43 @@ function Revisao() {
 
   const ordenadas = patologiasOrdenadas(vistoria);
   const risco = grauRiscoGlobal(vistoria);
+  const itensAdicionais = vistoria.itensAdicionais ?? [];
+
+  const persistirItens = (itens: ItemAdicional[]) => {
+    const atualizada: Vistoria = {
+      ...vistoria,
+      itensAdicionais: itens,
+      atualizadoEm: new Date().toISOString(),
+    };
+    salvarVistoria(atualizada);
+    setVistoria(atualizada);
+  };
+
+  const adicionarItem = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const titulo = tituloItem.trim();
+    const conteudo = conteudoItem.trim();
+    if (!titulo || !conteudo) {
+      toast.error("Informe o título e o conteúdo do item.");
+      return;
+    }
+    persistirItens([
+      ...itensAdicionais,
+      { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, titulo, conteudo },
+    ]);
+    setTituloItem("");
+    setConteudoItem("");
+    toast.success("Item adicionado ao laudo.");
+  };
+
+  const removerItem = (e: React.MouseEvent<HTMLButtonElement>, itemId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    persistirItens(itensAdicionais.filter((i) => i.id !== itemId));
+    toast.success("Item removido do laudo.");
+  };
+
 
   const concluir = () => {
     const atualizada: Vistoria = {
