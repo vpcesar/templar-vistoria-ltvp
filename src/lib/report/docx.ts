@@ -460,8 +460,19 @@ export async function gerarDocx(v: Vistoria) {
     }),
   );
 
+  const itensAdicionais = (v.itensAdicionais ?? []).filter(
+    (it) => it.titulo.trim() || it.conteudo.trim(),
+  );
+  itensAdicionais.forEach((item, i) => {
+    children.push(h(`16.${i + 1} ${item.titulo.trim() || "Item adicional"}`));
+    (item.conteudo || "")
+      .split(/\n+/)
+      .filter((linha) => linha.trim())
+      .forEach((linha) => children.push(p(linha.trim())));
+  });
+
   children.push(
-    h("16. ASSINATURA"),
+    h(`${itensAdicionais.length > 0 ? "17" : "16"}. ASSINATURA`),
     p(`${v.imovel.cidade || "—"}, ${formatarData(v.imovel.dataVistoria)}.`, {
       align: AlignmentType.CENTER,
     }),
