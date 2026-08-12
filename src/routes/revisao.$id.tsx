@@ -37,16 +37,34 @@ function Revisao() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const [vistoria, setVistoria] = useState<Vistoria | null>(null);
+  const [laudo, setLaudo] = useState<LaudoEditavel | null>(null);
   const [gerando, setGerando] = useState<"docx" | "pdf" | null>(null);
   const [tituloItem, setTituloItem] = useState("");
   const [conteudoItem, setConteudoItem] = useState("");
+  const [editandoItemId, setEditandoItemId] = useState<string | null>(null);
+  const carregado = useRef(false);
 
   useEffect(() => {
-    setVistoria(obterVistoria(id) ?? null);
+    const v = obterVistoria(id) ?? null;
+    setVistoria(v);
+    setLaudo(v ? resolverLaudo(v) : null);
+    carregado.current = false;
   }, [id]);
 
+  // Persiste as edições do laudo na vistoria (localStorage).
+  useEffect(() => {
+    if (!vistoria || !laudo) return;
+    if (!carregado.current) {
+      carregado.current = true;
+      return;
+    }
+    const atualizada: Vistoria = { ...vistoria, laudoEditavel: laudo };
+    salvarVistoria(atualizada);
+    setVistoria(atualizada);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [laudo]);
 
-  if (!vistoria) {
+  if (!vistoria || !laudo) {
     return (
       <AppShell>
         <div className="rounded-xl border border-border bg-card p-8 text-center">
@@ -67,41 +85,66 @@ function Revisao() {
     const atualizada: Vistoria = {
       ...vistoria,
       itensAdicionais: itens,
+      laudoEditavel: laudo,
       atualizadoEm: new Date().toISOString(),
     };
     salvarVistoria(atualizada);
     setVistoria(atualizada);
   };
 
-  const adicionarItem = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const salvarItem = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
     const titulo = tituloItem.trim();
     const conteudo = conteudoItem.trim();
     if (!titulo || !conteudo) {
-      toast.error("Informe o título e o conteúdo do item.");
+      toast.error("Preencha o título e o conteúdo.");
       return;
     }
-    persistirItens([
-      ...itensAdicionais,
-      { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, titulo, conteudo },
-    ]);
+    if (editandoItemId) {
+      persistirItens(
+        itensAdicionais.map((item) =>
+          item.id === editandoItemId ? { ...item, titulo, conteudo } : item,
+        ),
+      );
+      toast.success("Item atualizado.");
+    } else {
+      persistirItens([
+        ...itensAdicionais,
+        { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, titulo, conteudo },
+      ]);
+      toast.success("Item adicionado ao laudo.");
+    }
     setTituloItem("");
     setConteudoItem("");
-    toast.success("Item adicionado ao laudo.");
+    setEditandoItemId(null);
+  };
+
+  const editarItem = (e: React.MouseEvent<HTMLButtonElement>, item: ItemAdicional) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setTituloItem(item.titulo);
+    setConteudoItem(item.conteudo);
+    setEditandoItemId(item.id);
   };
 
   const removerItem = (e: React.MouseEvent<HTMLButtonElement>, itemId: string) => {
     e.preventDefault();
     e.stopPropagation();
     persistirItens(itensAdicionais.filter((i) => i.id !== itemId));
+    if (editandoItemId === itemId) {
+      setTituloItem("");
+      setConteudoItem("");
+      setEditandoItemId(null);
+    }
     toast.success("Item removido do laudo.");
   };
 
+  const paraLaudo = (): Vistoria => ({ ...vistoria, laudoEditavel: laudo });
 
   const concluir = () => {
     const atualizada: Vistoria = {
-      ...vistoria,
+      ...paraLaudo(),
       status: "CONCLUIDA",
       atualizadoEm: new Date().toISOString(),
     };
@@ -113,7 +156,7 @@ function Revisao() {
     setGerando("docx");
     try {
       const { gerarDocx } = await import("@/lib/report/docx");
-      await gerarDocx(vistoria);
+      await gerarDocx(paraLaudo());
 
       concluir();
       toast.success("Laudo em Word gerado");
@@ -127,7 +170,7 @@ function Revisao() {
     setGerando("pdf");
     try {
       const { gerarPdf } = await import("@/lib/report/pdf");
-      await gerarPdf(vistoria);
+      await gerarPdf(paraLaudo());
       concluir();
       toast.success("Laudo em PDF gerado");
     } catch {
@@ -135,6 +178,9 @@ function Revisao() {
     }
     setGerando(null);
   };
+
+  const atualizarLaudo = (fn: (anterior: LaudoEditavel) => LaudoEditavel) =>
+    setLaudo((prev) => (prev ? fn(prev) : prev));
 
   return (
     <AppShell>
