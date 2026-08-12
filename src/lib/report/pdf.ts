@@ -1,28 +1,20 @@
 import { jsPDF } from "jspdf";
-import { enderecoCompleto, gutTotal, riscoDe, type Vistoria } from "../types";
+import { enderecoCompleto, type Vistoria } from "../types";
 import {
   EMPRESA,
-  GLOSSARIO,
-  normasAplicaveis,
-  textoArt,
   TABELA_GUT_PESOS,
   TABELA_PRIORIDADES,
-  anamneseResumo,
   classificacoesTexto,
   formatarData,
   grauRiscoGlobal,
   grausRiscoIbape,
-  legendaFoto,
-  listaVerificacao,
-  metodologia,
-  nivelInspecao,
-  patologiasOrdenadas,
-  sistemasInspecionados,
-  textoConclusao,
-  textoEncerramento,
-  textoSecao1,
-  textoSecao12,
 } from "../laudo";
+import {
+  TOKEN_PAGINAS,
+  paragrafos,
+  patologiasParaLaudo,
+  resolverLaudo,
+} from "../laudo-editavel";
 import { carregarLogo, type LogoLaudo } from "./logo";
 
 const BRAND: [number, number, number] = [139, 26, 26];
