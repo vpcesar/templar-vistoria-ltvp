@@ -36,10 +36,13 @@ function Revisao() {
   const navigate = useNavigate();
   const [vistoria, setVistoria] = useState<Vistoria | null>(null);
   const [gerando, setGerando] = useState<"docx" | "pdf" | null>(null);
+  const [tituloItem, setTituloItem] = useState("");
+  const [conteudoItem, setConteudoItem] = useState("");
 
   useEffect(() => {
     setVistoria(obterVistoria(id) ?? null);
   }, [id]);
+
 
   if (!vistoria) {
     return (
