@@ -57,6 +57,12 @@ export interface Anamnese {
   observacoes?: string;
 }
 
+export interface ItemAdicional {
+  id: string;
+  titulo: string;
+  conteudo: string;
+}
+
 export interface Vistoria {
   id: string;
   status: StatusVistoria;
@@ -65,6 +71,7 @@ export interface Vistoria {
   imovel: DadosImovel;
   anamnese: Anamnese;
   patologias: Patologia[];
+  itensAdicionais?: ItemAdicional[];
 }
 
 export const gutTotal = (p: Patologia) => p.gravidade * p.urgencia * p.tendencia;
