@@ -403,7 +403,18 @@ function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   b.h1("15. ENCERRAMENTO");
   b.text(textoEncerramento(v, paginas));
 
-  b.h1("16. ASSINATURA");
+  const itensAdicionais = (v.itensAdicionais ?? []).filter(
+    (it) => it.titulo.trim() || it.conteudo.trim(),
+  );
+  itensAdicionais.forEach((item, i) => {
+    b.h2(`16.${i + 1} ${item.titulo.trim() || "Item adicional"}`);
+    (item.conteudo || "")
+      .split(/\n+/)
+      .filter((linha) => linha.trim())
+      .forEach((linha) => b.text(linha.trim()));
+  });
+
+  b.h1(`${itensAdicionais.length > 0 ? "17" : "16"}. ASSINATURA`);
   b.text(`${v.imovel.cidade || "—"}, ${formatarData(v.imovel.dataVistoria)}.`, { center: true });
   b.y += 10;
   b.text("_______________________________________", { center: true });
