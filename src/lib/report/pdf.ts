@@ -188,7 +188,8 @@ class Builder {
 
 function render(v: Vistoria, logo: LogoLaudo | null, paginas: string | number) {
   const b = new Builder(logo);
-  const ordenadas = patologiasOrdenadas(v);
+  const L = resolverLaudo(v);
+  const pats = patologiasParaLaudo(v, L);
   const risco = grauRiscoGlobal(v);
 
   // Capa — escudo centralizado no corpo da página
