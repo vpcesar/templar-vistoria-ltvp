@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { ArrowLeft, FileDown, FileText, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, FileDown, FileText, Loader2, Pencil, Plus, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AppShell } from "@/components/AppShell";
+import { LaudoEditor } from "@/components/LaudoEditor";
 import { obterVistoria, salvarVistoria } from "@/lib/storage";
 import { enderecoCompleto, gutTotal, riscoDe, type ItemAdicional, type Vistoria } from "@/lib/types";
-import { formatarData, grauRiscoGlobal, nivelInspecao, patologiasOrdenadas } from "@/lib/laudo";
+import { formatarData, grauRiscoGlobal, patologiasOrdenadas } from "@/lib/laudo";
+import { resolverLaudo, type LaudoEditavel } from "@/lib/laudo-editavel";
 
 export const Route = createFileRoute("/revisao/$id")({
   head: () => ({
