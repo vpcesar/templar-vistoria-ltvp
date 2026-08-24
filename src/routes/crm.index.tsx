@@ -223,6 +223,7 @@ function CrmPage() {
                     <TableHead>Tipo</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Origem</TableHead>
+                    <TableHead>Propostas</TableHead>
                     <TableHead>Criado em</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -248,6 +249,15 @@ function CrmPage() {
                         </span>
                       </TableCell>
                       <TableCell>{ORIGEM_LABEL[lead.origem] ?? lead.origem}</TableCell>
+                      <TableCell>
+                        <Link
+                          to="/propostas"
+                          search={{ lead: lead.id }}
+                          className="inline-block rounded-full border border-border px-2 py-0.5 text-xs font-semibold text-primary"
+                        >
+                          {propostasPorLead.get(lead.id) ?? 0}
+                        </Link>
+                      </TableCell>
                       <TableCell>{formatarDataCurta(lead.created_at)}</TableCell>
                     </TableRow>
                   ))}
