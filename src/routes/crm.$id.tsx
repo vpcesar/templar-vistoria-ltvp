@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -85,6 +85,7 @@ function hojeISO() {
 
 function LeadDetalhe() {
   const { id } = Route.useParams();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [editar, setEditar] = useState(false);
   const [interacaoAberta, setInteracaoAberta] = useState(false);
@@ -267,10 +268,19 @@ function LeadDetalhe() {
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button
                   variant="outline"
-                  onClick={() => toast.info("Módulo de Propostas em desenvolvimento.")}
+                  onClick={() =>
+                    void navigate({ to: "/propostas/nova", search: { lead: lead.id } })
+                  }
                 >
                   <FileSignature className="mr-1.5 h-4 w-4" />
                   Gerar Proposta
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => void navigate({ to: "/propostas", search: { lead: lead.id } })}
+                >
+                  <FileSignature className="mr-1.5 h-4 w-4" />
+                  Ver Propostas
                 </Button>
                 <Button
                   variant="outline"

@@ -37,6 +37,7 @@ import {
   type LeadInput,
   type LeadStatus,
 } from "@/lib/crm";
+import { listarPropostas } from "@/lib/propostas";
 
 export const Route = createFileRoute("/crm/")({
   head: () => ({
@@ -72,6 +73,19 @@ function CrmPage() {
 
   const leadsQuery = useQuery({ queryKey: ["leads"], queryFn: listarLeads });
   const leads = leadsQuery.data ?? [];
+
+  const propostasQuery = useQuery({
+    queryKey: ["propostas"],
+    queryFn: listarPropostas,
+    retry: false,
+  });
+  const propostasPorLead = useMemo(() => {
+    const mapa = new Map<string, number>();
+    (propostasQuery.data ?? []).forEach((p) => {
+      if (p.lead_id) mapa.set(p.lead_id, (mapa.get(p.lead_id) ?? 0) + 1);
+    });
+    return mapa;
+  }, [propostasQuery.data]);
 
   const criar = useMutation({
     mutationFn: (input: LeadInput) => criarLead(input),
@@ -164,7 +178,9 @@ function CrmPage() {
               type="button"
               onClick={() => setVisao("lista")}
               className={`flex items-center gap-1.5 px-3 py-2 text-sm font-semibold ${
-                visao === "lista" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground"
+                visao === "lista"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card text-muted-foreground"
               }`}
             >
               <List className="h-4 w-4" /> Lista
@@ -173,7 +189,9 @@ function CrmPage() {
               type="button"
               onClick={() => setVisao("kanban")}
               className={`flex items-center gap-1.5 px-3 py-2 text-sm font-semibold ${
-                visao === "kanban" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground"
+                visao === "kanban"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card text-muted-foreground"
               }`}
             >
               <LayoutGrid className="h-4 w-4" /> Kanban
@@ -209,6 +227,7 @@ function CrmPage() {
                     <TableHead>Tipo</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Origem</TableHead>
+                    <TableHead>Propostas</TableHead>
                     <TableHead>Criado em</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -234,12 +253,21 @@ function CrmPage() {
                         </span>
                       </TableCell>
                       <TableCell>{ORIGEM_LABEL[lead.origem] ?? lead.origem}</TableCell>
+                      <TableCell>
+                        <Link
+                          to="/propostas"
+                          search={{ lead: lead.id }}
+                          className="inline-block rounded-full border border-border px-2 py-0.5 text-xs font-semibold text-primary"
+                        >
+                          {propostasPorLead.get(lead.id) ?? 0}
+                        </Link>
+                      </TableCell>
                       <TableCell>{formatarDataCurta(lead.created_at)}</TableCell>
                     </TableRow>
                   ))}
                   {visiveis.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} className="py-10 text-center">
+                      <TableCell colSpan={7} className="py-10 text-center">
                         <Users className="mx-auto h-8 w-8 text-muted-foreground" />
                         <p className="mt-2 text-sm text-muted-foreground">
                           Nenhum lead encontrado.
