@@ -83,9 +83,14 @@ export function PropostaForm({
   const [valor, setValor] = useState(
     proposta ? String(proposta.valor_total).replace(".", ",") : "",
   );
-  const [condicoes, setCondicoes] = useState(proposta?.condicoes_pagamento ?? "");
+  const [condicoes, setCondicoes] = useState(
+    proposta?.condicoes_pagamento ??
+      "50% no aceite da proposta e 50% na entrega do laudo (PIX, transferência ou link de pagamento).",
+  );
   const [validade, setValidade] = useState(String(proposta?.validade_dias ?? 15));
-  const [prazo, setPrazo] = useState(proposta?.prazo_execucao ?? "");
+  const [prazo, setPrazo] = useState(
+    proposta?.prazo_execucao ?? "5 dias úteis após a vistoria",
+  );
   const [naoIncluido, setNaoIncluido] = useState(proposta?.nao_incluido ?? "");
   const [autoPreenchido, setAutoPreenchido] = useState(false);
   const [erro, setErro] = useState("");
@@ -361,12 +366,24 @@ export function PropostaForm({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="prazo">Prazo de execução</Label>
-            <Input
-              id="prazo"
-              value={prazo}
-              onChange={(e) => setPrazo(e.target.value)}
-              placeholder="Ex.: 5 dias úteis após a vistoria"
-            />
+            <Select value={prazo} onValueChange={setPrazo}>
+              <SelectTrigger id="prazo">
+                <SelectValue placeholder="Selecione o prazo de execução" />
+              </SelectTrigger>
+              <SelectContent>
+                {[
+                  "3 dias úteis após a vistoria",
+                  "5 dias úteis após a vistoria",
+                  "7 dias úteis após a vistoria",
+                  "10 dias úteis após a vistoria",
+                  "15 dias úteis após a vistoria",
+                ].map((op) => (
+                  <SelectItem key={op} value={op}>
+                    {op}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="condicoes">Condições de pagamento</Label>
