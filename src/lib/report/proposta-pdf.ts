@@ -240,7 +240,7 @@ export async function gerarPropostaPdf(prop: Proposta) {
       doc.link(link.x - linkWidth / 2, PAGE_H - 12.3, linkWidth, 4, { url: link.url });
     });
     doc.setFontSize(7);
-    doc.setTextColor(...FOOTER);
+    doc.setTextColor(...WHITE);
     doc.text(`Proposta ${prop.numero} • Página ${i} de ${total}`, PAGE_W / 2, PAGE_H - 3.2, {
       align: "center",
     });
