@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NovaVistoriaRouteImport } from './routes/nova-vistoria'
+import { Route as PropostasRouteImport } from './routes/propostas'
 import { Route as RevisaoIdRouteImport } from './routes/revisao.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const NovaVistoriaRoute = NovaVistoriaRouteImport.update({
   path: '/nova-vistoria',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PropostasRoute = PropostasRouteImport.update({
+  id: '/propostas',
+  path: '/propostas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RevisaoIdRoute = RevisaoIdRouteImport.update({
   id: '/revisao/$id',
   path: '/revisao/$id',
@@ -32,30 +38,34 @@ const RevisaoIdRoute = RevisaoIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/nova-vistoria': typeof NovaVistoriaRoute
+  '/propostas': typeof PropostasRoute
   '/revisao/$id': typeof RevisaoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/nova-vistoria': typeof NovaVistoriaRoute
+  '/propostas': typeof PropostasRoute
   '/revisao/$id': typeof RevisaoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/nova-vistoria': typeof NovaVistoriaRoute
+  '/propostas': typeof PropostasRoute
   '/revisao/$id': typeof RevisaoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/nova-vistoria' | '/revisao/$id'
+  fullPaths: '/' | '/nova-vistoria' | '/propostas' | '/revisao/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/nova-vistoria' | '/revisao/$id'
-  id: '__root__' | '/' | '/nova-vistoria' | '/revisao/$id'
+  to: '/' | '/nova-vistoria' | '/propostas' | '/revisao/$id'
+  id: '__root__' | '/' | '/nova-vistoria' | '/propostas' | '/revisao/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   NovaVistoriaRoute: typeof NovaVistoriaRoute
+  PropostasRoute: typeof PropostasRoute
   RevisaoIdRoute: typeof RevisaoIdRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NovaVistoriaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/propostas': {
+      id: '/propostas'
+      path: '/propostas'
+      fullPath: '/propostas'
+      preLoaderRoute: typeof PropostasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/revisao/$id': {
       id: '/revisao/$id'
       path: '/revisao/$id'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   NovaVistoriaRoute: NovaVistoriaRoute,
+  PropostasRoute: PropostasRoute,
   RevisaoIdRoute: RevisaoIdRoute,
 }
 export const routeTree = rootRouteImport
