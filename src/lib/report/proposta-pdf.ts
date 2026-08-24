@@ -210,26 +210,29 @@ export async function gerarPropostaPdf(prop: Proposta) {
   for (let i = 1; i <= total; i++) {
     doc.setPage(i);
     doc.setFillColor(...GOLD);
-    doc.rect(0, PAGE_H - 19, PAGE_W, 1, "F");
+    doc.rect(0, PAGE_H - 16, PAGE_W, 1, "F");
     doc.setFillColor(...NAVY);
-    doc.rect(0, PAGE_H - 18, PAGE_W, 18, "F");
+    doc.rect(0, PAGE_H - 15, PAGE_W, 15, "F");
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(14);
+    doc.setFontSize(9);
     doc.setTextColor(...WHITE);
     const links = [
-      { text: EMPRESA.site, url: EMPRESA.siteUrl },
-      { text: EMPRESA.email, url: `mailto:${EMPRESA.email}` },
-      { text: EMPRESA.whats, url: EMPRESA.whatsUrl },
+      { text: "www.templarengenharia.com.br", url: "https://www.templarengenharia.com.br", x: 30 },
+      {
+        text: "templarengenharia@hotmail.com",
+        url: "mailto:templarengenharia@hotmail.com",
+        x: 95,
+      },
+      { text: "WhatsApp (21) 98180-8812", url: "https://wa.me/5521981808812", x: 155 },
     ];
-    const columnWidth = PAGE_W / 3;
-    links.forEach((link, index) => {
+    links.forEach((link) => {
       const linkWidth = doc.getTextWidth(link.text);
-      const linkX = columnWidth * index + (columnWidth - linkWidth) / 2;
-      doc.textWithLink(link.text, linkX, PAGE_H - 10.5, { url: link.url });
+      doc.text(link.text, link.x, PAGE_H - 9.2, { align: "center" });
+      doc.link(link.x - linkWidth / 2, PAGE_H - 12.3, linkWidth, 4, { url: link.url });
     });
     doc.setFontSize(7);
     doc.setTextColor(...WHITE);
-    doc.text(`Proposta ${prop.numero} • Página ${i} de ${total}`, PAGE_W / 2, PAGE_H - 4.5, {
+    doc.text(`Proposta ${prop.numero} • Página ${i} de ${total}`, PAGE_W / 2, PAGE_H - 3.2, {
       align: "center",
     });
   }

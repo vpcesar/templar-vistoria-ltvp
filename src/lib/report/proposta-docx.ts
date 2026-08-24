@@ -15,6 +15,7 @@ import {
   TableCell,
   TableRow,
   TextRun,
+  UnderlineType,
   WidthType,
 } from "docx";
 import { EMPRESA } from "../laudo";
@@ -353,9 +354,12 @@ export async function gerarPropostaDocx(prop: Proposta) {
                   new TableRow({
                     children: (
                       [
-                        [EMPRESA.site, EMPRESA.siteUrl],
-                        [EMPRESA.email, `mailto:${EMPRESA.email}`],
-                        [EMPRESA.whats, EMPRESA.whatsUrl],
+                        ["www.templarengenharia.com.br", "https://www.templarengenharia.com.br"],
+                        [
+                          "templarengenharia@hotmail.com",
+                          "mailto:templarengenharia@hotmail.com",
+                        ],
+                        ["WhatsApp (21) 98180-8812", "https://wa.me/5521981808812"],
                       ] satisfies Array<[string, string]>
                     ).map(
                       ([text, link]) =>
@@ -377,6 +381,13 @@ export async function gerarPropostaDocx(prop: Proposta) {
                                   link,
                                   children: [
                                     new TextRun({ text, color: WHITE, size: 28, font: "Arial" }),
+                                    new TextRun({
+                                      text,
+                                      color: WHITE,
+                                      size: 18,
+                                      font: "Arial",
+                                      underline: { type: UnderlineType.NONE },
+                                    }),
                                   ],
                                 }),
                               ],
