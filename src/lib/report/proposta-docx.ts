@@ -1,10 +1,33 @@
-import { AlignmentType, Document, Footer, ImageRun, Packer, Paragraph, TextRun } from "docx";
+import {
+  AlignmentType,
+  BorderStyle,
+  Document,
+  ExternalHyperlink,
+  Footer,
+  Header,
+  ImageRun,
+  LevelFormat,
+  PageNumber,
+  Packer,
+  Paragraph,
+  ShadingType,
+  Table,
+  TableCell,
+  TableRow,
+  TextRun,
+  WidthType,
+} from "docx";
 import { EMPRESA } from "../laudo";
 import { formatarDataBR, formatarMoeda, type Proposta } from "../propostas";
-import { carregarLogo, dataUrlToBytes } from "./logo";
+import { carregarLogoProposta, dataUrlToBytes } from "./logo";
 
-const BRAND = "8B1A1A";
+const NAVY = "1A365D";
+const BLUE = "2C5282";
+const GOLD = "D69E2E";
 const SLATE = "2D3748";
+const FOOTER = "718096";
+const WHITE = "FFFFFF";
+const CONTENT_WIDTH = 9026;
 
 const p = (
   text: string,
@@ -22,7 +45,7 @@ const p = (
       new TextRun({
         text,
         bold: opts.bold ?? false,
-        size: opts.size ?? 21,
+        size: opts.size ?? 20,
         font: "Arial",
         color: opts.color ?? SLATE,
       }),
@@ -30,11 +53,40 @@ const p = (
   });
 
 const titulo = (text: string) =>
-  new Paragraph({
-    spacing: { before: 260, after: 140 },
-    border: { bottom: { style: "single", size: 6, color: BRAND, space: 1 } },
-    children: [
-      new TextRun({ text: text.toUpperCase(), bold: true, size: 24, font: "Arial", color: BRAND }),
+  new Table({
+    width: { size: CONTENT_WIDTH, type: WidthType.DXA },
+    columnWidths: [CONTENT_WIDTH],
+    margins: { top: 90, bottom: 90 },
+    rows: [
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: CONTENT_WIDTH, type: WidthType.DXA },
+            shading: { fill: NAVY, type: ShadingType.CLEAR },
+            borders: {
+              top: { style: BorderStyle.NONE },
+              bottom: { style: BorderStyle.NONE },
+              left: { style: BorderStyle.NONE },
+              right: { style: BorderStyle.NONE },
+            },
+            margins: { top: 110, bottom: 110, left: 180, right: 180 },
+            children: [
+              new Paragraph({
+                spacing: { before: 0, after: 0 },
+                children: [
+                  new TextRun({
+                    text: text.toUpperCase(),
+                    bold: true,
+                    size: 24,
+                    font: "Arial",
+                    color: WHITE,
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
     ],
   });
 
@@ -42,56 +94,62 @@ const campo = (rotulo: string, valor: string) =>
   new Paragraph({
     spacing: { after: 80 },
     children: [
-      new TextRun({ text: `${rotulo}: `, bold: true, size: 21, font: "Arial", color: SLATE }),
-      new TextRun({ text: valor || "—", size: 21, font: "Arial", color: SLATE }),
+      new TextRun({ text: `${rotulo}: `, bold: true, size: 20, font: "Arial", color: SLATE }),
+      new TextRun({ text: valor || "—", size: 20, font: "Arial", color: SLATE }),
     ],
   });
 
-const linhas = (conteudo: string) =>
+const linhas = (conteudo: string, reference = "proposal-bullets") =>
   (conteudo || "—")
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean)
-    .map((l) =>
-      p(l.startsWith("•") || l.startsWith("-") ? l : `• ${l}`, { align: AlignmentType.LEFT }),
+    .map(
+      (l) =>
+        new Paragraph({
+          numbering: { reference, level: 0 },
+          alignment: AlignmentType.JUSTIFIED,
+          spacing: { after: 100, line: 276 },
+          children: [
+            new TextRun({
+              text: l.replace(/^[•-]\s*/, ""),
+              size: 20,
+              font: "Arial",
+              color: SLATE,
+            }),
+          ],
+        }),
     );
 
 export async function gerarPropostaDocx(prop: Proposta) {
-  const logo = await carregarLogo();
-  const filhos: Paragraph[] = [];
+  const logo = await carregarLogoProposta();
+  const filhos: (Paragraph | Table)[] = [];
 
-  if (logo) {
-    const ratio = logo.width / logo.height;
-    const height = 62;
-    filhos.push(
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        spacing: { after: 120 },
-        children: [
-          new ImageRun({
-            type: "png",
-            data: dataUrlToBytes(logo.dataUrl),
-            transformation: { width: Math.min(ratio * height, 200), height },
-            altText: {
-              title: "TEMPLAR ENGENHARIA",
-              description: "Logomarca TEMPLAR ENGENHARIA",
-              name: "logo",
-            },
-          }),
-        ],
-      }),
-    );
-  }
+  const headerLogo = logo
+    ? new ImageRun({
+        type: logo.type,
+        data: dataUrlToBytes(logo.dataUrl),
+        transformation: { width: 180, height: 180 / (logo.width / logo.height) },
+        altText: {
+          title: "TEMPLAR ENGENHARIA",
+          description: "Logotipo horizontal da TEMPLAR ENGENHARIA",
+          name: "logo-templar",
+        },
+      })
+    : new TextRun({ text: EMPRESA.nome, bold: true, size: 32, font: "Arial", color: NAVY });
 
   filhos.push(
-    p(EMPRESA.nome, { bold: true, size: 30, align: AlignmentType.CENTER, color: BRAND }),
-    p(EMPRESA.slogan, { size: 19, align: AlignmentType.CENTER }),
-    p(`PROPOSTA COMERCIAL — Nº ${prop.numero}`, {
+    p("PROPOSTA COMERCIAL", {
       bold: true,
-      size: 25,
+      size: 32,
       align: AlignmentType.CENTER,
+      color: NAVY,
     }),
-    p(`Data: ${formatarDataBR(prop.data_emissao)}`, { align: AlignmentType.CENTER }),
+    p(`Nº ${prop.numero}`, { bold: true, size: 28, align: AlignmentType.CENTER, color: GOLD }),
+    p(`Data de emissão: ${formatarDataBR(prop.data_emissao)}`, {
+      align: AlignmentType.CENTER,
+      color: FOOTER,
+    }),
 
     titulo("Responsável Técnico"),
     campo("Nome", prop.responsavel_tecnico_nome),
@@ -111,48 +169,117 @@ export async function gerarPropostaDocx(prop: Proposta) {
     p(prop.tipo_servico, { bold: true }),
 
     titulo("Escopo dos Serviços"),
-    p("Objetivo", { bold: true, color: BRAND }),
+    p("Objetivo", { bold: true, color: BLUE }),
     p(prop.escopo_objetivo ?? "—"),
-    p("Itens constantes", { bold: true, color: BRAND }),
+    p("Itens Constantes", { bold: true, color: BLUE }),
     ...linhas(prop.escopo_itens_constantes ?? ""),
-    p("Metodologia", { bold: true, color: BRAND }),
+    p("Metodologia", { bold: true, color: BLUE }),
     ...linhas(prop.escopo_metodologia ?? ""),
-    p("Entregáveis", { bold: true, color: BRAND }),
+    p("Entregáveis", { bold: true, color: BLUE }),
     ...linhas(prop.escopo_entregaveis ?? ""),
 
     titulo("Valores e Condições"),
-    campo("Valor total", formatarMoeda(prop.valor_total)),
+    new Paragraph({
+      spacing: { after: 80 },
+      children: [
+        new TextRun({ text: "Valor total: ", bold: true, size: 20, font: "Arial", color: SLATE }),
+        new TextRun({
+          text: formatarMoeda(Number(prop.valor_total)),
+          bold: true,
+          size: 20,
+          font: "Arial",
+          color: GOLD,
+        }),
+      ],
+    }),
     campo("Condições de pagamento", prop.condicoes_pagamento ?? ""),
     campo("Validade da proposta", `${prop.validade_dias} dias`),
     campo("Prazo de execução", prop.prazo_execucao ?? ""),
 
     titulo("Não Incluído"),
-    ...(prop.nao_incluido ?? "—")
-      .split("\n")
-      .map((l) => l.trim())
-      .filter(Boolean)
-      .map((l) => p(l, { align: AlignmentType.LEFT })),
+    ...linhas(prop.nao_incluido ?? "—", "proposal-exclusions"),
   );
 
   const doc = new Document({
-    styles: { default: { document: { run: { font: "Arial", size: 21 } } } },
+    styles: { default: { document: { run: { font: "Arial", size: 20, color: SLATE } } } },
+    numbering: {
+      config: ["proposal-bullets", "proposal-exclusions"].map((reference) => ({
+        reference,
+        levels: [
+          {
+            level: 0,
+            format: LevelFormat.BULLET,
+            text: "•",
+            alignment: AlignmentType.LEFT,
+            style: { paragraph: { indent: { left: 420, hanging: 220 } } },
+          },
+        ],
+      })),
+    },
     sections: [
       {
         properties: {
           page: {
             size: { width: 11906, height: 16838 },
-            margin: { top: 1134, right: 1134, bottom: 1134, left: 1134 },
+            margin: { top: 1700, right: 1440, bottom: 1300, left: 1440, header: 360, footer: 360 },
           },
+        },
+        headers: {
+          default: new Header({
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 80 },
+                children: [headerLogo],
+              }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                shading: { fill: NAVY, type: ShadingType.CLEAR },
+                spacing: { before: 0, after: 0 },
+                children: [
+                  new TextRun({ text: EMPRESA.slogan, size: 16, font: "Arial", color: WHITE }),
+                ],
+              }),
+            ],
+          }),
         },
         footers: {
           default: new Footer({
             children: [
-              p(`${EMPRESA.site} | ${EMPRESA.email} | ${EMPRESA.whats}`, {
-                size: 16,
-                align: AlignmentType.CENTER,
-                color: BRAND,
+              new Paragraph({
+                border: { top: { style: BorderStyle.SINGLE, size: 6, color: NAVY, space: 5 } },
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 80 },
+                children: [
+                  new ExternalHyperlink({
+                    link: EMPRESA.siteUrl,
+                    children: [new TextRun({ text: EMPRESA.site, style: "Hyperlink", size: 14 })],
+                  }),
+                  new TextRun({ text: "  |  ", size: 14, color: FOOTER }),
+                  new ExternalHyperlink({
+                    link: `mailto:${EMPRESA.email}`,
+                    children: [new TextRun({ text: EMPRESA.email, style: "Hyperlink", size: 14 })],
+                  }),
+                  new TextRun({ text: "  |  ", size: 14, color: FOOTER }),
+                  new ExternalHyperlink({
+                    link: EMPRESA.whatsUrl,
+                    children: [new TextRun({ text: EMPRESA.whats, style: "Hyperlink", size: 14 })],
+                  }),
+                ],
               }),
-              p(`Proposta ${prop.numero}`, { size: 16, align: AlignmentType.CENTER }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({
+                    text: `Proposta ${prop.numero} • Página `,
+                    size: 14,
+                    color: FOOTER,
+                  }),
+                  new TextRun({ children: [PageNumber.CURRENT], size: 14, color: FOOTER }),
+                  new TextRun({ text: " de ", size: 14, color: FOOTER }),
+                  new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 14, color: FOOTER }),
+                ],
+              }),
             ],
           }),
         },

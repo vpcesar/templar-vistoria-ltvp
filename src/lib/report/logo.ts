@@ -1,15 +1,16 @@
 import logoAsset from "@/assets/Logomarca-Templar.png.asset.json";
+import proposalLogoAsset from "@/assets/logotipo-horizontal-TEMPLAR-2026.jpg.asset.json";
 
 export interface LogoLaudo {
   dataUrl: string;
   width: number;
   height: number;
+  type: "png" | "jpg";
 }
 
-/** Carrega o logotipo institucional em base64 para uso no cabeçalho do laudo. */
-export async function carregarLogo(): Promise<LogoLaudo | null> {
+async function carregarImagem(url: string, type: "png" | "jpg"): Promise<LogoLaudo | null> {
   try {
-    const res = await fetch(logoAsset.url);
+    const res = await fetch(url);
     if (!res.ok) return null;
     const blob = await res.blob();
     const dataUrl = await new Promise<string>((resolve, reject) => {
@@ -24,10 +25,20 @@ export async function carregarLogo(): Promise<LogoLaudo | null> {
       img.onerror = () => resolve({ width: 600, height: 150 });
       img.src = dataUrl;
     });
-    return { dataUrl, ...dims };
+    return { dataUrl, ...dims, type };
   } catch {
     return null;
   }
+}
+
+/** Carrega o escudo institucional usado nos laudos técnicos. */
+export function carregarLogo(): Promise<LogoLaudo | null> {
+  return carregarImagem(logoAsset.url, "png");
+}
+
+/** Carrega a assinatura horizontal oficial usada nas propostas comerciais. */
+export function carregarLogoProposta(): Promise<LogoLaudo | null> {
+  return carregarImagem(proposalLogoAsset.url, "jpg");
 }
 
 export function dataUrlToBytes(dataUrl: string) {
