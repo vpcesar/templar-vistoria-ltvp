@@ -37,6 +37,7 @@ import {
   type LeadInput,
   type LeadStatus,
 } from "@/lib/crm";
+import { listarPropostas } from "@/lib/propostas";
 
 export const Route = createFileRoute("/crm/")({
   head: () => ({
@@ -72,6 +73,19 @@ function CrmPage() {
 
   const leadsQuery = useQuery({ queryKey: ["leads"], queryFn: listarLeads });
   const leads = leadsQuery.data ?? [];
+
+  const propostasQuery = useQuery({
+    queryKey: ["propostas"],
+    queryFn: listarPropostas,
+    retry: false,
+  });
+  const propostasPorLead = useMemo(() => {
+    const mapa = new Map<string, number>();
+    (propostasQuery.data ?? []).forEach((p) => {
+      if (p.lead_id) mapa.set(p.lead_id, (mapa.get(p.lead_id) ?? 0) + 1);
+    });
+    return mapa;
+  }, [propostasQuery.data]);
 
   const criar = useMutation({
     mutationFn: (input: LeadInput) => criarLead(input),
