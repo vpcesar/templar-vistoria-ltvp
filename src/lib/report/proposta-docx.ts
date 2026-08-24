@@ -380,7 +380,6 @@ export async function gerarPropostaDocx(prop: Proposta) {
                                 new ExternalHyperlink({
                                   link,
                                   children: [
-                                    new TextRun({ text, color: WHITE, size: 28, font: "Arial" }),
                                     new TextRun({
                                       text,
                                       color: WHITE,
