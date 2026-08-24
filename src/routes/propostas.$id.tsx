@@ -52,7 +52,9 @@ function Bloco({ titulo, children }: { titulo: string; children: React.ReactNode
   return (
     <section>
       <div className="flex items-center gap-3">
-        <h2 className="shrink-0 text-sm font-bold uppercase tracking-wide text-brand-navy">{titulo}</h2>
+        <h2 className="shrink-0 text-sm font-bold uppercase tracking-wide text-brand-navy">
+          {titulo}
+        </h2>
         <div className="h-px flex-1 bg-brand-gold opacity-40" />
       </div>
       <div className="mt-3 space-y-1 text-sm text-foreground">{children}</div>
@@ -175,7 +177,7 @@ function PropostaDetalhe() {
             </div>
 
             <article className="mx-auto w-full max-w-3xl overflow-hidden rounded-lg border border-border bg-card shadow-sm">
-              <header className="relative flex items-center gap-5 bg-brand-navy px-6 py-5 sm:px-10">
+              <header className="relative flex items-center justify-between gap-5 bg-brand-navy px-6 py-5 sm:px-10">
                 <div className="shrink-0 rounded-md bg-brand-on-navy p-2 shadow-sm">
                   <img
                     src={proposalLogoAsset.url}
@@ -183,7 +185,7 @@ function PropostaDetalhe() {
                     className="h-12 w-auto object-contain"
                   />
                 </div>
-                <div>
+                <div className="ml-auto text-right">
                   <p className="font-bold text-brand-on-navy">{EMPRESA.nome}</p>
                   <p className="mt-1 text-xs text-brand-on-navy">{EMPRESA.slogan}</p>
                 </div>
@@ -199,51 +201,70 @@ function PropostaDetalhe() {
                   </p>
                 </div>
 
-              <Bloco titulo="Responsável Técnico">
-                <Campo rotulo="Nome" valor={proposta.responsavel_tecnico_nome} />
-                <Campo rotulo="CREA" valor={proposta.responsavel_tecnico_crea} />
-              </Bloco>
+                <Bloco titulo="Responsável Técnico">
+                  <Campo rotulo="Nome" valor={proposta.responsavel_tecnico_nome} />
+                  <Campo rotulo="CREA" valor={proposta.responsavel_tecnico_crea} />
+                </Bloco>
 
-              <Bloco titulo="Dados do Cliente">
-                <Campo rotulo="Nome" valor={proposta.cliente_nome} />
-                <Campo rotulo="CPF/CNPJ" valor={proposta.cliente_cpf ?? ""} />
-                <Campo rotulo="Telefone/WhatsApp" valor={proposta.cliente_telefone ?? ""} />
-                <Campo rotulo="Endereço" valor={proposta.cliente_endereco ?? ""} />
-              </Bloco>
+                <Bloco titulo="Dados do Cliente">
+                  <Campo rotulo="Nome" valor={proposta.cliente_nome} />
+                  <Campo rotulo="CPF/CNPJ" valor={proposta.cliente_cpf ?? ""} />
+                  <Campo rotulo="Telefone/WhatsApp" valor={proposta.cliente_telefone ?? ""} />
+                  <Campo rotulo="Endereço" valor={proposta.cliente_endereco ?? ""} />
+                </Bloco>
 
-              <Bloco titulo="Dados do Imóvel / Objeto">
-                <Campo rotulo="Endereço" valor={proposta.imovel_endereco ?? ""} />
-                <Campo rotulo="Observações" valor={proposta.imovel_observacoes ?? ""} />
-              </Bloco>
+                <Bloco titulo="Dados do Imóvel / Objeto">
+                  <Campo rotulo="Endereço" valor={proposta.imovel_endereco ?? ""} />
+                  <Campo rotulo="Observações" valor={proposta.imovel_observacoes ?? ""} />
+                </Bloco>
 
-              <Bloco titulo="Serviço Contratado">
-                <p className="font-semibold">{proposta.tipo_servico}</p>
-              </Bloco>
+                <Bloco titulo="Serviço Contratado">
+                  <p className="font-semibold">{proposta.tipo_servico}</p>
+                </Bloco>
 
-              <Bloco titulo="Escopo dos Serviços">
-                <p className="text-justify">{proposta.escopo_objetivo || "—"}</p>
-                <Lista rotulo="Itens constantes" conteudo={proposta.escopo_itens_constantes} />
-                <Lista rotulo="Metodologia" conteudo={proposta.escopo_metodologia} />
-                <Lista rotulo="Entregáveis" conteudo={proposta.escopo_entregaveis} />
-              </Bloco>
+                <Bloco titulo="Escopo dos Serviços">
+                  <p className="text-justify">{proposta.escopo_objetivo || "—"}</p>
+                  <Lista rotulo="Itens constantes" conteudo={proposta.escopo_itens_constantes} />
+                  <Lista rotulo="Metodologia" conteudo={proposta.escopo_metodologia} />
+                  <Lista rotulo="Entregáveis" conteudo={proposta.escopo_entregaveis} />
+                </Bloco>
 
-              <Bloco titulo="Valores e Condições">
-                <Campo rotulo="Valor total" valor={formatarMoeda(Number(proposta.valor_total))} />
-                <Campo rotulo="Condições" valor={proposta.condicoes_pagamento ?? ""} />
-                <Campo rotulo="Validade" valor={`${proposta.validade_dias} dias`} />
-                <Campo rotulo="Prazo" valor={proposta.prazo_execucao ?? ""} />
-              </Bloco>
+                <Bloco titulo="Valores e Condições">
+                  <Campo rotulo="Valor total" valor={formatarMoeda(Number(proposta.valor_total))} />
+                  <Campo rotulo="Condições" valor={proposta.condicoes_pagamento ?? ""} />
+                  <Campo rotulo="Validade" valor={`${proposta.validade_dias} dias`} />
+                  <Campo rotulo="Prazo" valor={proposta.prazo_execucao ?? ""} />
+                </Bloco>
 
-              <Bloco titulo="Não Incluído">
-                <p className="whitespace-pre-wrap">{proposta.nao_incluido || "—"}</p>
-              </Bloco>
+                <Bloco titulo="Não Incluído">
+                  <p className="whitespace-pre-wrap">{proposta.nao_incluido || "—"}</p>
+                </Bloco>
               </div>
 
-              <footer className="relative grid gap-2 bg-brand-navy px-6 py-5 text-center text-xs sm:grid-cols-3 sm:px-10">
+              <footer className="relative grid gap-2 bg-brand-navy px-6 py-5 text-center text-sm sm:grid-cols-3 sm:px-10">
                 <div className="absolute inset-x-0 top-0 h-[3px] bg-brand-gold" />
-                <a className="text-brand-on-navy underline" href={EMPRESA.siteUrl} target="_blank" rel="noreferrer">{EMPRESA.site}</a>
-                <a className="text-brand-on-navy underline" href={`mailto:${EMPRESA.email}`}>{EMPRESA.email}</a>
-                <a className="text-brand-on-navy underline" href={EMPRESA.whatsUrl} target="_blank" rel="noreferrer">{EMPRESA.whats}</a>
+                <a
+                  className="text-brand-on-navy no-underline hover:no-underline"
+                  href={EMPRESA.siteUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {EMPRESA.site}
+                </a>
+                <a
+                  className="text-brand-on-navy no-underline hover:no-underline"
+                  href={`mailto:${EMPRESA.email}`}
+                >
+                  {EMPRESA.email}
+                </a>
+                <a
+                  className="text-brand-on-navy no-underline hover:no-underline"
+                  href={EMPRESA.whatsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {EMPRESA.whats}
+                </a>
               </footer>
             </article>
           </>

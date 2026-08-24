@@ -32,7 +32,14 @@ export async function gerarPropostaPdf(prop: Proposta) {
       const w = Math.min(maxW, maxH * ratio);
       const h = w / ratio;
       try {
-        doc.addImage(logo.dataUrl, logo.type.toUpperCase(), M.left + (54 - w) / 2, 14 - h / 2, w, h);
+        doc.addImage(
+          logo.dataUrl,
+          logo.type.toUpperCase(),
+          M.left + (54 - w) / 2,
+          14 - h / 2,
+          w,
+          h,
+        );
       } catch {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10);
@@ -48,10 +55,10 @@ export async function gerarPropostaPdf(prop: Proposta) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(...WHITE);
-    doc.text(EMPRESA.nome, 82, 12);
+    doc.text(EMPRESA.nome, PAGE_W - M.right, 12, { align: "right" });
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    doc.text(EMPRESA.slogan, 82, 17);
+    doc.text(EMPRESA.slogan, PAGE_W - M.right, 17, { align: "right" });
     doc.setFillColor(...GOLD);
     doc.rect(0, 29, PAGE_W, 1, "F");
   };
@@ -207,7 +214,7 @@ export async function gerarPropostaPdf(prop: Proposta) {
     doc.setFillColor(...NAVY);
     doc.rect(0, PAGE_H - 18, PAGE_W, 18, "F");
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(7);
+    doc.setFontSize(14);
     doc.setTextColor(...WHITE);
     const links = [
       { text: EMPRESA.site, url: EMPRESA.siteUrl },
@@ -219,8 +226,8 @@ export async function gerarPropostaPdf(prop: Proposta) {
       const linkWidth = doc.getTextWidth(link.text);
       const linkX = columnWidth * index + (columnWidth - linkWidth) / 2;
       doc.textWithLink(link.text, linkX, PAGE_H - 10.5, { url: link.url });
-      doc.line(linkX, PAGE_H - 10, linkX + linkWidth, PAGE_H - 10);
     });
+    doc.setFontSize(7);
     doc.setTextColor(...WHITE);
     doc.text(`Proposta ${prop.numero} • Página ${i} de ${total}`, PAGE_W / 2, PAGE_H - 4.5, {
       align: "center",
