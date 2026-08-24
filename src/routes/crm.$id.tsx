@@ -284,10 +284,17 @@ function LeadDetalhe() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => toast.info("Módulo de Vistorias em desenvolvimento.")}
+                  onClick={() => void navigate({ to: "/vistorias/nova", search: { lead: lead.id } })}
                 >
                   <CalendarClock className="mr-1.5 h-4 w-4" />
                   Agendar Vistoria
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => void navigate({ to: "/vistorias", search: { lead: lead.id } })}
+                >
+                  <CalendarClock className="mr-1.5 h-4 w-4" />
+                  Ver Vistorias
                 </Button>
               </div>
             </section>
