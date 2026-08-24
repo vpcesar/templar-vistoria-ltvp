@@ -216,14 +216,23 @@ export async function gerarPropostaPdf(prop: Proposta) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(...WHITE);
+    const colWidth = W / 3;
     const links = [
-      { text: "www.templarengenharia.com.br", url: "https://www.templarengenharia.com.br", x: 30 },
+      {
+        text: "www.templarengenharia.com.br",
+        url: "https://www.templarengenharia.com.br",
+        x: M.left + colWidth / 2,
+      },
       {
         text: "templarengenharia@hotmail.com",
         url: "mailto:templarengenharia@hotmail.com",
-        x: 95,
+        x: M.left + colWidth * 1.5,
       },
-      { text: "WhatsApp (21) 98180-8812", url: "https://wa.me/5521981808812", x: 155 },
+      {
+        text: "WhatsApp (21) 98180-8812",
+        url: "https://wa.me/5521981808812",
+        x: M.left + colWidth * 2.5,
+      },
     ];
     links.forEach((link) => {
       const linkWidth = doc.getTextWidth(link.text);
@@ -231,7 +240,7 @@ export async function gerarPropostaPdf(prop: Proposta) {
       doc.link(link.x - linkWidth / 2, PAGE_H - 12.3, linkWidth, 4, { url: link.url });
     });
     doc.setFontSize(7);
-    doc.setTextColor(...WHITE);
+    doc.setTextColor(...FOOTER);
     doc.text(`Proposta ${prop.numero} • Página ${i} de ${total}`, PAGE_W / 2, PAGE_H - 3.2, {
       align: "center",
     });
