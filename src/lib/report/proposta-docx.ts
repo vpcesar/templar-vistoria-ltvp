@@ -329,11 +329,11 @@ export async function gerarPropostaDocx(prop: Proposta) {
                     ],
                   }),
                   new TableRow({
-                    children: [
+                    children: ([
                       [EMPRESA.site, EMPRESA.siteUrl],
                       [EMPRESA.email, `mailto:${EMPRESA.email}`],
                       [EMPRESA.whats, EMPRESA.whatsUrl],
-                    ].map(([text, link]) =>
+                    ] satisfies Array<[string, string]>).map(([text, link]) =>
                       new TableCell({
                         shading: { fill: NAVY, type: ShadingType.CLEAR },
                         borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE } },
