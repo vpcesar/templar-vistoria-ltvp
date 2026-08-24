@@ -1,5 +1,5 @@
 import logoAsset from "@/assets/Logomarca-Templar.png.asset.json";
-import proposalLogoAsset from "@/assets/logotipo-horizontal-TEMPLAR-2026.jpg.asset.json";
+import proposalLogoAsset from "@/assets/logotipo_horizontal_TEMPLAR.jpg.asset.json";
 
 export interface LogoLaudo {
   dataUrl: string;

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { ErpShell } from "@/components/ErpShell";
 import { EMPRESA } from "@/lib/laudo";
+import proposalLogoAsset from "@/assets/logotipo_horizontal_TEMPLAR.jpg.asset.json";
 import { gerarPropostaPdf } from "@/lib/report/proposta-pdf";
 import { gerarPropostaDocx } from "@/lib/report/proposta-docx";
 import {
@@ -49,11 +50,12 @@ export const Route = createFileRoute("/propostas/$id")({
 
 function Bloco({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
-    <section className="mt-6">
-      <h2 className="border-b-2 border-primary pb-1 text-sm font-bold uppercase tracking-wide text-primary">
-        {titulo}
-      </h2>
-      <div className="mt-3 space-y-1.5 text-sm text-foreground">{children}</div>
+    <section>
+      <div className="flex items-center gap-3">
+        <h2 className="shrink-0 text-sm font-bold uppercase tracking-wide text-brand-navy">{titulo}</h2>
+        <div className="h-px flex-1 bg-brand-gold opacity-40" />
+      </div>
+      <div className="mt-3 space-y-1 text-sm text-foreground">{children}</div>
     </section>
   );
 }
@@ -172,17 +174,30 @@ function PropostaDetalhe() {
               </span>
             </div>
 
-            <article className="mx-auto w-full max-w-3xl rounded-xl border border-border bg-card p-6 shadow-sm sm:p-10">
-              <header className="text-center">
-                <p className="text-xl font-bold text-primary">{EMPRESA.nome}</p>
-                <p className="text-xs text-muted-foreground">{EMPRESA.slogan}</p>
-                <p className="mt-4 text-base font-bold text-foreground">
-                  PROPOSTA COMERCIAL — Nº {proposta.numero}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Data: {formatarDataBR(proposta.data_emissao)}
-                </p>
+            <article className="mx-auto w-full max-w-3xl overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+              <header className="relative flex items-center gap-5 bg-brand-navy px-6 py-5 sm:px-10">
+                <div className="shrink-0 rounded-md bg-brand-on-navy p-2 shadow-sm">
+                  <img
+                    src={proposalLogoAsset.url}
+                    alt="Logotipo horizontal da TEMPLAR ENGENHARIA"
+                    className="h-12 w-auto object-contain"
+                  />
+                </div>
+                <div>
+                  <p className="font-bold text-brand-on-navy">{EMPRESA.nome}</p>
+                  <p className="mt-1 text-xs text-brand-on-navy">{EMPRESA.slogan}</p>
+                </div>
+                <div className="absolute inset-x-0 bottom-0 h-[3px] bg-brand-gold" />
               </header>
+
+              <div className="space-y-6 px-6 py-8 sm:px-10">
+                <div className="text-center">
+                  <h1 className="text-2xl font-bold text-brand-navy">PROPOSTA COMERCIAL</h1>
+                  <p className="mt-1 font-semibold text-brand-gold">Nº {proposta.numero}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Data de emissão: {formatarDataBR(proposta.data_emissao)}
+                  </p>
+                </div>
 
               <Bloco titulo="Responsável Técnico">
                 <Campo rotulo="Nome" valor={proposta.responsavel_tecnico_nome} />
@@ -222,12 +237,13 @@ function PropostaDetalhe() {
               <Bloco titulo="Não Incluído">
                 <p className="whitespace-pre-wrap">{proposta.nao_incluido || "—"}</p>
               </Bloco>
+              </div>
 
-              <footer className="mt-8 border-t border-border pt-3 text-center text-xs text-muted-foreground">
-                <p>
-                  {EMPRESA.site} | {EMPRESA.email} | {EMPRESA.whats}
-                </p>
-                <p className="mt-1">Proposta {proposta.numero}</p>
+              <footer className="relative grid gap-2 bg-brand-navy px-6 py-5 text-center text-xs sm:grid-cols-3 sm:px-10">
+                <div className="absolute inset-x-0 top-0 h-[3px] bg-brand-gold" />
+                <a className="text-brand-on-navy underline" href={EMPRESA.siteUrl} target="_blank" rel="noreferrer">{EMPRESA.site}</a>
+                <a className="text-brand-on-navy underline" href={`mailto:${EMPRESA.email}`}>{EMPRESA.email}</a>
+                <a className="text-brand-on-navy underline" href={EMPRESA.whatsUrl} target="_blank" rel="noreferrer">{EMPRESA.whats}</a>
               </footer>
             </article>
           </>

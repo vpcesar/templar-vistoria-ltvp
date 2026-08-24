@@ -5,11 +5,11 @@ import { carregarLogoProposta } from "./logo";
 
 const NAVY: [number, number, number] = [26, 54, 93];
 const BLUE: [number, number, number] = [44, 82, 130];
-const GOLD: [number, number, number] = [214, 158, 46];
+const GOLD: [number, number, number] = [212, 175, 55];
 const TEXT: [number, number, number] = [45, 55, 72];
 const FOOTER: [number, number, number] = [113, 128, 150];
 const WHITE: [number, number, number] = [255, 255, 255];
-const M = { left: 20, right: 20, top: 31, bottom: 29 };
+const M = { left: 20, right: 20, top: 38, bottom: 25 };
 const PAGE_W = 210;
 const PAGE_H = 297;
 const W = PAGE_W - M.left - M.right;
@@ -21,35 +21,45 @@ export async function gerarPropostaPdf(prop: Proposta) {
   let y = M.top;
 
   const desenharCabecalho = () => {
+    doc.setFillColor(...NAVY);
+    doc.rect(0, 0, PAGE_W, 29, "F");
+    doc.setFillColor(...WHITE);
+    doc.roundedRect(M.left, 5, 54, 18, 1.5, 1.5, "F");
     if (logo) {
-      const w = 48;
-      const h = w / (logo.width / logo.height);
+      const maxW = 48;
+      const maxH = 12;
+      const ratio = logo.width / logo.height;
+      const w = Math.min(maxW, maxH * ratio);
+      const h = w / ratio;
       try {
-        doc.addImage(logo.dataUrl, logo.type.toUpperCase(), (PAGE_W - w) / 2, 6, w, h);
+        doc.addImage(logo.dataUrl, logo.type.toUpperCase(), M.left + (54 - w) / 2, 14 - h / 2, w, h);
       } catch {
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(16);
+        doc.setFontSize(10);
         doc.setTextColor(...NAVY);
-        doc.text(EMPRESA.nome, PAGE_W / 2, 15, { align: "center" });
+        doc.text(EMPRESA.nome, M.left + 27, 15, { align: "center" });
       }
     } else {
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(16);
+      doc.setFontSize(10);
       doc.setTextColor(...NAVY);
-      doc.text(EMPRESA.nome, PAGE_W / 2, 15, { align: "center" });
+      doc.text(EMPRESA.nome, M.left + 27, 15, { align: "center" });
     }
-    doc.setFillColor(...NAVY);
-    doc.rect(0, 24, PAGE_W, 6, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(...WHITE);
+    doc.text(EMPRESA.nome, 82, 12);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    doc.setTextColor(...WHITE);
-    doc.text(EMPRESA.slogan, PAGE_W / 2, 28, { align: "center" });
+    doc.text(EMPRESA.slogan, 82, 17);
+    doc.setFillColor(...GOLD);
+    doc.rect(0, 29, PAGE_W, 1, "F");
   };
 
   const novaPagina = () => {
     doc.addPage();
     desenharCabecalho();
-    y = M.top + 4;
+    y = M.top;
   };
 
   desenharCabecalho();
@@ -61,15 +71,18 @@ export async function gerarPropostaPdf(prop: Proposta) {
   };
 
   const titulo = (txt: string) => {
-    ensure(13);
+    ensure(10);
     y += 3;
-    doc.setFillColor(...NAVY);
-    doc.rect(M.left, y - 4.5, W, 8, "F");
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.setTextColor(...WHITE);
-    doc.text(txt.toUpperCase(), M.left + 3, y + 0.5);
-    y += 9;
+    doc.setFontSize(10.5);
+    doc.setTextColor(...NAVY);
+    const label = txt.toUpperCase();
+    doc.text(label, M.left, y);
+    const start = M.left + doc.getTextWidth(label) + 4;
+    doc.setDrawColor(...GOLD);
+    doc.setLineWidth(0.35);
+    doc.line(start, y - 1, PAGE_W - M.right, y - 1);
+    y += 7;
   };
 
   const texto = (
@@ -142,7 +155,7 @@ export async function gerarPropostaPdf(prop: Proposta) {
     y += 1;
   };
 
-  y += 8;
+  y += 4;
   texto("PROPOSTA COMERCIAL", { bold: true, size: 18, center: true, color: NAVY });
   texto(`Nº ${prop.numero}`, { bold: true, size: 14, center: true, color: GOLD });
   texto(`Data de emissão: ${formatarDataBR(prop.data_emissao)}`, {
@@ -189,36 +202,27 @@ export async function gerarPropostaPdf(prop: Proposta) {
   const total = doc.getNumberOfPages();
   for (let i = 1; i <= total; i++) {
     doc.setPage(i);
-    doc.setDrawColor(...NAVY);
-    doc.setLineWidth(0.3);
-    doc.line(M.left, PAGE_H - 20, PAGE_W - M.right, PAGE_H - 20);
+    doc.setFillColor(...GOLD);
+    doc.rect(0, PAGE_H - 19, PAGE_W, 1, "F");
+    doc.setFillColor(...NAVY);
+    doc.rect(0, PAGE_H - 18, PAGE_W, 18, "F");
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
-    doc.setTextColor(...BLUE);
+    doc.setFontSize(7);
+    doc.setTextColor(...WHITE);
     const links = [
       { text: EMPRESA.site, url: EMPRESA.siteUrl },
       { text: EMPRESA.email, url: `mailto:${EMPRESA.email}` },
       { text: EMPRESA.whats, url: EMPRESA.whatsUrl },
     ];
-    const separator = "   |   ";
-    const totalWidth =
-      links.reduce((sum, link) => sum + doc.getTextWidth(link.text), 0) +
-      doc.getTextWidth(separator) * 2;
-    let linkX = (PAGE_W - totalWidth) / 2;
+    const columnWidth = PAGE_W / 3;
     links.forEach((link, index) => {
-      doc.textWithLink(link.text, linkX, PAGE_H - 15, { url: link.url });
       const linkWidth = doc.getTextWidth(link.text);
-      doc.line(linkX, PAGE_H - 14.5, linkX + linkWidth, PAGE_H - 14.5);
-      linkX += linkWidth;
-      if (index < links.length - 1) {
-        doc.setTextColor(...FOOTER);
-        doc.text(separator, linkX, PAGE_H - 15);
-        linkX += doc.getTextWidth(separator);
-        doc.setTextColor(...BLUE);
-      }
+      const linkX = columnWidth * index + (columnWidth - linkWidth) / 2;
+      doc.textWithLink(link.text, linkX, PAGE_H - 10.5, { url: link.url });
+      doc.line(linkX, PAGE_H - 10, linkX + linkWidth, PAGE_H - 10);
     });
-    doc.setTextColor(...FOOTER);
-    doc.text(`Proposta ${prop.numero} • Página ${i} de ${total}`, PAGE_W / 2, PAGE_H - 10, {
+    doc.setTextColor(...WHITE);
+    doc.text(`Proposta ${prop.numero} • Página ${i} de ${total}`, PAGE_W / 2, PAGE_H - 4.5, {
       align: "center",
     });
   }
