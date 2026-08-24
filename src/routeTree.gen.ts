@@ -14,6 +14,7 @@ import { Route as NovaVistoriaRouteImport } from './routes/nova-vistoria'
 import { Route as PropostasRouteImport } from './routes/propostas'
 import { Route as VistoriasRouteImport } from './routes/vistorias'
 import { Route as CrmIndexRouteImport } from './routes/crm.index'
+import { Route as CrmIdRouteImport } from './routes/crm.$id'
 import { Route as RevisaoIdRouteImport } from './routes/revisao.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -41,6 +42,11 @@ const CrmIndexRoute = CrmIndexRouteImport.update({
   path: '/crm/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CrmIdRoute = CrmIdRouteImport.update({
+  id: '/crm/$id',
+  path: '/crm/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RevisaoIdRoute = RevisaoIdRouteImport.update({
   id: '/revisao/$id',
   path: '/revisao/$id',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/nova-vistoria': typeof NovaVistoriaRoute
   '/propostas': typeof PropostasRoute
   '/vistorias': typeof VistoriasRoute
+  '/crm/$id': typeof CrmIdRoute
   '/revisao/$id': typeof RevisaoIdRoute
   '/crm/': typeof CrmIndexRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/nova-vistoria': typeof NovaVistoriaRoute
   '/propostas': typeof PropostasRoute
   '/vistorias': typeof VistoriasRoute
+  '/crm/$id': typeof CrmIdRoute
   '/revisao/$id': typeof RevisaoIdRoute
   '/crm': typeof CrmIndexRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/nova-vistoria': typeof NovaVistoriaRoute
   '/propostas': typeof PropostasRoute
   '/vistorias': typeof VistoriasRoute
+  '/crm/$id': typeof CrmIdRoute
   '/revisao/$id': typeof RevisaoIdRoute
   '/crm/': typeof CrmIndexRoute
 }
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/nova-vistoria'
     | '/propostas'
     | '/vistorias'
+    | '/crm/$id'
     | '/revisao/$id'
     | '/crm/'
   fileRoutesByTo: FileRoutesByTo
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | '/nova-vistoria'
     | '/propostas'
     | '/vistorias'
+    | '/crm/$id'
     | '/revisao/$id'
     | '/crm'
   id:
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/nova-vistoria'
     | '/propostas'
     | '/vistorias'
+    | '/crm/$id'
     | '/revisao/$id'
     | '/crm/'
   fileRoutesById: FileRoutesById
@@ -104,6 +116,7 @@ export interface RootRouteChildren {
   NovaVistoriaRoute: typeof NovaVistoriaRoute
   PropostasRoute: typeof PropostasRoute
   VistoriasRoute: typeof VistoriasRoute
+  CrmIdRoute: typeof CrmIdRoute
   RevisaoIdRoute: typeof RevisaoIdRoute
   CrmIndexRoute: typeof CrmIndexRoute
 }
@@ -145,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CrmIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/crm/$id': {
+      id: '/crm/$id'
+      path: '/crm/$id'
+      fullPath: '/crm/$id'
+      preLoaderRoute: typeof CrmIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/revisao/$id': {
       id: '/revisao/$id'
       path: '/revisao/$id'
@@ -160,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   NovaVistoriaRoute: NovaVistoriaRoute,
   PropostasRoute: PropostasRoute,
   VistoriasRoute: VistoriasRoute,
+  CrmIdRoute: CrmIdRoute,
   RevisaoIdRoute: RevisaoIdRoute,
   CrmIndexRoute: CrmIndexRoute,
 }
