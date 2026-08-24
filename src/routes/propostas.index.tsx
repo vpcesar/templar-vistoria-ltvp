@@ -71,9 +71,7 @@ function PropostasPage() {
       if (filtroLead && p.lead_id !== filtroLead) return false;
       if (filtroStatus !== "todos" && p.status !== filtroStatus) return false;
       if (!termo) return true;
-      return (
-        p.numero.toLowerCase().includes(termo) || p.cliente_nome.toLowerCase().includes(termo)
-      );
+      return p.numero.toLowerCase().includes(termo) || p.cliente_nome.toLowerCase().includes(termo);
     });
   }, [propostas, busca, filtroStatus, filtroLead]);
 
@@ -152,9 +150,7 @@ function PropostasPage() {
             <p className="font-semibold text-destructive">
               Não foi possível carregar as propostas.
             </p>
-            <p className="mt-1 text-muted-foreground">
-              {(propostasQuery.error as Error).message}
-            </p>
+            <p className="mt-1 text-muted-foreground">{(propostasQuery.error as Error).message}</p>
             <p className="mt-2 text-muted-foreground">
               Confirme se a tabela <code>propostas</code> já foi criada no Supabase (script em{" "}
               <code>supabase/propostas.sql</code>).

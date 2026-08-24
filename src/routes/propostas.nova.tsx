@@ -66,8 +66,8 @@ function NovaProposta() {
 
         {numeroQuery.isError && (
           <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
-            {(numeroQuery.error as Error).message} — verifique se a tabela{" "}
-            <code>propostas</code> foi criada no Supabase.
+            {(numeroQuery.error as Error).message} — verifique se a tabela <code>propostas</code>{" "}
+            foi criada no Supabase.
           </p>
         )}
 

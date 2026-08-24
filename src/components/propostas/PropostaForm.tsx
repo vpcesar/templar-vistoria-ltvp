@@ -32,15 +32,7 @@ interface Props {
   onCancelar: () => void;
 }
 
-function Secao({
-  n,
-  titulo,
-  children,
-}: {
-  n: number;
-  titulo: string;
-  children: React.ReactNode;
-}) {
+function Secao({ n, titulo, children }: { n: number; titulo: string; children: React.ReactNode }) {
   return (
     <section className="rounded-xl border border-border bg-card p-5 shadow-sm">
       <h2 className="text-sm font-bold uppercase tracking-wide text-primary">
@@ -280,7 +272,11 @@ export function PropostaForm({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="cli-end">Endereço</Label>
-            <Input id="cli-end" value={clienteEnd} onChange={(e) => setClienteEnd(e.target.value)} />
+            <Input
+              id="cli-end"
+              value={clienteEnd}
+              onChange={(e) => setClienteEnd(e.target.value)}
+            />
           </div>
         </div>
       </Secao>
@@ -317,8 +313,8 @@ export function PropostaForm({
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground">
-            Ao selecionar, o escopo técnico e o item “não incluído” são preenchidos automaticamente e
-            permanecem editáveis.
+            Ao selecionar, o escopo técnico e o item “não incluído” são preenchidos automaticamente
+            e permanecem editáveis.
           </p>
         </div>
       </Secao>

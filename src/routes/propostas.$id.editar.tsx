@@ -12,7 +12,8 @@ export const Route = createFileRoute("/propostas/$id/editar")({
       { title: "Editar Proposta | TEMPLAR ENGENHARIA" },
       {
         name: "description",
-        content: "Edite os dados, escopo e valores de uma proposta comercial da TEMPLAR ENGENHARIA.",
+        content:
+          "Edite os dados, escopo e valores de uma proposta comercial da TEMPLAR ENGENHARIA.",
       },
       { property: "og:title", content: "Editar Proposta | TEMPLAR ENGENHARIA" },
       {

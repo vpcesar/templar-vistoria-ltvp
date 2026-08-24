@@ -1,12 +1,4 @@
-import {
-  AlignmentType,
-  Document,
-  Footer,
-  ImageRun,
-  Packer,
-  Paragraph,
-  TextRun,
-} from "docx";
+import { AlignmentType, Document, Footer, ImageRun, Packer, Paragraph, TextRun } from "docx";
 import { EMPRESA } from "../laudo";
 import { formatarDataBR, formatarMoeda, type Proposta } from "../propostas";
 import { carregarLogo, dataUrlToBytes } from "./logo";

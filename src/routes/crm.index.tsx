@@ -178,7 +178,9 @@ function CrmPage() {
               type="button"
               onClick={() => setVisao("lista")}
               className={`flex items-center gap-1.5 px-3 py-2 text-sm font-semibold ${
-                visao === "lista" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground"
+                visao === "lista"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card text-muted-foreground"
               }`}
             >
               <List className="h-4 w-4" /> Lista
@@ -187,7 +189,9 @@ function CrmPage() {
               type="button"
               onClick={() => setVisao("kanban")}
               className={`flex items-center gap-1.5 px-3 py-2 text-sm font-semibold ${
-                visao === "kanban" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground"
+                visao === "kanban"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card text-muted-foreground"
               }`}
             >
               <LayoutGrid className="h-4 w-4" /> Kanban
