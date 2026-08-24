@@ -61,6 +61,12 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-surface: var(--surface);
   --color-slate-brand: var(--slate-brand);
+  --color-erp-nav: var(--erp-nav);
+  --color-erp-nav-foreground: var(--erp-nav-foreground);
+  --color-erp-nav-muted: var(--erp-nav-muted);
+  --color-erp-nav-active: var(--erp-nav-active);
+  --color-erp-gold: var(--erp-gold);
+  --color-erp-gold-foreground: var(--erp-gold-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
@@ -101,6 +107,12 @@
   --ring: oklch(0.4 0.15 25.5);
   --surface: oklch(0.978 0.003 250);
   --slate-brand: oklch(0.34 0.03 262);
+  --erp-nav: oklch(0.21 0.04 264);
+  --erp-nav-foreground: oklch(0.98 0.003 248);
+  --erp-nav-muted: oklch(0.75 0.02 258);
+  --erp-nav-active: oklch(0.28 0.045 262);
+  --erp-gold: oklch(0.76 0.13 86);
+  --erp-gold-foreground: oklch(0.24 0.04 80);
   --success: oklch(0.58 0.16 150);
   --success-foreground: oklch(0.99 0.005 90);
   --warning: oklch(0.78 0.16 85);
