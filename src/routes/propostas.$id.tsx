@@ -154,6 +154,14 @@ function PropostaDetalhe() {
               <Button variant="outline" onClick={() => void gerarPropostaDocx(proposta)}>
                 <FileText className="mr-1.5 h-4 w-4" /> Exportar Word
               </Button>
+              <Button
+                variant="outline"
+                onClick={() =>
+                  void navigate({ to: "/vistorias/nova", search: { proposta: proposta.id } })
+                }
+              >
+                <ClipboardCheck className="mr-1.5 h-4 w-4" /> Transformar em vistoria
+              </Button>
               <Select
                 value={proposta.status}
                 onValueChange={(v) => mudarStatus.mutate(v as PropostaStatus)}
