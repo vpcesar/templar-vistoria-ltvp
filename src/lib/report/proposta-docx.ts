@@ -277,14 +277,25 @@ export async function gerarPropostaDocx(prop: Proposta) {
                             alignment: AlignmentType.RIGHT,
                             spacing: { before: 0, after: 50 },
                             children: [
-                              new TextRun({ text: EMPRESA.nome, bold: true, size: 24, font: "Arial", color: WHITE }),
+                              new TextRun({
+                                text: EMPRESA.nome,
+                                bold: true,
+                                size: 24,
+                                font: "Arial",
+                                color: WHITE,
+                              }),
                             ],
                           }),
                           new Paragraph({
                             alignment: AlignmentType.RIGHT,
                             spacing: { before: 0, after: 0 },
                             children: [
-                              new TextRun({ text: EMPRESA.slogan, size: 16, font: "Arial", color: WHITE }),
+                              new TextRun({
+                                text: EMPRESA.slogan,
+                                size: 16,
+                                font: "Arial",
+                                color: WHITE,
+                              }),
                             ],
                           }),
                         ],
@@ -303,7 +314,9 @@ export async function gerarPropostaDocx(prop: Proposta) {
                           right: { style: BorderStyle.NONE },
                         },
                         margins: { top: 25, bottom: 25, left: 0, right: 0 },
-                        children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [] })],
+                        children: [
+                          new Paragraph({ spacing: { before: 0, after: 0 }, children: [] }),
+                        ],
                       }),
                     ],
                   }),
@@ -325,29 +338,51 @@ export async function gerarPropostaDocx(prop: Proposta) {
                         columnSpan: 3,
                         shading: { fill: GOLD, type: ShadingType.CLEAR },
                         margins: { top: 25, bottom: 25, left: 0, right: 0 },
-                        borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE } },
-                        children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [] })],
+                        borders: {
+                          top: { style: BorderStyle.NONE },
+                          bottom: { style: BorderStyle.NONE },
+                          left: { style: BorderStyle.NONE },
+                          right: { style: BorderStyle.NONE },
+                        },
+                        children: [
+                          new Paragraph({ spacing: { before: 0, after: 0 }, children: [] }),
+                        ],
                       }),
                     ],
                   }),
                   new TableRow({
-                    children: ([
-                      [EMPRESA.site, EMPRESA.siteUrl],
-                      [EMPRESA.email, `mailto:${EMPRESA.email}`],
-                      [EMPRESA.whats, EMPRESA.whatsUrl],
-                    ] satisfies Array<[string, string]>).map(([text, link]) =>
-                      new TableCell({
-                        shading: { fill: NAVY, type: ShadingType.CLEAR },
-                        borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE } },
-                        margins: { top: 120, bottom: 100, left: 60, right: 60 },
-                        children: [
-                          new Paragraph({
-                            alignment: AlignmentType.CENTER,
-                            spacing: { before: 0, after: 0 },
-                            children: [new ExternalHyperlink({ link, children: [new TextRun({ text, color: WHITE, size: 28, font: "Arial" })] })],
-                          }),
-                        ],
-                      }),
+                    children: (
+                      [
+                        [EMPRESA.site, EMPRESA.siteUrl],
+                        [EMPRESA.email, `mailto:${EMPRESA.email}`],
+                        [EMPRESA.whats, EMPRESA.whatsUrl],
+                      ] satisfies Array<[string, string]>
+                    ).map(
+                      ([text, link]) =>
+                        new TableCell({
+                          shading: { fill: NAVY, type: ShadingType.CLEAR },
+                          borders: {
+                            top: { style: BorderStyle.NONE },
+                            bottom: { style: BorderStyle.NONE },
+                            left: { style: BorderStyle.NONE },
+                            right: { style: BorderStyle.NONE },
+                          },
+                          margins: { top: 120, bottom: 100, left: 60, right: 60 },
+                          children: [
+                            new Paragraph({
+                              alignment: AlignmentType.CENTER,
+                              spacing: { before: 0, after: 0 },
+                              children: [
+                                new ExternalHyperlink({
+                                  link,
+                                  children: [
+                                    new TextRun({ text, color: WHITE, size: 28, font: "Arial" }),
+                                  ],
+                                }),
+                              ],
+                            }),
+                          ],
+                        }),
                     ),
                   }),
                 ],

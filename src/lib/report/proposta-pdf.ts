@@ -32,7 +32,14 @@ export async function gerarPropostaPdf(prop: Proposta) {
       const w = Math.min(maxW, maxH * ratio);
       const h = w / ratio;
       try {
-        doc.addImage(logo.dataUrl, logo.type.toUpperCase(), M.left + (54 - w) / 2, 14 - h / 2, w, h);
+        doc.addImage(
+          logo.dataUrl,
+          logo.type.toUpperCase(),
+          M.left + (54 - w) / 2,
+          14 - h / 2,
+          w,
+          h,
+        );
       } catch {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10);
