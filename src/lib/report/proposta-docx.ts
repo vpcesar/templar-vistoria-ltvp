@@ -270,7 +270,11 @@ export async function gerarPropostaDocx(prop: Proposta) {
               new Paragraph({
                 alignment: AlignmentType.CENTER,
                 children: [
-                  new TextRun({ text: `Proposta ${prop.numero} • Página `, size: 14, color: FOOTER }),
+                  new TextRun({
+                    text: `Proposta ${prop.numero} • Página `,
+                    size: 14,
+                    color: FOOTER,
+                  }),
                   new TextRun({ children: [PageNumber.CURRENT], size: 14, color: FOOTER }),
                   new TextRun({ text: " de ", size: 14, color: FOOTER }),
                   new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 14, color: FOOTER }),

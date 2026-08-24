@@ -74,7 +74,12 @@ export async function gerarPropostaPdf(prop: Proposta) {
 
   const texto = (
     txt: string,
-    opts: { bold?: boolean; size?: number; center?: boolean; color?: [number, number, number] } = {},
+    opts: {
+      bold?: boolean;
+      size?: number;
+      center?: boolean;
+      color?: [number, number, number];
+    } = {},
   ) => {
     doc.setFont("helvetica", opts.bold ? "bold" : "normal");
     doc.setFontSize(opts.size ?? 10);
@@ -196,7 +201,8 @@ export async function gerarPropostaPdf(prop: Proposta) {
       { text: EMPRESA.whats, url: EMPRESA.whatsUrl },
     ];
     const separator = "   |   ";
-    const totalWidth = links.reduce((sum, link) => sum + doc.getTextWidth(link.text), 0) +
+    const totalWidth =
+      links.reduce((sum, link) => sum + doc.getTextWidth(link.text), 0) +
       doc.getTextWidth(separator) * 2;
     let linkX = (PAGE_W - totalWidth) / 2;
     links.forEach((link, index) => {
