@@ -175,7 +175,7 @@ function PropostaDetalhe() {
             </div>
 
             <article className="mx-auto w-full max-w-3xl overflow-hidden rounded-lg border border-border bg-card shadow-sm">
-              <header className="relative flex items-center gap-5 bg-brand-navy px-6 py-5 sm:px-10">
+              <header className="relative flex items-center justify-between gap-5 bg-brand-navy px-6 py-5 sm:px-10">
                 <div className="shrink-0 rounded-md bg-brand-on-navy p-2 shadow-sm">
                   <img
                     src={proposalLogoAsset.url}
@@ -183,7 +183,7 @@ function PropostaDetalhe() {
                     className="h-12 w-auto object-contain"
                   />
                 </div>
-                <div>
+                <div className="ml-auto text-right">
                   <p className="font-bold text-brand-on-navy">{EMPRESA.nome}</p>
                   <p className="mt-1 text-xs text-brand-on-navy">{EMPRESA.slogan}</p>
                 </div>
@@ -239,11 +239,11 @@ function PropostaDetalhe() {
               </Bloco>
               </div>
 
-              <footer className="relative grid gap-2 bg-brand-navy px-6 py-5 text-center text-xs sm:grid-cols-3 sm:px-10">
+              <footer className="relative grid gap-2 bg-brand-navy px-6 py-5 text-center text-sm sm:grid-cols-3 sm:px-10">
                 <div className="absolute inset-x-0 top-0 h-[3px] bg-brand-gold" />
-                <a className="text-brand-on-navy underline" href={EMPRESA.siteUrl} target="_blank" rel="noreferrer">{EMPRESA.site}</a>
-                <a className="text-brand-on-navy underline" href={`mailto:${EMPRESA.email}`}>{EMPRESA.email}</a>
-                <a className="text-brand-on-navy underline" href={EMPRESA.whatsUrl} target="_blank" rel="noreferrer">{EMPRESA.whats}</a>
+                <a className="text-brand-on-navy no-underline hover:no-underline" href={EMPRESA.siteUrl} target="_blank" rel="noreferrer">{EMPRESA.site}</a>
+                <a className="text-brand-on-navy no-underline hover:no-underline" href={`mailto:${EMPRESA.email}`}>{EMPRESA.email}</a>
+                <a className="text-brand-on-navy no-underline hover:no-underline" href={EMPRESA.whatsUrl} target="_blank" rel="noreferrer">{EMPRESA.whats}</a>
               </footer>
             </article>
           </>

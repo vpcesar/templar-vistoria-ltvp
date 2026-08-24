@@ -274,12 +274,14 @@ export async function gerarPropostaDocx(prop: Proposta) {
                         margins: { top: 170, bottom: 120, left: 300, right: 160 },
                         children: [
                           new Paragraph({
+                            alignment: AlignmentType.RIGHT,
                             spacing: { before: 0, after: 50 },
                             children: [
                               new TextRun({ text: EMPRESA.nome, bold: true, size: 24, font: "Arial", color: WHITE }),
                             ],
                           }),
                           new Paragraph({
+                            alignment: AlignmentType.RIGHT,
                             spacing: { before: 0, after: 0 },
                             children: [
                               new TextRun({ text: EMPRESA.slogan, size: 16, font: "Arial", color: WHITE }),
@@ -342,7 +344,7 @@ export async function gerarPropostaDocx(prop: Proposta) {
                           new Paragraph({
                             alignment: AlignmentType.CENTER,
                             spacing: { before: 0, after: 0 },
-                            children: [new ExternalHyperlink({ link, children: [new TextRun({ text, color: WHITE, underline: {}, size: 13, font: "Arial" })] })],
+                            children: [new ExternalHyperlink({ link, children: [new TextRun({ text, color: WHITE, size: 28, font: "Arial" })] })],
                           }),
                         ],
                       }),
