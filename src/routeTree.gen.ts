@@ -18,6 +18,7 @@ import { Route as PropostasIndexRouteImport } from './routes/propostas.index'
 import { Route as PropostasIdRouteImport } from './routes/propostas.$id'
 import { Route as PropostasNovaRouteImport } from './routes/propostas.nova'
 import { Route as RevisaoIdRouteImport } from './routes/revisao.$id'
+import { Route as VistoriasIndexRouteImport } from './routes/vistorias.index'
 import { Route as PropostasIdEditarRouteImport } from './routes/propostas.$id.editar'
 
 const IndexRoute = IndexRouteImport.update({
@@ -65,6 +66,11 @@ const RevisaoIdRoute = RevisaoIdRouteImport.update({
   path: '/revisao/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VistoriasIndexRoute = VistoriasIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => VistoriasRoute,
+} as any)
 const PropostasIdEditarRoute = PropostasIdEditarRouteImport.update({
   id: '/editar',
   path: '/editar',
@@ -74,38 +80,40 @@ const PropostasIdEditarRoute = PropostasIdEditarRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/nova-vistoria': typeof NovaVistoriaRoute
-  '/vistorias': typeof VistoriasRoute
+  '/vistorias': typeof VistoriasRouteWithChildren
   '/crm/$id': typeof CrmIdRoute
   '/propostas/$id': typeof PropostasIdRouteWithChildren
   '/propostas/nova': typeof PropostasNovaRoute
   '/revisao/$id': typeof RevisaoIdRoute
   '/crm/': typeof CrmIndexRoute
   '/propostas/': typeof PropostasIndexRoute
+  '/vistorias/': typeof VistoriasIndexRoute
   '/propostas/$id/editar': typeof PropostasIdEditarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/nova-vistoria': typeof NovaVistoriaRoute
-  '/vistorias': typeof VistoriasRoute
   '/crm/$id': typeof CrmIdRoute
   '/propostas/$id': typeof PropostasIdRouteWithChildren
   '/propostas/nova': typeof PropostasNovaRoute
   '/revisao/$id': typeof RevisaoIdRoute
   '/crm': typeof CrmIndexRoute
   '/propostas': typeof PropostasIndexRoute
+  '/vistorias': typeof VistoriasIndexRoute
   '/propostas/$id/editar': typeof PropostasIdEditarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/nova-vistoria': typeof NovaVistoriaRoute
-  '/vistorias': typeof VistoriasRoute
+  '/vistorias': typeof VistoriasRouteWithChildren
   '/crm/$id': typeof CrmIdRoute
   '/propostas/$id': typeof PropostasIdRouteWithChildren
   '/propostas/nova': typeof PropostasNovaRoute
   '/revisao/$id': typeof RevisaoIdRoute
   '/crm/': typeof CrmIndexRoute
   '/propostas/': typeof PropostasIndexRoute
+  '/vistorias/': typeof VistoriasIndexRoute
   '/propostas/$id/editar': typeof PropostasIdEditarRoute
 }
 export interface FileRouteTypes {
@@ -120,18 +128,19 @@ export interface FileRouteTypes {
     | '/revisao/$id'
     | '/crm/'
     | '/propostas/'
+    | '/vistorias/'
     | '/propostas/$id/editar'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/nova-vistoria'
-    | '/vistorias'
     | '/crm/$id'
     | '/propostas/$id'
     | '/propostas/nova'
     | '/revisao/$id'
     | '/crm'
     | '/propostas'
+    | '/vistorias'
     | '/propostas/$id/editar'
   id:
     | '__root__'
@@ -144,13 +153,14 @@ export interface FileRouteTypes {
     | '/revisao/$id'
     | '/crm/'
     | '/propostas/'
+    | '/vistorias/'
     | '/propostas/$id/editar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   NovaVistoriaRoute: typeof NovaVistoriaRoute
-  VistoriasRoute: typeof VistoriasRoute
+  VistoriasRoute: typeof VistoriasRouteWithChildren
   CrmIdRoute: typeof CrmIdRoute
   PropostasIdRoute: typeof PropostasIdRouteWithChildren
   PropostasNovaRoute: typeof PropostasNovaRoute
@@ -224,6 +234,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RevisaoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vistorias/': {
+      id: '/vistorias/'
+      path: '/'
+      fullPath: '/vistorias/'
+      preLoaderRoute: typeof VistoriasIndexRouteImport
+      parentRoute: typeof VistoriasRoute
+    }
     '/propostas/$id/editar': {
       id: '/propostas/$id/editar'
       path: '/editar'
@@ -233,6 +250,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface VistoriasRouteChildren {
+  VistoriasIndexRoute: typeof VistoriasIndexRoute
+}
+
+const VistoriasRouteChildren: VistoriasRouteChildren = {
+  VistoriasIndexRoute: VistoriasIndexRoute,
+}
+
+const VistoriasRouteWithChildren = VistoriasRoute._addFileChildren(
+  VistoriasRouteChildren,
+)
 
 interface PropostasIdRouteChildren {
   PropostasIdEditarRoute: typeof PropostasIdEditarRoute
@@ -249,7 +278,7 @@ const PropostasIdRouteWithChildren = PropostasIdRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   NovaVistoriaRoute: NovaVistoriaRoute,
-  VistoriasRoute: VistoriasRoute,
+  VistoriasRoute: VistoriasRouteWithChildren,
   CrmIdRoute: CrmIdRoute,
   PropostasIdRoute: PropostasIdRouteWithChildren,
   PropostasNovaRoute: PropostasNovaRoute,
