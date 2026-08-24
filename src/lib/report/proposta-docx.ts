@@ -17,6 +17,7 @@ import {
   TextRun,
   UnderlineType,
   WidthType,
+  TableLayoutType,
 } from "docx";
 import { EMPRESA } from "../laudo";
 import { formatarDataBR, formatarMoeda, type Proposta } from "../propostas";
