@@ -263,7 +263,7 @@ function CrmPage() {
                   ))}
                   {visiveis.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} className="py-10 text-center">
+                      <TableCell colSpan={7} className="py-10 text-center">
                         <Users className="mx-auto h-8 w-8 text-muted-foreground" />
                         <p className="mt-2 text-sm text-muted-foreground">
                           Nenhum lead encontrado.
