@@ -24,9 +24,8 @@ export const Route = createFileRoute("/propostas/nova")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>) => ({
-    lead: typeof search.lead === "string" ? search.lead : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { lead?: string } =>
+    typeof search["lead"] === "string" ? { lead: search["lead"] } : {},
   component: NovaProposta,
 });
 

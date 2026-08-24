@@ -44,7 +44,7 @@ export const Route = createFileRoute("/propostas/$id")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: PropostaDetalhe;
+  component: PropostaDetalhe,
 });
 
 function Bloco({ titulo, children }: { titulo: string; children: React.ReactNode }) {
