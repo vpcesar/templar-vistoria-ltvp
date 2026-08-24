@@ -332,7 +332,8 @@ export async function gerarPropostaDocx(prop: Proposta) {
             children: [
               new Table({
                 width: { size: CONTENT_WIDTH, type: WidthType.DXA },
-                columnWidths: [3008, 3008, 3010],
+                columnWidths: [3009, 3009, 3008],
+                layout: TableLayoutType.FIXED,
                 rows: [
                   new TableRow({
                     children: [
@@ -365,6 +366,10 @@ export async function gerarPropostaDocx(prop: Proposta) {
                     ).map(
                       ([text, link]) =>
                         new TableCell({
+                          width: {
+                            size: Math.round(CONTENT_WIDTH / 3),
+                            type: WidthType.DXA,
+                          },
                           shading: { fill: NAVY, type: ShadingType.CLEAR },
                           borders: {
                             top: { style: BorderStyle.NONE },
@@ -400,17 +405,32 @@ export async function gerarPropostaDocx(prop: Proposta) {
               }),
               new Paragraph({
                 alignment: AlignmentType.CENTER,
-                shading: { fill: NAVY, type: ShadingType.CLEAR },
-                spacing: { before: 0, after: 0 },
+                spacing: { before: 60, after: 0 },
                 children: [
                   new TextRun({
                     text: `Proposta ${prop.numero} • Página `,
-                    size: 14,
-                    color: WHITE,
+                    size: 18,
+                    font: "Arial",
+                    color: FOOTER,
                   }),
-                  new TextRun({ children: [PageNumber.CURRENT], size: 14, color: WHITE }),
-                  new TextRun({ text: " de ", size: 14, color: WHITE }),
-                  new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 14, color: WHITE }),
+                  new TextRun({
+                    children: [PageNumber.CURRENT],
+                    size: 18,
+                    font: "Arial",
+                    color: FOOTER,
+                  }),
+                  new TextRun({
+                    text: " de ",
+                    size: 18,
+                    font: "Arial",
+                    color: FOOTER,
+                  }),
+                  new TextRun({
+                    children: [PageNumber.TOTAL_PAGES],
+                    size: 18,
+                    font: "Arial",
+                    color: FOOTER,
+                  }),
                 ],
               }),
             ],
