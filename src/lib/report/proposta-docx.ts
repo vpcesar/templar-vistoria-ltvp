@@ -23,7 +23,7 @@ import { carregarLogoProposta, dataUrlToBytes } from "./logo";
 
 const NAVY = "1A365D";
 const BLUE = "2C5282";
-const GOLD = "D69E2E";
+const GOLD = "D4AF37";
 const SLATE = "2D3748";
 const FOOTER = "718096";
 const WHITE = "FFFFFF";
@@ -55,21 +55,20 @@ const p = (
 const titulo = (text: string) =>
   new Table({
     width: { size: CONTENT_WIDTH, type: WidthType.DXA },
-    columnWidths: [CONTENT_WIDTH],
-    margins: { top: 90, bottom: 90 },
+    columnWidths: [3200, CONTENT_WIDTH - 3200],
+    margins: { top: 70, bottom: 70 },
     rows: [
       new TableRow({
         children: [
           new TableCell({
-            width: { size: CONTENT_WIDTH, type: WidthType.DXA },
-            shading: { fill: NAVY, type: ShadingType.CLEAR },
+            width: { size: 3200, type: WidthType.DXA },
             borders: {
               top: { style: BorderStyle.NONE },
               bottom: { style: BorderStyle.NONE },
               left: { style: BorderStyle.NONE },
               right: { style: BorderStyle.NONE },
             },
-            margins: { top: 110, bottom: 110, left: 180, right: 180 },
+            margins: { top: 70, bottom: 70, left: 0, right: 160 },
             children: [
               new Paragraph({
                 spacing: { before: 0, after: 0 },
@@ -77,13 +76,25 @@ const titulo = (text: string) =>
                   new TextRun({
                     text: text.toUpperCase(),
                     bold: true,
-                    size: 24,
+                    size: 22,
                     font: "Arial",
-                    color: WHITE,
+                    color: NAVY,
                   }),
                 ],
               }),
             ],
+          }),
+          new TableCell({
+            width: { size: CONTENT_WIDTH - 3200, type: WidthType.DXA },
+            verticalAlign: "center",
+            borders: {
+              top: { style: BorderStyle.NONE },
+              bottom: { style: BorderStyle.SINGLE, size: 8, color: GOLD },
+              left: { style: BorderStyle.NONE },
+              right: { style: BorderStyle.NONE },
+            },
+            margins: { top: 70, bottom: 70, left: 0, right: 0 },
+            children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [] })],
           }),
         ],
       }),
@@ -129,7 +140,7 @@ export async function gerarPropostaDocx(prop: Proposta) {
     ? new ImageRun({
         type: logo.type,
         data: dataUrlToBytes(logo.dataUrl),
-        transformation: { width: 180, height: 180 / (logo.width / logo.height) },
+        transformation: { width: 170, height: 170 / (logo.width / logo.height) },
         altText: {
           title: "TEMPLAR ENGENHARIA",
           description: "Logotipo horizontal da TEMPLAR ENGENHARIA",
@@ -227,17 +238,73 @@ export async function gerarPropostaDocx(prop: Proposta) {
         headers: {
           default: new Header({
             children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                spacing: { after: 80 },
-                children: [headerLogo],
-              }),
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                shading: { fill: NAVY, type: ShadingType.CLEAR },
-                spacing: { before: 0, after: 0 },
-                children: [
-                  new TextRun({ text: EMPRESA.slogan, size: 16, font: "Arial", color: WHITE }),
+              new Table({
+                width: { size: CONTENT_WIDTH, type: WidthType.DXA },
+                columnWidths: [3300, 5726],
+                rows: [
+                  new TableRow({
+                    children: [
+                      new TableCell({
+                        width: { size: 3300, type: WidthType.DXA },
+                        shading: { fill: WHITE, type: ShadingType.CLEAR },
+                        borders: {
+                          top: { style: BorderStyle.SINGLE, size: 20, color: NAVY },
+                          bottom: { style: BorderStyle.SINGLE, size: 20, color: NAVY },
+                          left: { style: BorderStyle.SINGLE, size: 20, color: NAVY },
+                          right: { style: BorderStyle.SINGLE, size: 20, color: NAVY },
+                        },
+                        margins: { top: 100, bottom: 100, left: 160, right: 160 },
+                        children: [
+                          new Paragraph({
+                            alignment: AlignmentType.CENTER,
+                            spacing: { before: 0, after: 0 },
+                            children: [headerLogo],
+                          }),
+                        ],
+                      }),
+                      new TableCell({
+                        width: { size: 5726, type: WidthType.DXA },
+                        shading: { fill: NAVY, type: ShadingType.CLEAR },
+                        borders: {
+                          top: { style: BorderStyle.NONE },
+                          bottom: { style: BorderStyle.NONE },
+                          left: { style: BorderStyle.NONE },
+                          right: { style: BorderStyle.NONE },
+                        },
+                        margins: { top: 170, bottom: 120, left: 300, right: 160 },
+                        children: [
+                          new Paragraph({
+                            spacing: { before: 0, after: 50 },
+                            children: [
+                              new TextRun({ text: EMPRESA.nome, bold: true, size: 24, font: "Arial", color: WHITE }),
+                            ],
+                          }),
+                          new Paragraph({
+                            spacing: { before: 0, after: 0 },
+                            children: [
+                              new TextRun({ text: EMPRESA.slogan, size: 16, font: "Arial", color: WHITE }),
+                            ],
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                  new TableRow({
+                    children: [
+                      new TableCell({
+                        columnSpan: 2,
+                        shading: { fill: GOLD, type: ShadingType.CLEAR },
+                        borders: {
+                          top: { style: BorderStyle.NONE },
+                          bottom: { style: BorderStyle.NONE },
+                          left: { style: BorderStyle.NONE },
+                          right: { style: BorderStyle.NONE },
+                        },
+                        margins: { top: 25, bottom: 25, left: 0, right: 0 },
+                        children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [] })],
+                      }),
+                    ],
+                  }),
                 ],
               }),
             ],
@@ -246,38 +313,56 @@ export async function gerarPropostaDocx(prop: Proposta) {
         footers: {
           default: new Footer({
             children: [
-              new Paragraph({
-                border: { top: { style: BorderStyle.SINGLE, size: 6, color: NAVY, space: 5 } },
-                alignment: AlignmentType.CENTER,
-                spacing: { after: 80 },
-                children: [
-                  new ExternalHyperlink({
-                    link: EMPRESA.siteUrl,
-                    children: [new TextRun({ text: EMPRESA.site, style: "Hyperlink", size: 14 })],
+              new Table({
+                width: { size: CONTENT_WIDTH, type: WidthType.DXA },
+                columnWidths: [3008, 3008, 3010],
+                rows: [
+                  new TableRow({
+                    children: [
+                      new TableCell({
+                        columnSpan: 3,
+                        shading: { fill: GOLD, type: ShadingType.CLEAR },
+                        margins: { top: 25, bottom: 25, left: 0, right: 0 },
+                        borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE } },
+                        children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [] })],
+                      }),
+                    ],
                   }),
-                  new TextRun({ text: "  |  ", size: 14, color: FOOTER }),
-                  new ExternalHyperlink({
-                    link: `mailto:${EMPRESA.email}`,
-                    children: [new TextRun({ text: EMPRESA.email, style: "Hyperlink", size: 14 })],
-                  }),
-                  new TextRun({ text: "  |  ", size: 14, color: FOOTER }),
-                  new ExternalHyperlink({
-                    link: EMPRESA.whatsUrl,
-                    children: [new TextRun({ text: EMPRESA.whats, style: "Hyperlink", size: 14 })],
+                  new TableRow({
+                    children: [
+                      [EMPRESA.site, EMPRESA.siteUrl],
+                      [EMPRESA.email, `mailto:${EMPRESA.email}`],
+                      [EMPRESA.whats, EMPRESA.whatsUrl],
+                    ].map(([text, link]) =>
+                      new TableCell({
+                        shading: { fill: NAVY, type: ShadingType.CLEAR },
+                        borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE } },
+                        margins: { top: 120, bottom: 100, left: 60, right: 60 },
+                        children: [
+                          new Paragraph({
+                            alignment: AlignmentType.CENTER,
+                            spacing: { before: 0, after: 0 },
+                            children: [new ExternalHyperlink({ link, children: [new TextRun({ text, color: WHITE, underline: {}, size: 13, font: "Arial" })] })],
+                          }),
+                        ],
+                      }),
+                    ),
                   }),
                 ],
               }),
               new Paragraph({
                 alignment: AlignmentType.CENTER,
+                shading: { fill: NAVY, type: ShadingType.CLEAR },
+                spacing: { before: 0, after: 0 },
                 children: [
                   new TextRun({
                     text: `Proposta ${prop.numero} • Página `,
                     size: 14,
-                    color: FOOTER,
+                    color: WHITE,
                   }),
-                  new TextRun({ children: [PageNumber.CURRENT], size: 14, color: FOOTER }),
-                  new TextRun({ text: " de ", size: 14, color: FOOTER }),
-                  new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 14, color: FOOTER }),
+                  new TextRun({ children: [PageNumber.CURRENT], size: 14, color: WHITE }),
+                  new TextRun({ text: " de ", size: 14, color: WHITE }),
+                  new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 14, color: WHITE }),
                 ],
               }),
             ],
