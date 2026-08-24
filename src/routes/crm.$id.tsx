@@ -267,10 +267,19 @@ function LeadDetalhe() {
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button
                   variant="outline"
-                  onClick={() => toast.info("Módulo de Propostas em desenvolvimento.")}
+                  onClick={() =>
+                    void navigate({ to: "/propostas/nova", search: { lead: lead.id } })
+                  }
                 >
                   <FileSignature className="mr-1.5 h-4 w-4" />
                   Gerar Proposta
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => void navigate({ to: "/propostas", search: { lead: lead.id } })}
+                >
+                  <FileSignature className="mr-1.5 h-4 w-4" />
+                  Ver Propostas
                 </Button>
                 <Button
                   variant="outline"
