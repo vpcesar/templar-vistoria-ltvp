@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, FileDown, FileText, Pencil } from "lucide-react";
+import { ArrowLeft, ClipboardCheck, FileDown, FileText, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
