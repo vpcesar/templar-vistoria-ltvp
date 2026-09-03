@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Camera, Loader2, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Camera, FileArchive, Loader2, Plus, Trash2 } from "lucide-react";
+import { gerarLaudoDaVistoria, laudoDaVistoria } from "@/lib/laudo-de-vistoria";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -266,6 +267,23 @@ function VistoriaDetalhe() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const navigate = useNavigate();
+  const laudoExistente = vistoria ? laudoDaVistoria(vistoria.id) : undefined;
+
+  const gerarLaudo = useMutation({
+    mutationFn: async () => {
+      if (!vistoria) throw new Error("Vistoria não carregada.");
+      return gerarLaudoDaVistoria(vistoria, itens, fotos);
+    },
+    onSuccess: (laudo) => {
+      toast.success(`Laudo em rascunho criado a partir de ${vistoria?.numero}.`);
+      void navigate({ to: "/revisao/$id", params: { id: laudo.id } });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
+
   const criarItem = useMutation({
     mutationFn: () => {
       if (!novaCategoria.trim() || !novoItem.trim())
@@ -312,7 +330,7 @@ function VistoriaDetalhe() {
                   </h1>
                   <p className="mt-1 text-sm text-muted-foreground">{vistoria.tipo_servico}</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Select
                     value={vistoria.status}
                     onValueChange={(v) => mudarStatusVistoria.mutate(v as VistoriaStatus)}
@@ -328,6 +346,23 @@ function VistoriaDetalhe() {
                       ))}
                     </SelectContent>
                   </Select>
+                  <Button
+                    className="bg-emerald-600 text-white hover:bg-emerald-700"
+                    disabled={vistoria.status !== "concluida" || gerarLaudo.isPending}
+                    title={
+                      vistoria.status === "concluida"
+                        ? "Gerar laudo com os dados desta vistoria"
+                        : "Finalize a vistoria para gerar o laudo"
+                    }
+                    onClick={() => gerarLaudo.mutate()}
+                  >
+                    {gerarLaudo.isPending ? (
+                      <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                    ) : (
+                      <FileArchive className="mr-1.5 h-4 w-4" />
+                    )}
+                    {laudoExistente ? "Abrir laudo" : "Gerar Laudo"}
+                  </Button>
                   <span
                     className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${VISTORIA_STATUS_CLASSE[vistoria.status]}`}
                   >

@@ -102,3 +102,12 @@ end $$;
 -- =========================================================
 alter table if exists public.itens_vistoria
   add column if not exists comodo text;
+
+-- =========================================================
+-- Vínculo Vistoria -> Laudo
+-- O módulo de Laudos (Inspeção Predial) armazena os laudos no
+-- dispositivo (localStorage), então não existe tabela "laudos".
+-- O vínculo é guardado no próprio laudo (origem.vistoriaId).
+-- Caso a tabela de laudos seja criada no futuro, aplique:
+-- alter table public.laudos
+--   add column if not exists vistoria_id uuid references public.vistorias(id) on delete set null;

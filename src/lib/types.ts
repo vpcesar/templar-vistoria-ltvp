@@ -63,11 +63,18 @@ export interface ItemAdicional {
   conteudo: string;
 }
 
+export interface OrigemVistoriaCampo {
+  vistoriaId: string;
+  numero: string;
+}
+
 export interface Vistoria {
   id: string;
   status: StatusVistoria;
   criadoEm: string;
   atualizadoEm: string;
+  /** Vistoria de campo (módulo Vistorias) que originou este laudo, quando houver. */
+  origem?: OrigemVistoriaCampo;
   imovel: DadosImovel;
   anamnese: Anamnese;
   patologias: Patologia[];

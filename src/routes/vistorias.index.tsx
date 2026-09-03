@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { laudosPorVistoria } from "@/lib/laudo-de-vistoria";
 import { ClipboardCheck, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,6 +63,9 @@ function VistoriasPage() {
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState<"todos" | VistoriaStatus>("todos");
   const [pagina, setPagina] = useState(1);
+  const [laudos, setLaudos] = useState<Record<string, string>>({});
+
+  useEffect(() => setLaudos(laudosPorVistoria()), []);
 
   const vistoriasQuery = useQuery({ queryKey: ["vistorias"], queryFn: listarVistorias });
   const vistorias = vistoriasQuery.data ?? [];
@@ -162,6 +166,7 @@ function VistoriasPage() {
                   <TableHead>Cliente</TableHead>
                   <TableHead className="hidden md:table-cell">Tipo de serviço</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Laudo</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -188,6 +193,19 @@ function VistoriasPage() {
                       >
                         {VISTORIA_STATUS_LABEL[v.status]}
                       </span>
+                    </TableCell>
+                    <TableCell>
+                      {laudos[v.id] ? (
+                        <Link
+                          to="/revisao/$id"
+                          params={{ id: laudos[v.id] as string }}
+                          className="font-semibold text-emerald-600 hover:underline"
+                        >
+                          Sim
+                        </Link>
+                      ) : (
+                        <span className="text-muted-foreground">Não</span>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
