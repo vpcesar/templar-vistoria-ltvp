@@ -150,6 +150,59 @@ function FotosDoItem({
   );
 }
 
+const OUTRO = "__outro__";
+
+function ComodoField({
+  item,
+  onSalvar,
+}: {
+  item: ItemVistoria;
+  onSalvar: (comodo: string) => void;
+}) {
+  const salvo = item.comodo ?? "";
+  const ehPadrao = (COMODOS_PADRAO as readonly string[]).includes(salvo);
+  const [modo, setModo] = useState<string>(salvo === "" ? "" : ehPadrao ? salvo : OUTRO);
+  const [livre, setLivre] = useState(ehPadrao ? "" : salvo);
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <Label className="text-xs text-muted-foreground">Cômodo</Label>
+      <Select
+        value={modo}
+        onValueChange={(v) => {
+          setModo(v);
+          if (v === OUTRO) return;
+          onSalvar(v);
+        }}
+      >
+        <SelectTrigger className="h-9 w-[180px]">
+          <SelectValue placeholder="Selecione o cômodo" />
+        </SelectTrigger>
+        <SelectContent>
+          {COMODOS_PADRAO.map((c) => (
+            <SelectItem key={c} value={c}>
+              {c}
+            </SelectItem>
+          ))}
+          <SelectItem value={OUTRO}>Outro...</SelectItem>
+        </SelectContent>
+      </Select>
+      {modo === OUTRO && (
+        <Input
+          className="h-9 w-[200px]"
+          placeholder="Nome do cômodo"
+          value={livre}
+          onChange={(e) => setLivre(e.target.value)}
+          onBlur={() => {
+            const v = livre.trim();
+            if (v && v !== salvo) onSalvar(v);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 function VistoriaDetalhe() {
   const { id } = Route.useParams();
   const queryClient = useQueryClient();
