@@ -199,7 +199,7 @@ export async function listarItens(vistoriaId: string): Promise<ItemVistoria[]> {
 
 export async function atualizarItem(
   id: string,
-  input: Partial<Pick<ItemVistoria, "status" | "observacao">>,
+  input: Partial<Pick<ItemVistoria, "status" | "observacao" | "comodo">>,
 ): Promise<ItemVistoria> {
   const { data, error } = await supabase
     .from("itens_vistoria")

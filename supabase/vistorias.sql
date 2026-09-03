@@ -96,3 +96,9 @@ begin
       for delete using (bucket_id = 'vistorias-fotos');
   end if;
 end $$;
+
+-- =========================================================
+-- Cômodo por item do checklist
+-- =========================================================
+alter table if exists public.itens_vistoria
+  add column if not exists comodo text;
