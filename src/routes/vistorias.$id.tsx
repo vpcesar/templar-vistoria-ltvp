@@ -267,6 +267,23 @@ function VistoriaDetalhe() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const navigate = useNavigate();
+  const laudoExistente = vistoria ? laudoDaVistoria(vistoria.id) : undefined;
+
+  const gerarLaudo = useMutation({
+    mutationFn: async () => {
+      if (!vistoria) throw new Error("Vistoria não carregada.");
+      return gerarLaudoDaVistoria(vistoria, itens, fotos);
+    },
+    onSuccess: (laudo) => {
+      toast.success(`Laudo em rascunho criado a partir de ${vistoria?.numero}.`);
+      void navigate({ to: "/revisao/$id", params: { id: laudo.id } });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
+
   const criarItem = useMutation({
     mutationFn: () => {
       if (!novaCategoria.trim() || !novoItem.trim())
