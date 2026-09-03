@@ -101,6 +101,11 @@ function Dashboard() {
                     <p className="mt-0.5 truncate text-xs text-muted-foreground">
                       {enderecoCompleto(v.imovel) || "Endereço não informado"}
                     </p>
+                    {v.origem && (
+                      <p className="mt-1 text-[11px] font-semibold text-primary">
+                        Gerado a partir da vistoria {v.origem.numero}
+                      </p>
+                    )}
                   </div>
                   <Badge
                     variant={v.status === "AGUARDANDO REVISAO" ? "default" : "outline"}
