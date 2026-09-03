@@ -56,16 +56,49 @@ export interface VistoriaCampo {
 
 export type VistoriaCampoInput = Omit<VistoriaCampo, "id" | "created_at" | "updated_at">;
 
+/** Cômodos pré-cadastrados para identificar onde o item foi inspecionado. */
+export const COMODOS_PADRAO = [
+  "Sala",
+  "Sala de Estar",
+  "Sala de Jantar",
+  "Cozinha",
+  "Quarto",
+  "Suíte",
+  "Banheiro",
+  "Lavabo",
+  "Varanda",
+  "Sacada",
+  "Corredor",
+  "Área de Serviço",
+  "Lavanderia",
+  "Garagem",
+  "Escritório",
+  "Depósito",
+  "Terraço",
+  "Hall de Entrada",
+  "Circulação",
+  "Área Externa",
+  "Fachada",
+  "Cobertura",
+] as const;
+
 export interface ItemVistoria {
   id: string;
   vistoria_id: string;
   categoria: string;
   item: string;
+  comodo: string | null;
   status: ItemStatus;
   observacao: string | null;
   ordem: number;
   created_at: string;
 }
+
+/** Rótulo do item para relatórios: "Sala — Paredes — Fissuras/trincas". */
+export function rotuloItem(item: Pick<ItemVistoria, "categoria" | "item" | "comodo">): string {
+  return [item.comodo?.trim(), item.categoria, item.item].filter(Boolean).join(" — ");
+}
+
 
 export interface FotoVistoria {
   id: string;
@@ -166,7 +199,7 @@ export async function listarItens(vistoriaId: string): Promise<ItemVistoria[]> {
 
 export async function atualizarItem(
   id: string,
-  input: Partial<Pick<ItemVistoria, "status" | "observacao">>,
+  input: Partial<Pick<ItemVistoria, "status" | "observacao" | "comodo">>,
 ): Promise<ItemVistoria> {
   const { data, error } = await supabase
     .from("itens_vistoria")
