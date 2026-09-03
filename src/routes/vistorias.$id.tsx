@@ -23,6 +23,7 @@ import {
 import { ErpShell } from "@/components/ErpShell";
 import { formatarDataBR } from "@/lib/propostas";
 import {
+  COMODOS_PADRAO,
   ITEM_STATUS,
   ITEM_STATUS_CLASSE,
   ITEM_STATUS_LABEL,
@@ -242,6 +243,13 @@ function VistoriaDetalhe() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const salvarComodo = useMutation({
+    mutationFn: (v: { itemId: string; comodo: string }) =>
+      atualizarItem(v.itemId, { comodo: v.comodo }),
+    onSuccess: () => void recarregarItens(),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const salvarObservacao = useMutation({
     mutationFn: (v: { itemId: string; observacao: string }) =>
       atualizarItem(v.itemId, { observacao: v.observacao }),
@@ -397,6 +405,10 @@ function VistoriaDetalhe() {
                               {ITEM_STATUS_LABEL[item.status]}
                             </span>
                           </div>
+                          <ComodoField
+                            item={item}
+                            onSalvar={(comodo) => salvarComodo.mutate({ itemId: item.id, comodo })}
+                          />
                           <div className="flex flex-wrap gap-1.5">
                             {ITEM_STATUS.map((s) => (
                               <Button
