@@ -62,6 +62,9 @@ function VistoriasPage() {
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState<"todos" | VistoriaStatus>("todos");
   const [pagina, setPagina] = useState(1);
+  const [laudos, setLaudos] = useState<Record<string, string>>({});
+
+  useEffect(() => setLaudos(laudosPorVistoria()), []);
 
   const vistoriasQuery = useQuery({ queryKey: ["vistorias"], queryFn: listarVistorias });
   const vistorias = vistoriasQuery.data ?? [];
