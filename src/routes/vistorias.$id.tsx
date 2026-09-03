@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Camera, Loader2, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Camera, FileArchive, Loader2, Plus, Trash2 } from "lucide-react";
+import { gerarLaudoDaVistoria, laudoDaVistoria } from "@/lib/laudo-de-vistoria";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
