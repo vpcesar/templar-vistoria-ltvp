@@ -212,6 +212,18 @@ function Revisao() {
               <p className="mt-1 text-sm text-muted-foreground">
                 {enderecoCompleto(vistoria.imovel) || "Endereço não informado"}
               </p>
+              {vistoria.origem && (
+                <p className="mt-2 text-xs font-semibold text-primary">
+                  Laudo gerado a partir da vistoria{" "}
+                  <Link
+                    to="/vistorias/$id"
+                    params={{ id: vistoria.origem.vistoriaId }}
+                    className="underline"
+                  >
+                    {vistoria.origem.numero}
+                  </Link>
+                </p>
+              )}
             </div>
             <Badge variant="outline">
               {vistoria.status === "AGUARDANDO REVISAO" ? "AGUARDANDO REVISÃO" : vistoria.status}
