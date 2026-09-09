@@ -53,7 +53,7 @@ const paragrafo = (texto: string, indent = 0) =>
   new Paragraph({
     alignment: AlignmentType.JUSTIFIED,
     spacing: { after: 100 },
-    indent: indent ? { left: indent } : undefined,
+    ...(indent ? { indent: { left: indent } } : {}),
     children: [new TextRun({ text: texto, size: 20, font: "Arial", color: SLATE })],
   });
 
