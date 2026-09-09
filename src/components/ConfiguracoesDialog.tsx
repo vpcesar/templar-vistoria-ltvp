@@ -32,6 +32,10 @@ export function ConfiguracoesDialog({
   const [crea, setCrea] = useState("RJ 2024100977");
   const [chave, setChave] = useState("");
   const [testando, setTestando] = useState(false);
+  const [chaveGroq, setChaveGroq] = useState("");
+  const [responsaveis, setResponsaveis] = useState<ResponsavelTecnico[]>([]);
+  const [novoNome, setNovoNome] = useState("");
+  const [novoCrea, setNovoCrea] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -41,6 +45,8 @@ export function ConfiguracoesDialog({
     setCrea(c.crea);
     const savedKey = window.localStorage.getItem(GEMINI_KEY_STORAGE) || "";
     setChave(savedKey);
+    setChaveGroq(obterChaveGroq());
+    setResponsaveis(listarResponsaveis());
   }, [open]);
 
   const salvar = () => {
