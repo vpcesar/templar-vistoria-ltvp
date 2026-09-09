@@ -45,7 +45,7 @@ export function ConfiguracoesDialog({
     setCrea(c.crea);
     const savedKey = window.localStorage.getItem(GEMINI_KEY_STORAGE) || "";
     setChave(savedKey);
-    setChaveGroq(obterChaveGroq());
+    
     setResponsaveis(listarResponsaveis());
   }, [open]);
 
