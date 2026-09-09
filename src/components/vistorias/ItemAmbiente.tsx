@@ -10,7 +10,7 @@ import {
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { aprimorarTextoGroq, mensagemErroGroq } from "@/lib/groq";
+import { aprimorarTexto, mensagemErroIA } from "@/lib/ai";
 import { tituloItem } from "@/lib/vistorias-ambientes";
 import {
   ITEM_STATUS_CLASSE,
@@ -77,10 +77,10 @@ export function ItemAmbiente({
     }
     setCarregandoIA(true);
     try {
-      const resultado = await aprimorarTextoGroq(base);
+      const resultado = await aprimorarTexto(base);
       setAprimorado(resultado);
     } catch (e) {
-      toast.error(mensagemErroGroq((e as Error).message));
+      toast.error(mensagemErroIA((e as Error).message));
     } finally {
       setCarregandoIA(false);
     }

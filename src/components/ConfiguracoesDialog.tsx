@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { carregarConfig, salvarConfig, exportarJSON, importarJSON } from "@/lib/config";
 import { chamarGeminiAPI, GEMINI_KEY_STORAGE, salvarChaveGemini } from "@/lib/gemini";
-import { obterChaveGroq, salvarChaveGroq } from "@/lib/groq";
+
 import {
   adicionarResponsavel,
   listarResponsaveis,
@@ -32,7 +32,7 @@ export function ConfiguracoesDialog({
   const [crea, setCrea] = useState("RJ 2024100977");
   const [chave, setChave] = useState("");
   const [testando, setTestando] = useState(false);
-  const [chaveGroq, setChaveGroq] = useState("");
+  
   const [responsaveis, setResponsaveis] = useState<ResponsavelTecnico[]>([]);
   const [novoNome, setNovoNome] = useState("");
   const [novoCrea, setNovoCrea] = useState("");
@@ -45,7 +45,7 @@ export function ConfiguracoesDialog({
     setCrea(c.crea);
     const savedKey = window.localStorage.getItem(GEMINI_KEY_STORAGE) || "";
     setChave(savedKey);
-    setChaveGroq(obterChaveGroq());
+    
     setResponsaveis(listarResponsaveis());
   }, [open]);
 
@@ -135,9 +135,9 @@ export function ConfiguracoesDialog({
         </section>
 
         <section className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
-          <h3 className="text-sm font-bold text-foreground">Chave da API do Google Gemini</h3>
+          <h3 className="text-sm font-bold text-foreground">Integração de IA</h3>
           <div className="space-y-2">
-            <Label htmlFor="gemini-key-input">Chave da API do Google Gemini</Label>
+            <Label htmlFor="gemini-key-input">Chave da API Google (Gemini)</Label>
             <Input
               id="gemini-key-input"
               type="password"
@@ -177,38 +177,6 @@ export function ConfiguracoesDialog({
           </p>
         </section>
 
-        <section className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
-          <h3 className="text-sm font-bold text-foreground">Chave da API Groq (aprimorar textos)</h3>
-          <div className="space-y-2">
-            <Label htmlFor="groq-key-input">Chave da API Groq</Label>
-            <Input
-              id="groq-key-input"
-              type="password"
-              autoComplete="off"
-              placeholder="Cole aqui sua API Key da Groq (gsk_...)"
-              value={chaveGroq}
-              onChange={(e) => setChaveGroq(e.target.value)}
-            />
-          </div>
-          <Button
-            className="min-h-11 w-full"
-            onClick={() => {
-              const valor = chaveGroq.trim();
-              if (!valor) {
-                toast.error("Digite uma chave válida.");
-                return;
-              }
-              salvarChaveGroq(valor);
-              toast.success("Chave da Groq salva neste dispositivo.");
-            }}
-          >
-            Salvar chave da Groq
-          </Button>
-          <p className="text-xs text-muted-foreground">
-            Usada no botão “Aprimorar” das observações da vistoria. A chave fica salva apenas neste
-            navegador.
-          </p>
-        </section>
 
         <section className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
           <h3 className="text-sm font-bold text-foreground">Responsáveis técnicos</h3>

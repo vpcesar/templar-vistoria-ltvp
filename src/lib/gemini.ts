@@ -7,7 +7,7 @@
 export const GEMINI_KEY_STORAGE = "templar_gemini_key";
 
 /** Modelos vigentes, em ordem de preferência (com fallback automático). */
-const MODELOS = ["gemini-flash-latest", "gemini-2.5-flash", "gemini-2.5-flash-lite"];
+const MODELOS = ["gemini-2.0-flash", "gemini-flash-latest", "gemini-2.5-flash"];
 
 export function obterChaveGemini(): string {
   if (typeof window === "undefined") return "";
