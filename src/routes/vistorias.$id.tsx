@@ -473,7 +473,7 @@ function VistoriaDetalhe() {
                           <FotosDoItem
                             vistoriaId={id}
                             itemId={item.id}
-                            fotos={fotos.filter((f) => f.item_id === item.id)}
+                            fotos={fotos.filter((f) => f.item_vistoria_id === item.id)}
                             onMudou={recarregarFotos}
                           />
                         </div>
