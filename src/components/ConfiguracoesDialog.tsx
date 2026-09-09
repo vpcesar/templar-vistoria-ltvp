@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { carregarConfig, salvarConfig, exportarJSON, importarJSON } from "@/lib/config";
 import { chamarGeminiAPI, GEMINI_KEY_STORAGE, salvarChaveGemini } from "@/lib/gemini";
-import { obterChaveGroq, salvarChaveGroq } from "@/lib/groq";
+
 import {
   adicionarResponsavel,
   listarResponsaveis,
