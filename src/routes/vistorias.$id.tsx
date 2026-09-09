@@ -461,9 +461,9 @@ function VistoriaDetalhe() {
                           <Textarea
                             rows={2}
                             placeholder="Observação técnica do item"
-                            defaultValue={item.observacao ?? ""}
+                            defaultValue={item.observacoes ?? ""}
                             onBlur={(e) => {
-                              if ((item.observacao ?? "") === e.target.value) return;
+                              if ((item.observacoes ?? "") === e.target.value) return;
                               salvarObservacao.mutate({
                                 itemId: item.id,
                                 observacao: e.target.value,
