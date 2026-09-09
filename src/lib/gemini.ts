@@ -4,10 +4,17 @@
  * A API do Google envia cabeçalhos CORS, então não é necessário proxy
  * (usar proxy externo exporia a chave do usuário a terceiros).
  */
+import { getConfig } from "@/lib/config";
+
 export const GEMINI_KEY_STORAGE = "templar_gemini_key";
 
-/** Modelos vigentes, em ordem de preferência (com fallback automático). */
-const MODELOS = ["gemini-2.0-flash", "gemini-flash-latest", "gemini-2.5-flash"];
+/** Modelo configurado primeiro, depois alternativas (fallback automático). */
+function modelos(): string[] {
+  const escolhido = getConfig().iaModelo;
+  return [escolhido, "gemini-2.0-flash", "gemini-flash-latest", "gemini-2.5-flash"].filter(
+    (m, i, arr) => arr.indexOf(m) === i,
+  );
+}
 
 export function obterChaveGemini(): string {
   if (typeof window === "undefined") return "";
@@ -31,7 +38,7 @@ export async function chamarGeminiAPI(prompt: string): Promise<string> {
   const body = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] });
   let ultimoErro: Error = new Error("CONNECTION_ERROR");
 
-  for (const modelo of MODELOS) {
+  for (const modelo of modelos()) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`;
 
     let response: Response;

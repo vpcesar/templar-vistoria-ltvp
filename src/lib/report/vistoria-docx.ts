@@ -1,3 +1,4 @@
+import { coresDocumento } from "@/lib/config";
 import {
   AlignmentType,
   BorderStyle,
@@ -21,16 +22,16 @@ import {
 import { EMPRESA } from "../laudo";
 import { carregarImagemRemota, carregarLogoProposta, dataUrlToBytes } from "./logo";
 import {
-  CONTATOS_TEMPLAR,
-  TAGLINE,
+  contatosTemplar,
+  tagline,
   montarRelatorio,
   nomeArquivoVistoria,
   rotuloStatus,
   type DadosRelatorioVistoria,
 } from "./vistoria-relatorio";
 
-const NAVY = "1A365D";
-const GOLD = "D4AF37";
+let NAVY = "1A365D";
+let GOLD = "D4AF37";
 const SLATE = "2D3748";
 const FOOTER = "718096";
 const WHITE = "FFFFFF";
@@ -98,6 +99,9 @@ const tarja = (texto: string) =>
   });
 
 export async function gerarVistoriaDocx(dados: DadosRelatorioVistoria) {
+  const cores = coresDocumento();
+  NAVY = cores.navyHex;
+  GOLD = cores.goldHex;
   const rel = montarRelatorio(dados);
   const logo = await carregarLogoProposta();
 
@@ -268,7 +272,7 @@ export async function gerarVistoriaDocx(dados: DadosRelatorioVistoria) {
                             spacing: { before: 0, after: 0 },
                             children: [
                               new TextRun({
-                                text: TAGLINE,
+                                text: tagline(),
                                 size: 14,
                                 font: "Arial",
                                 color: NAVY,
@@ -312,7 +316,7 @@ export async function gerarVistoriaDocx(dados: DadosRelatorioVistoria) {
                           new Paragraph({
                             alignment: AlignmentType.RIGHT,
                             spacing: { before: 0, after: 0 },
-                            children: CONTATOS_TEMPLAR.flatMap((c, idx) => [
+                            children: contatosTemplar().flatMap((c, idx) => [
                               ...(idx > 0
                                 ? [
                                     new TextRun({
@@ -411,7 +415,7 @@ export async function gerarVistoriaDocx(dados: DadosRelatorioVistoria) {
                           new Paragraph({
                             alignment: AlignmentType.CENTER,
                             spacing: { before: 0, after: 0 },
-                            children: CONTATOS_TEMPLAR.flatMap((c, idx) => [
+                            children: contatosTemplar().flatMap((c, idx) => [
                               ...(idx > 0
                                 ? [
                                     new TextRun({

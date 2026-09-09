@@ -1,4 +1,5 @@
 import { formatarDataBR } from "@/lib/propostas";
+import { contatosDocumento, getConfig } from "@/lib/config";
 import { tituloItem } from "@/lib/vistorias-ambientes";
 import type { AmbienteVistoria } from "@/lib/vistorias-ambientes";
 import {
@@ -16,13 +17,10 @@ export interface DadosRelatorioVistoria {
   fotos: FotoVistoria[];
 }
 
-export const CONTATOS_TEMPLAR = [
-  { texto: "www.templarengenharia.com.br", url: "https://www.templarengenharia.com.br" },
-  { texto: "templarengenharia@hotmail.com", url: "mailto:templarengenharia@hotmail.com" },
-  { texto: "WhatsApp (21) 98180-8812", url: "https://wa.me/5521981808812" },
-] as const;
+/** Contatos e tagline vêm das Configurações. */
+export const contatosTemplar = () => contatosDocumento();
 
-export const TAGLINE = "Vistorias • Inspeções • Laudos • Perícias";
+export const tagline = () => getConfig().tagline;
 
 /** Nome do arquivo: VISTORIA_[Cliente]_[DD-MM-AAAA]. */
 export function nomeArquivoVistoria(v: VistoriaCampo, extensao: "pdf" | "docx"): string {

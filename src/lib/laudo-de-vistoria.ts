@@ -1,3 +1,4 @@
+import { getConfig } from "@/lib/config";
 import { imovelVazio, listarVistorias as listarLaudos, salvarVistoriaSegura, uid } from "./storage";
 import type { Foto, ItemAdicional, Vistoria as Laudo } from "./types";
 import {
@@ -80,8 +81,8 @@ export async function gerarLaudoDaVistoria(
       logradouro: vistoria.imovel_endereco ?? "",
       proprietario: vistoria.cliente_nome,
       dataVistoria: existente?.imovel.dataVistoria || hoje,
-      inspetor: vistoria.responsavel_tecnico_nome || "Vinicius Cesar",
-      crea: vistoria.responsavel_tecnico_crea || "RJ 2024100977",
+      inspetor: vistoria.responsavel_tecnico_nome || getConfig().nome,
+      crea: vistoria.responsavel_tecnico_crea || getConfig().crea,
       observacoes: [
         origemTexto,
         `Tipo de serviço: ${vistoria.tipo_servico}`,

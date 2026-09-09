@@ -1,11 +1,12 @@
+import { contatosDocumento, coresDocumento } from "@/lib/config";
 import { jsPDF } from "jspdf";
 import { EMPRESA } from "../laudo";
 import { formatarDataBR, formatarMoeda, type Proposta } from "../propostas";
 import { carregarLogoProposta } from "./logo";
 
-const NAVY: [number, number, number] = [26, 54, 93];
+let NAVY: [number, number, number] = [26, 54, 93];
 const BLUE: [number, number, number] = [44, 82, 130];
-const GOLD: [number, number, number] = [212, 175, 55];
+let GOLD: [number, number, number] = [212, 175, 55];
 const TEXT: [number, number, number] = [45, 55, 72];
 const FOOTER: [number, number, number] = [113, 128, 150];
 const WHITE: [number, number, number] = [255, 255, 255];
@@ -15,6 +16,9 @@ const PAGE_H = 297;
 const W = PAGE_W - M.left - M.right;
 
 export async function gerarPropostaPdf(prop: Proposta) {
+  const cores = coresDocumento();
+  NAVY = cores.navyRgb;
+  GOLD = cores.goldRgb;
   const logo = await carregarLogoProposta();
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   doc.setFont("helvetica", "normal");
@@ -217,23 +221,11 @@ export async function gerarPropostaPdf(prop: Proposta) {
     doc.setFontSize(9);
     doc.setTextColor(...WHITE);
     const colWidth = W / 3;
-    const links = [
-      {
-        text: "www.templarengenharia.com.br",
-        url: "https://www.templarengenharia.com.br",
-        x: M.left + colWidth / 2,
-      },
-      {
-        text: "templarengenharia@hotmail.com",
-        url: "mailto:templarengenharia@hotmail.com",
-        x: M.left + colWidth * 1.5,
-      },
-      {
-        text: "WhatsApp (21) 98180-8812",
-        url: "https://wa.me/5521981808812",
-        x: M.left + colWidth * 2.5,
-      },
-    ];
+    const links = contatosDocumento().map((c, idx) => ({
+      text: c.texto,
+      url: c.url,
+      x: M.left + colWidth * (idx + 0.5),
+    }));
     links.forEach((link) => {
       const linkWidth = doc.getTextWidth(link.text);
       doc.text(link.text, link.x, PAGE_H - 9.2, { align: "center" });

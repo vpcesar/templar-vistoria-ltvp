@@ -1,3 +1,4 @@
+import { getConfig } from "@/lib/config";
 import { supabase } from "@/lib/supabase";
 import { checklistDoServico } from "@/lib/vistorias-checklist";
 
@@ -181,7 +182,7 @@ export async function proximoNumeroVistoria(): Promise<string> {
   if (error) throw new Error(error.message);
   const ultimo = (data ?? [])[0]?.numero as string | undefined;
   const seq = ultimo ? Number(ultimo.replace(/\D/g, "")) : 0;
-  return `VIST-${String((Number.isFinite(seq) ? seq : 0) + 1).padStart(4, "0")}`;
+  return `${getConfig().prefixoVistoria}-${String((Number.isFinite(seq) ? seq : 0) + 1).padStart(4, "0")}`;
 }
 
 /** Cria a vistoria. O checklist por categoria só é gerado no fluxo de campo. */

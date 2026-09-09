@@ -4,14 +4,9 @@
  * Todas as telas (Vistorias, CRM, Propostas, Laudos) devem usar este módulo.
  */
 import { obterChaveGemini } from "@/lib/gemini";
+import { getConfig } from "@/lib/config";
 
-const MODELO = "gemini-2.0-flash";
 const TIMEOUT_MS = 30000;
-
-const SYSTEM_PROMPT =
-  "Assistente técnico de engenharia civil. Reescreva o texto de forma técnica, objetiva e concisa. " +
-  "Complexidade média. NUNCA invente dados que não estão no texto original. " +
-  "Mantenha o sentido original, apenas melhore a linguagem.";
 
 /** Mensagens em português para cada falha possível. */
 export function mensagemErroIA(codigo: string): string {
@@ -35,12 +30,12 @@ export function mensagemErroIA(codigo: string): string {
 }
 
 /** Chamada genérica ao Gemini com instrução de sistema. */
-export async function gerarTextoIA(
-  prompt: string,
-  systemPrompt: string = SYSTEM_PROMPT,
-): Promise<string> {
+export async function gerarTextoIA(prompt: string, systemPrompt?: string): Promise<string> {
   const apiKey = obterChaveGemini();
   if (!apiKey) throw new Error("API_KEY_MISSING");
+
+  const cfg = getConfig();
+  const instrucao = systemPrompt ?? cfg.iaInstrucao;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -48,15 +43,15 @@ export async function gerarTextoIA(
   let response: Response;
   try {
     response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODELO}:generateContent?key=${encodeURIComponent(apiKey)}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${cfg.iaModelo}:generateContent?key=${encodeURIComponent(apiKey)}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: controller.signal,
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          generationConfig: { temperature: 0.3, maxOutputTokens: 500 },
+          systemInstruction: { parts: [{ text: instrucao }] },
+          generationConfig: { temperature: cfg.iaTemperatura, maxOutputTokens: 500 },
         }),
       },
     );

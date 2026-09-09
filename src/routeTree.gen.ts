@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as NovaVistoriaRouteImport } from './routes/nova-vistoria'
 import { Route as CrmIndexRouteImport } from './routes/crm.index'
 import { Route as CrmIdRouteImport } from './routes/crm.$id'
@@ -25,6 +26,11 @@ import { Route as PropostasIdEditarRouteImport } from './routes/propostas.$id.ed
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NovaVistoriaRoute = NovaVistoriaRouteImport.update({
@@ -85,6 +91,7 @@ const PropostasIdEditarRoute = PropostasIdEditarRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/nova-vistoria': typeof NovaVistoriaRoute
   '/crm/$id': typeof CrmIdRoute
   '/propostas/$id': typeof PropostasIdRouteWithChildren
@@ -99,6 +106,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/nova-vistoria': typeof NovaVistoriaRoute
   '/crm/$id': typeof CrmIdRoute
   '/propostas/$id': typeof PropostasIdRouteWithChildren
@@ -114,6 +122,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/nova-vistoria': typeof NovaVistoriaRoute
   '/crm/$id': typeof CrmIdRoute
   '/propostas/$id': typeof PropostasIdRouteWithChildren
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/configuracoes'
     | '/nova-vistoria'
     | '/crm/$id'
     | '/propostas/$id'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/configuracoes'
     | '/nova-vistoria'
     | '/crm/$id'
     | '/propostas/$id'
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/configuracoes'
     | '/nova-vistoria'
     | '/crm/$id'
     | '/propostas/$id'
@@ -173,6 +185,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConfiguracoesRoute: typeof ConfiguracoesRoute
   NovaVistoriaRoute: typeof NovaVistoriaRoute
   CrmIdRoute: typeof CrmIdRoute
   PropostasIdRoute: typeof PropostasIdRouteWithChildren
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/nova-vistoria': {
@@ -288,6 +308,7 @@ const PropostasIdRouteWithChildren = PropostasIdRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConfiguracoesRoute: ConfiguracoesRoute,
   NovaVistoriaRoute: NovaVistoriaRoute,
   CrmIdRoute: CrmIdRoute,
   PropostasIdRoute: PropostasIdRouteWithChildren,
