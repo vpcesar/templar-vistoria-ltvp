@@ -165,6 +165,90 @@ export function ConfiguracoesDialog({
         </section>
 
         <section className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
+          <h3 className="text-sm font-bold text-foreground">Chave da API Groq (aprimorar textos)</h3>
+          <div className="space-y-2">
+            <Label htmlFor="groq-key-input">Chave da API Groq</Label>
+            <Input
+              id="groq-key-input"
+              type="password"
+              autoComplete="off"
+              placeholder="Cole aqui sua API Key da Groq (gsk_...)"
+              value={chaveGroq}
+              onChange={(e) => setChaveGroq(e.target.value)}
+            />
+          </div>
+          <Button
+            className="min-h-11 w-full"
+            onClick={() => {
+              const valor = chaveGroq.trim();
+              if (!valor) {
+                toast.error("Digite uma chave válida.");
+                return;
+              }
+              salvarChaveGroq(valor);
+              toast.success("Chave da Groq salva neste dispositivo.");
+            }}
+          >
+            Salvar chave da Groq
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Usada no botão “Aprimorar” das observações da vistoria. A chave fica salva apenas neste
+            navegador.
+          </p>
+        </section>
+
+        <section className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
+          <h3 className="text-sm font-bold text-foreground">Responsáveis técnicos</h3>
+          <ul className="space-y-2">
+            {responsaveis.map((r) => (
+              <li
+                key={r.id}
+                className="flex items-center justify-between gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              >
+                <span>
+                  {r.nome} — {r.crea}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setResponsaveis(removerResponsavel(r.id))}
+                >
+                  Remover
+                </Button>
+              </li>
+            ))}
+          </ul>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Input
+              placeholder="Nome"
+              value={novoNome}
+              onChange={(e) => setNovoNome(e.target.value)}
+            />
+            <Input
+              placeholder="CREA"
+              value={novoCrea}
+              onChange={(e) => setNovoCrea(e.target.value)}
+            />
+          </div>
+          <Button
+            variant="outline"
+            className="min-h-11 w-full"
+            onClick={() => {
+              if (!novoNome.trim() || !novoCrea.trim()) {
+                toast.error("Informe nome e CREA.");
+                return;
+              }
+              setResponsaveis(adicionarResponsavel(novoNome, novoCrea));
+              setNovoNome("");
+              setNovoCrea("");
+              toast.success("Responsável cadastrado.");
+            }}
+          >
+            Adicionar responsável
+          </Button>
+        </section>
+
+        <section className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
           <h3 className="text-sm font-bold text-foreground">Exportar/Importar Dados</h3>
           <div className="flex flex-col gap-2 sm:flex-row">
             <Button variant="outline" className="min-h-11 flex-1" onClick={exportarJSON}>
