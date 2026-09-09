@@ -10,16 +10,21 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { ErpShell } from "@/components/ErpShell";
+import { SelecaoAmbientes } from "@/components/vistorias/SelecaoAmbientes";
 import { obterLead } from "@/lib/crm";
-import { RESPONSAVEL_PADRAO, hojeISO, obterProposta } from "@/lib/propostas";
-import { TIPOS_SERVICO } from "@/lib/propostas-escopo";
+import { hojeISO, obterProposta } from "@/lib/propostas";
+import { listarResponsaveis } from "@/lib/responsaveis";
 import { checklistDoServico } from "@/lib/vistorias-checklist";
-import { criarVistoria, proximoNumeroVistoria } from "@/lib/vistorias";
+import { criarAmbientesComItens } from "@/lib/vistorias-ambientes";
+import { DICA_FLUXO, GRUPOS_SERVICO, fluxoDoTipo, rotuloTipo } from "@/lib/vistorias-tipos";
+import { TIPOS_IMOVEL, criarVistoria, proximoNumeroVistoria } from "@/lib/vistorias";
 
 export const Route = createFileRoute("/vistorias/nova")({
   head: () => ({
@@ -28,12 +33,12 @@ export const Route = createFileRoute("/vistorias/nova")({
       {
         name: "description",
         content:
-          "Agende uma vistoria de campo e gere automaticamente o checklist técnico do tipo de serviço.",
+          "Agende uma vistoria e gere automaticamente o checklist técnico por ambientes ou por tipo de serviço.",
       },
       { property: "og:title", content: "Nova Vistoria de Campo | TEMPLAR ENGENHARIA" },
       {
         property: "og:description",
-        content: "Agendamento de vistoria com checklist automático por tipo de serviço.",
+        content: "Agendamento de vistoria com checklist automático por ambiente ou serviço.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -46,18 +51,28 @@ export const Route = createFileRoute("/vistorias/nova")({
   component: NovaVistoriaCampo,
 });
 
+const PRIMEIRO_TIPO = GRUPOS_SERVICO[0]?.tipos[0] ?? "";
+
 function NovaVistoriaCampo() {
   const { lead: leadId, proposta: propostaId } = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const responsaveis = listarResponsaveis();
 
   const [dataVistoria, setDataVistoria] = useState(hojeISO());
   const [hora, setHora] = useState("09:00");
   const [clienteNome, setClienteNome] = useState("");
   const [clienteTelefone, setClienteTelefone] = useState("");
   const [endereco, setEndereco] = useState("");
-  const [tipoServico, setTipoServico] = useState(TIPOS_SERVICO[0] ?? "");
+  const [unidade, setUnidade] = useState("");
+  const [tipoImovel, setTipoImovel] = useState<string>(TIPOS_IMOVEL[0]);
+  const [construtora, setConstrutora] = useState("");
+  const [tipoServico, setTipoServico] = useState(PRIMEIRO_TIPO);
+  const [responsavel, setResponsavel] = useState(responsaveis[0]?.nome ?? "");
   const [observacoes, setObservacoes] = useState("");
+  const [ambientes, setAmbientes] = useState<string[]>([]);
+
+  const fluxo = fluxoDoTipo(tipoServico);
 
   const propostaQuery = useQuery({
     queryKey: ["proposta", propostaId],
@@ -93,26 +108,39 @@ function NovaVistoriaCampo() {
     mutationFn: async () => {
       if (!clienteNome.trim()) throw new Error("Informe o nome do cliente.");
       if (!tipoServico) throw new Error("Selecione o tipo de serviço.");
+      if (fluxo === "ambientes" && ambientes.length === 0)
+        throw new Error("Selecione ao menos um ambiente para o checklist.");
+      const resp = responsaveis.find((r) => r.nome === responsavel) ?? responsaveis[0];
       const numero = await proximoNumeroVistoria();
-      return criarVistoria({
-        numero,
-        proposta_id: propostaId ?? null,
-        lead_id: leadId ?? (propostaQuery.data?.lead_id ?? null),
-        data_vistoria: dataVistoria,
-        hora_vistoria: hora || null,
-        cliente_nome: clienteNome.trim(),
-        cliente_telefone: clienteTelefone || null,
-        imovel_endereco: endereco || null,
-        tipo_servico: tipoServico,
-        responsavel_tecnico_nome: RESPONSAVEL_PADRAO.nome,
-        responsavel_tecnico_crea: RESPONSAVEL_PADRAO.crea,
-        observacoes: observacoes || null,
-        status: "agendada",
-      });
+      const vistoria = await criarVistoria(
+        {
+          numero,
+          proposta_id: propostaId ?? null,
+          lead_id: leadId ?? propostaQuery.data?.lead_id ?? null,
+          data_vistoria: dataVistoria,
+          hora_vistoria: hora || null,
+          cliente_nome: clienteNome.trim(),
+          cliente_telefone: clienteTelefone || null,
+          imovel_endereco: endereco || null,
+          unidade: fluxo === "ambientes" ? unidade || null : null,
+          tipo_imovel: fluxo === "ambientes" ? tipoImovel || null : null,
+          responsavel_construtora: fluxo === "ambientes" ? construtora || null : null,
+          tipo_servico: tipoServico,
+          fluxo,
+          responsavel_tecnico_nome: resp?.nome ?? "Vinicius Cesar",
+          responsavel_tecnico_crea: resp?.crea ?? "RJ 2024100977",
+          observacoes: observacoes || null,
+          concluida: false,
+          status: fluxo === "ambientes" ? "em_andamento" : "agendada",
+        },
+        { gerarChecklistPadrao: fluxo === "campo" },
+      );
+      if (fluxo === "ambientes") await criarAmbientesComItens(vistoria.id, ambientes);
+      return vistoria;
     },
     onSuccess: (v) => {
-      queryClient.invalidateQueries({ queryKey: ["vistorias"] });
-      toast.success(`Vistoria ${v.numero} criada com ${totalItens} itens de checklist.`);
+      void queryClient.invalidateQueries({ queryKey: ["vistorias"] });
+      toast.success(`Vistoria ${v.numero} criada.`);
       void navigate({ to: "/vistorias/$id", params: { id: v.id } });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -132,11 +160,38 @@ function NovaVistoriaCampo() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Nova Vistoria</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            O checklist técnico é gerado automaticamente conforme o tipo de serviço selecionado.
+            O checklist é gerado automaticamente conforme o tipo de serviço selecionado.
           </p>
         </div>
 
         <div className="space-y-4 rounded-xl border border-border bg-card p-5">
+          <div className="space-y-1.5">
+            <Label>Tipo de serviço</Label>
+            <Select value={tipoServico} onValueChange={setTipoServico}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                {GRUPOS_SERVICO.map((g) => (
+                  <SelectGroup key={g.grupo}>
+                    <SelectLabel>{g.grupo}</SelectLabel>
+                    {g.tipos.map((t) => (
+                      <SelectItem key={t} value={t}>
+                        {rotuloTipo(t)}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              {DICA_FLUXO[fluxo]}
+              {fluxo === "campo" && totalItens > 0
+                ? ` ${totalItens} itens de checklist serão criados automaticamente.`
+                : ""}
+            </p>
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label>Data da vistoria</Label>
@@ -161,30 +216,56 @@ function NovaVistoriaCampo() {
           </div>
 
           <div className="space-y-1.5">
-            <Label>Endereço do imóvel</Label>
+            <Label>{fluxo === "ambientes" ? "Localização" : "Endereço do imóvel"}</Label>
             <Input value={endereco} onChange={(e) => setEndereco(e.target.value)} />
           </div>
 
-          <div className="space-y-1.5">
-            <Label>Tipo de serviço</Label>
-            <Select value={tipoServico} onValueChange={setTipoServico}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
-              <SelectContent>
-                {TIPOS_SERVICO.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              {totalItens > 0
-                ? `${totalItens} itens de checklist serão criados automaticamente.`
-                : "Nenhum checklist padrão cadastrado para este serviço — você poderá adicionar itens manualmente."}
-            </p>
-          </div>
+          {fluxo === "ambientes" && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label>Unidade</Label>
+                <Input
+                  placeholder="Ex.: Apto 302 - Bloco B"
+                  value={unidade}
+                  onChange={(e) => setUnidade(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Tipo de imóvel</Label>
+                <Select value={tipoImovel} onValueChange={setTipoImovel}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TIPOS_IMOVEL.map((t) => (
+                      <SelectItem key={t} value={t}>
+                        {t}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Responsável da construtora</Label>
+                <Input value={construtora} onChange={(e) => setConstrutora(e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Responsável da vistoria</Label>
+                <Select value={responsavel} onValueChange={setResponsavel}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {responsaveis.map((r) => (
+                      <SelectItem key={r.id} value={r.nome}>
+                        {r.nome} — {r.crea}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <Label>Observações</Label>
@@ -194,16 +275,28 @@ function NovaVistoriaCampo() {
               onChange={(e) => setObservacoes(e.target.value)}
             />
           </div>
-
-          <Button
-            className="w-full"
-            disabled={salvar.isPending}
-            onClick={() => salvar.mutate()}
-          >
-            <Save className="mr-1.5 h-4 w-4" />
-            {salvar.isPending ? "Criando vistoria..." : "Criar vistoria e gerar checklist"}
-          </Button>
         </div>
+
+        {fluxo === "ambientes" && (
+          <div className="space-y-3 rounded-xl border border-border bg-card p-5">
+            <div>
+              <h2 className="text-sm font-bold text-foreground">Ambientes da vistoria</h2>
+              <p className="text-xs text-muted-foreground">
+                Selecione os ambientes e arraste para definir a ordem do checklist.
+              </p>
+            </div>
+            <SelecaoAmbientes selecionados={ambientes} onChange={setAmbientes} />
+          </div>
+        )}
+
+        <Button
+          className="w-full"
+          disabled={salvar.isPending}
+          onClick={() => salvar.mutate()}
+        >
+          <Save className="mr-1.5 h-4 w-4" />
+          {salvar.isPending ? "Criando vistoria..." : "Criar vistoria e gerar checklist"}
+        </Button>
       </div>
     </ErpShell>
   );
