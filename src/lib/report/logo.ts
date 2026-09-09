@@ -31,6 +31,11 @@ async function carregarImagem(url: string, type: "png" | "jpg"): Promise<LogoLau
   }
 }
 
+/** Carrega uma imagem remota (fotos de vistoria) como data URL. */
+export function carregarImagemRemota(url: string): Promise<LogoLaudo | null> {
+  return carregarImagem(url, "jpg");
+}
+
 /** Carrega o escudo institucional usado nos laudos técnicos. */
 export function carregarLogo(): Promise<LogoLaudo | null> {
   return carregarImagem(logoAsset.url, "png");
