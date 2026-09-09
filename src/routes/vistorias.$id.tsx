@@ -156,6 +156,11 @@ function FotosDoItem({
 
 const OUTRO = "__outro__";
 
+/** Vistorias de imóvel novo usam o checklist por ambientes. */
+function ehFluxoAmbientes(v: { fluxo: string | null; tipo_servico: string }): boolean {
+  return v.fluxo === "ambientes" || (!v.fluxo && fluxoDoTipo(v.tipo_servico) === "ambientes");
+}
+
 function ComodoField({
   item,
   onSalvar,
