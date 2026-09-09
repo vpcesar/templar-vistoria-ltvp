@@ -22,6 +22,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ErpShell } from "@/components/ErpShell";
+import { ChecklistAmbientes } from "@/components/vistorias/ChecklistAmbientes";
+import { fluxoDoTipo } from "@/lib/vistorias-tipos";
 import { formatarDataBR } from "@/lib/propostas";
 import {
   COMODOS_PADRAO,
