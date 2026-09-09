@@ -41,7 +41,7 @@ export async function gerarLaudoDaVistoria(
 
   const porItem = new Map<string, ItemVistoria>(itens.map((i) => [i.id, i]));
   const fotosEdificacao: Foto[] = fotos.map((f) => {
-    const item = f.item_id ? porItem.get(f.item_id) : undefined;
+    const item = f.item_vistoria_id ? porItem.get(f.item_vistoria_id) : undefined;
     return fotoDe(f, item ? rotuloItem(item) : `Registro fotográfico — ${vistoria.numero}`);
   });
 
@@ -58,7 +58,8 @@ export async function gerarLaudoDaVistoria(
     conteudo: lista
       .map((i) => {
         const local = i.comodo?.trim() ? `${i.comodo.trim()} — ` : "";
-        const obs = i.observacao?.trim() ? ` Observação: ${i.observacao.trim()}` : "";
+        const texto = i.observacao_aprimorada?.trim() || i.observacoes?.trim() || "";
+        const obs = texto ? ` Observação: ${texto}` : "";
         return `• ${local}${i.item}: ${ITEM_STATUS_LABEL[i.status]}.${obs}`;
       })
       .join("\n"),

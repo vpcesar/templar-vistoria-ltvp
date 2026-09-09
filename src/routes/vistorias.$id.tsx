@@ -253,7 +253,7 @@ function VistoriaDetalhe() {
 
   const salvarObservacao = useMutation({
     mutationFn: (v: { itemId: string; observacao: string }) =>
-      atualizarItem(v.itemId, { observacao: v.observacao }),
+      atualizarItem(v.itemId, { observacoes: v.observacao }),
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -461,9 +461,9 @@ function VistoriaDetalhe() {
                           <Textarea
                             rows={2}
                             placeholder="Observação técnica do item"
-                            defaultValue={item.observacao ?? ""}
+                            defaultValue={item.observacoes ?? ""}
                             onBlur={(e) => {
-                              if ((item.observacao ?? "") === e.target.value) return;
+                              if ((item.observacoes ?? "") === e.target.value) return;
                               salvarObservacao.mutate({
                                 itemId: item.id,
                                 observacao: e.target.value,
@@ -473,7 +473,7 @@ function VistoriaDetalhe() {
                           <FotosDoItem
                             vistoriaId={id}
                             itemId={item.id}
-                            fotos={fotos.filter((f) => f.item_id === item.id)}
+                            fotos={fotos.filter((f) => f.item_vistoria_id === item.id)}
                             onMudou={recarregarFotos}
                           />
                         </div>
