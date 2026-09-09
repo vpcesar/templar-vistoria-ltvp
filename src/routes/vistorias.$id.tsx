@@ -22,6 +22,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ErpShell } from "@/components/ErpShell";
+import { ChecklistAmbientes } from "@/components/vistorias/ChecklistAmbientes";
+import { fluxoDoTipo } from "@/lib/vistorias-tipos";
 import { formatarDataBR } from "@/lib/propostas";
 import {
   COMODOS_PADRAO,
@@ -153,6 +155,11 @@ function FotosDoItem({
 }
 
 const OUTRO = "__outro__";
+
+/** Vistorias de imóvel novo usam o checklist por ambientes. */
+function ehFluxoAmbientes(v: { fluxo: string | null; tipo_servico: string }): boolean {
+  return v.fluxo === "ambientes" || (!v.fluxo && fluxoDoTipo(v.tipo_servico) === "ambientes");
+}
 
 function ComodoField({
   item,
@@ -317,7 +324,9 @@ function VistoriaDetalhe() {
           </p>
         )}
 
-        {vistoria && (
+        {vistoria && ehFluxoAmbientes(vistoria) && <ChecklistAmbientes vistoria={vistoria} />}
+
+        {vistoria && !ehFluxoAmbientes(vistoria) && (
           <>
             <div className="space-y-3 rounded-xl border border-border bg-card p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">

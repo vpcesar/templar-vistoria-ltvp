@@ -111,3 +111,71 @@ alter table if exists public.itens_vistoria
 -- Caso a tabela de laudos seja criada no futuro, aplique:
 -- alter table public.laudos
 --   add column if not exists vistoria_id uuid references public.vistorias(id) on delete set null;
+
+-- =========================================================
+-- FLUXO POR AMBIENTES (Imóvel Novo / Entrega) — idempotente
+-- Execute no SQL Editor do Supabase.
+-- =========================================================
+
+alter table if exists public.vistorias
+  add column if not exists unidade text,
+  add column if not exists tipo_imovel text,
+  add column if not exists responsavel_construtora text,
+  add column if not exists fluxo text,
+  add column if not exists concluida boolean not null default false;
+
+create table if not exists public.ambientes_vistoria (
+  id uuid primary key default gen_random_uuid(),
+  vistoria_id uuid not null references public.vistorias(id) on delete cascade,
+  nome text not null,
+  ordem integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+alter table if exists public.itens_vistoria
+  add column if not exists ambiente_id uuid references public.ambientes_vistoria(id) on delete cascade,
+  add column if not exists titulo text,
+  add column if not exists orientacoes text,
+  add column if not exists teste text,
+  add column if not exists atencao text,
+  add column if not exists personalizado boolean not null default false,
+  add column if not exists existe_sistema boolean,
+  add column if not exists observacoes text,
+  add column if not exists observacao_aprimorada text;
+
+alter table if exists public.fotos_vistoria
+  add column if not exists item_vistoria_id uuid references public.itens_vistoria(id) on delete cascade,
+  add column if not exists ordem integer default 0;
+
+create table if not exists public.catalogo_checklist (
+  id uuid primary key default gen_random_uuid(),
+  tipo_ambiente text not null,
+  titulo text not null,
+  orientacoes text,
+  teste text,
+  atencao text,
+  ordem integer not null default 0
+);
+
+create index if not exists idx_ambientes_vistoria on public.ambientes_vistoria(vistoria_id, ordem);
+create index if not exists idx_itens_ambiente on public.itens_vistoria(ambiente_id, ordem);
+create index if not exists idx_fotos_item_vistoria on public.fotos_vistoria(item_vistoria_id);
+create index if not exists idx_catalogo_tipo on public.catalogo_checklist(tipo_ambiente, ordem);
+
+grant select, insert, update, delete on public.ambientes_vistoria to anon, authenticated;
+grant select on public.catalogo_checklist to anon, authenticated;
+grant all on public.ambientes_vistoria to service_role;
+grant all on public.catalogo_checklist to service_role;
+
+alter table public.ambientes_vistoria enable row level security;
+alter table public.catalogo_checklist enable row level security;
+
+do $$
+begin
+  if not exists (select 1 from pg_policies where tablename = 'ambientes_vistoria' and policyname = 'ambientes_vistoria_acesso') then
+    create policy "ambientes_vistoria_acesso" on public.ambientes_vistoria for all using (true) with check (true);
+  end if;
+  if not exists (select 1 from pg_policies where tablename = 'catalogo_checklist' and policyname = 'catalogo_checklist_leitura') then
+    create policy "catalogo_checklist_leitura" on public.catalogo_checklist for select using (true);
+  end if;
+end $$;
