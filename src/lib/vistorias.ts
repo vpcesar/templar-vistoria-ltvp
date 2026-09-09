@@ -28,6 +28,14 @@ export const ITEM_STATUS_LABEL: Record<ItemStatus, string> = {
   nao_aplicavel: "Não aplicável",
 };
 
+/** Rótulos usados no fluxo de ambientes (imóvel novo). */
+export const ITEM_STATUS_LABEL_AMBIENTE: Record<ItemStatus, string> = {
+  pendente: "Pendente",
+  conforme: "Aprovado",
+  nao_conforme: "Reprovado",
+  nao_aplicavel: "Não se aplica",
+};
+
 export const ITEM_STATUS_CLASSE: Record<ItemStatus, string> = {
   pendente: "bg-slate-100 text-slate-700 border-slate-200",
   conforme: "bg-emerald-100 text-emerald-800 border-emerald-200",
@@ -45,10 +53,15 @@ export interface VistoriaCampo {
   cliente_nome: string;
   cliente_telefone: string | null;
   imovel_endereco: string | null;
+  unidade: string | null;
+  tipo_imovel: string | null;
+  responsavel_construtora: string | null;
   tipo_servico: string;
+  fluxo: string | null;
   responsavel_tecnico_nome: string;
   responsavel_tecnico_crea: string;
   observacoes: string | null;
+  concluida: boolean | null;
   status: VistoriaStatus;
   created_at: string;
   updated_at: string;
@@ -56,7 +69,7 @@ export interface VistoriaCampo {
 
 export type VistoriaCampoInput = Omit<VistoriaCampo, "id" | "created_at" | "updated_at">;
 
-/** Cômodos pré-cadastrados para identificar onde o item foi inspecionado. */
+/** Cômodos/ambientes pré-cadastrados. */
 export const COMODOS_PADRAO = [
   "Sala",
   "Sala de Estar",
@@ -66,6 +79,8 @@ export const COMODOS_PADRAO = [
   "Suíte",
   "Banheiro",
   "Lavabo",
+  "WC",
+  "Sanitário",
   "Varanda",
   "Sacada",
   "Corredor",
@@ -82,14 +97,30 @@ export const COMODOS_PADRAO = [
   "Cobertura",
 ] as const;
 
+export const TIPOS_IMOVEL = [
+  "Apartamento",
+  "Casa",
+  "Sala Comercial",
+  "Galpão",
+  "Outro",
+] as const;
+
 export interface ItemVistoria {
   id: string;
   vistoria_id: string;
+  ambiente_id: string | null;
   categoria: string;
   item: string;
+  titulo: string | null;
+  orientacoes: string | null;
+  teste: string | null;
+  atencao: string | null;
+  personalizado: boolean | null;
+  existe_sistema: boolean | null;
   comodo: string | null;
   status: ItemStatus;
-  observacao: string | null;
+  observacoes: string | null;
+  observacao_aprimorada: string | null;
   ordem: number;
   created_at: string;
 }
@@ -99,18 +130,29 @@ export function rotuloItem(item: Pick<ItemVistoria, "categoria" | "item" | "como
   return [item.comodo?.trim(), item.categoria, item.item].filter(Boolean).join(" — ");
 }
 
-
 export interface FotoVistoria {
   id: string;
   vistoria_id: string;
-  item_id: string | null;
+  item_vistoria_id: string | null;
   url: string;
-  caminho: string;
   legenda: string | null;
+  ordem: number | null;
   created_at: string;
 }
 
 export const BUCKET_FOTOS = "vistorias-fotos";
+
+/** Extrai o caminho do arquivo dentro do bucket a partir da URL pública. */
+export function caminhoDaFoto(url: string): string | null {
+  const marcador = `/${BUCKET_FOTOS}/`;
+  const pos = url.indexOf(marcador);
+  if (pos === -1) return null;
+  try {
+    return decodeURIComponent(url.slice(pos + marcador.length));
+  } catch {
+    return url.slice(pos + marcador.length);
+  }
+}
 
 /* ---------- vistorias ---------- */
 
@@ -142,12 +184,17 @@ export async function proximoNumeroVistoria(): Promise<string> {
   return `VIST-${String((Number.isFinite(seq) ? seq : 0) + 1).padStart(4, "0")}`;
 }
 
-/** Cria a vistoria e gera automaticamente o checklist do tipo de serviço. */
-export async function criarVistoria(input: VistoriaCampoInput): Promise<VistoriaCampo> {
+/** Cria a vistoria. O checklist por categoria só é gerado no fluxo de campo. */
+export async function criarVistoria(
+  input: VistoriaCampoInput,
+  opcoes: { gerarChecklistPadrao?: boolean } = {},
+): Promise<VistoriaCampo> {
   const { data, error } = await supabase.from("vistorias").insert(input).select("*").single();
   if (error) throw new Error(error.message);
   const vistoria = data as VistoriaCampo;
-  await gerarChecklist(vistoria.id, vistoria.tipo_servico);
+  if (opcoes.gerarChecklistPadrao !== false) {
+    await gerarChecklist(vistoria.id, vistoria.tipo_servico);
+  }
   return vistoria;
 }
 
@@ -170,7 +217,7 @@ export async function excluirVistoria(id: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
-/* ---------- checklist ---------- */
+/* ---------- checklist (fluxo de campo / legado) ---------- */
 
 export async function gerarChecklist(vistoriaId: string, tipoServico: string): Promise<void> {
   const modelo = checklistDoServico(tipoServico);
@@ -180,6 +227,7 @@ export async function gerarChecklist(vistoriaId: string, tipoServico: string): P
       vistoria_id: vistoriaId,
       categoria: m.categoria,
       item: m.item,
+      titulo: m.item,
       ordem: m.ordem,
       status: "pendente" as ItemStatus,
     })),
@@ -199,7 +247,18 @@ export async function listarItens(vistoriaId: string): Promise<ItemVistoria[]> {
 
 export async function atualizarItem(
   id: string,
-  input: Partial<Pick<ItemVistoria, "status" | "observacao" | "comodo">>,
+  input: Partial<
+    Pick<
+      ItemVistoria,
+      | "status"
+      | "observacoes"
+      | "observacao_aprimorada"
+      | "comodo"
+      | "existe_sistema"
+      | "titulo"
+      | "ordem"
+    >
+  >,
 ): Promise<ItemVistoria> {
   const { data, error } = await supabase
     .from("itens_vistoria")
@@ -219,7 +278,14 @@ export async function adicionarItem(
 ): Promise<ItemVistoria> {
   const { data, error } = await supabase
     .from("itens_vistoria")
-    .insert({ vistoria_id: vistoriaId, categoria, item, ordem, status: "pendente" })
+    .insert({
+      vistoria_id: vistoriaId,
+      categoria,
+      item,
+      titulo: item,
+      ordem,
+      status: "pendente",
+    })
     .select("*")
     .single();
   if (error) throw new Error(error.message);
@@ -269,7 +335,9 @@ export async function enviarFoto(
   legenda?: string,
 ): Promise<FotoVistoria> {
   const blob = await comprimir(file);
-  const caminho = `${vistoriaId}/${crypto.randomUUID()}.jpg`;
+  const caminho = itemId
+    ? `${vistoriaId}/${itemId}/${Date.now()}.jpg`
+    : `${vistoriaId}/${Date.now()}.jpg`;
   const up = await supabase.storage
     .from(BUCKET_FOTOS)
     .upload(caminho, blob, { contentType: "image/jpeg", upsert: false });
@@ -279,9 +347,8 @@ export async function enviarFoto(
     .from("fotos_vistoria")
     .insert({
       vistoria_id: vistoriaId,
-      item_id: itemId ?? null,
+      item_vistoria_id: itemId ?? null,
       url: pub.publicUrl,
-      caminho,
       legenda: legenda ?? null,
     })
     .select("*")
@@ -291,7 +358,8 @@ export async function enviarFoto(
 }
 
 export async function excluirFoto(foto: FotoVistoria): Promise<void> {
-  await supabase.storage.from(BUCKET_FOTOS).remove([foto.caminho]);
+  const caminho = caminhoDaFoto(foto.url);
+  if (caminho) await supabase.storage.from(BUCKET_FOTOS).remove([caminho]);
   const { error } = await supabase.from("fotos_vistoria").delete().eq("id", foto.id);
   if (error) throw new Error(error.message);
 }
@@ -311,6 +379,8 @@ export function progresso(itens: ItemVistoria[]) {
     total,
     avaliados,
     naoConformes,
+    conformes: itens.filter((i) => i.status === "conforme").length,
+    naoAplicaveis: itens.filter((i) => i.status === "nao_aplicavel").length,
     percentual: total === 0 ? 0 : Math.round((avaliados / total) * 100),
   };
 }
