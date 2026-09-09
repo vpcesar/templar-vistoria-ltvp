@@ -253,7 +253,7 @@ function VistoriaDetalhe() {
 
   const salvarObservacao = useMutation({
     mutationFn: (v: { itemId: string; observacao: string }) =>
-      atualizarItem(v.itemId, { observacao: v.observacao }),
+      atualizarItem(v.itemId, { observacoes: v.observacao }),
     onError: (e: Error) => toast.error(e.message),
   });
 
