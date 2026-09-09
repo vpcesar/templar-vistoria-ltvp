@@ -1,3 +1,4 @@
+import { contatosDocumento, coresDocumento } from "@/lib/config";
 import {
   AlignmentType,
   BorderStyle,
@@ -23,9 +24,9 @@ import { EMPRESA } from "../laudo";
 import { formatarDataBR, formatarMoeda, type Proposta } from "../propostas";
 import { carregarLogoProposta, dataUrlToBytes } from "./logo";
 
-const NAVY = "1A365D";
+let NAVY = "1A365D";
 const BLUE = "2C5282";
-const GOLD = "D4AF37";
+let GOLD = "D4AF37";
 const SLATE = "2D3748";
 const FOOTER = "718096";
 const WHITE = "FFFFFF";
@@ -135,6 +136,9 @@ const linhas = (conteudo: string, reference = "proposal-bullets") =>
     );
 
 export async function gerarPropostaDocx(prop: Proposta) {
+  const cores = coresDocumento();
+  NAVY = cores.navyHex;
+  GOLD = cores.goldHex;
   const logo = await carregarLogoProposta();
   const filhos: (Paragraph | Table)[] = [];
 
@@ -355,14 +359,9 @@ export async function gerarPropostaDocx(prop: Proposta) {
                   }),
                   new TableRow({
                     children: (
-                      [
-                        ["www.templarengenharia.com.br", "https://www.templarengenharia.com.br"],
-                        [
-                          "templarengenharia@hotmail.com",
-                          "mailto:templarengenharia@hotmail.com",
-                        ],
-                        ["WhatsApp (21) 98180-8812", "https://wa.me/5521981808812"],
-                      ] satisfies Array<[string, string]>
+                      contatosDocumento().map(
+                        (c) => [c.texto, c.url] satisfies [string, string],
+                      )
                     ).map(
                       ([text, link]) =>
                         new TableCell({

@@ -1,17 +1,18 @@
+import { coresDocumento } from "@/lib/config";
 import { jsPDF } from "jspdf";
 import { EMPRESA } from "../laudo";
 import { carregarImagemRemota, carregarLogoProposta } from "./logo";
 import {
-  CONTATOS_TEMPLAR,
-  TAGLINE,
+  contatosTemplar,
+  tagline,
   montarRelatorio,
   nomeArquivoVistoria,
   rotuloStatus,
   type DadosRelatorioVistoria,
 } from "./vistoria-relatorio";
 
-const NAVY: [number, number, number] = [26, 54, 93];
-const GOLD: [number, number, number] = [212, 175, 55];
+let NAVY: [number, number, number] = [26, 54, 93];
+let GOLD: [number, number, number] = [212, 175, 55];
 const TEXT: [number, number, number] = [45, 55, 72];
 const WHITE: [number, number, number] = [255, 255, 255];
 const VERDE: [number, number, number] = [21, 128, 61];
@@ -30,6 +31,9 @@ function corDoStatus(status: string): [number, number, number] {
 }
 
 export async function gerarVistoriaPdf(dados: DadosRelatorioVistoria) {
+  const cores = coresDocumento();
+  NAVY = cores.navyRgb;
+  GOLD = cores.goldRgb;
   const rel = montarRelatorio(dados);
   const logo = await carregarLogoProposta();
   const doc = new jsPDF({ unit: "mm", format: "a4" });
@@ -54,7 +58,7 @@ export async function gerarVistoriaPdf(dados: DadosRelatorioVistoria) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
     doc.setTextColor(...WHITE);
-    doc.text(TAGLINE, M.left, 27);
+    doc.text(tagline(), M.left, 27);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
@@ -67,12 +71,12 @@ export async function gerarVistoriaPdf(dados: DadosRelatorioVistoria) {
     doc.setFontSize(7.5);
     doc.setTextColor(...WHITE);
     let x = PAGE_W - M.right;
-    [...CONTATOS_TEMPLAR].reverse().forEach((c, idx) => {
+    [...contatosTemplar()].reverse().forEach((c, idx) => {
       const largura = doc.getTextWidth(c.texto);
       doc.text(c.texto, x, 27, { align: "right" });
       doc.link(x - largura, 24, largura, 4, { url: c.url });
       x -= largura + 6;
-      if (idx < CONTATOS_TEMPLAR.length - 1) {
+      if (idx < contatosTemplar().length - 1) {
         doc.text("|", x + 3, 27, { align: "right" });
       }
     });
@@ -233,7 +237,7 @@ export async function gerarVistoriaPdf(dados: DadosRelatorioVistoria) {
     doc.text(EMPRESA.nome, M.left, PAGE_H - 6);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
-    const meio = CONTATOS_TEMPLAR.map((c) => c.texto).join("  |  ");
+    const meio = contatosTemplar().map((c) => c.texto).join("  |  ");
     doc.text(meio, PAGE_W / 2, PAGE_H - 6, { align: "center" });
     doc.text(`Página ${i} de ${total}`, PAGE_W - M.right, PAGE_H - 6, { align: "right" });
   }

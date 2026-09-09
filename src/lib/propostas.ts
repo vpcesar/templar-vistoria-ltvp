@@ -1,3 +1,5 @@
+import { formatarDataDoc, getConfig } from "./config";
+import { responsavelPadrao } from "./responsaveis";
 import { supabase } from "@/lib/supabase";
 
 export const PROPOSTA_STATUS = ["rascunho", "enviada", "aceita", "recusada", "expirada"] as const;
@@ -50,8 +52,12 @@ export interface Proposta {
 export type PropostaInput = Omit<Proposta, "id" | "created_at" | "updated_at">;
 
 export const RESPONSAVEL_PADRAO = {
-  nome: "Vinicius Cesar",
-  crea: "RJ 2024100977",
+  get nome() {
+    return responsavelPadrao().nome;
+  },
+  get crea() {
+    return responsavelPadrao().crea;
+  },
 };
 
 /* ---------- formatação ---------- */
@@ -61,10 +67,7 @@ export function formatarMoeda(valor: number) {
 }
 
 export function formatarDataBR(iso: string) {
-  if (!iso) return "—";
-  const [y, m, d] = iso.slice(0, 10).split("-");
-  if (!y || !m || !d) return iso;
-  return `${d}/${m}/${y}`;
+  return formatarDataDoc(iso);
 }
 
 export function hojeISO() {
@@ -109,7 +112,7 @@ export async function proximoNumero(): Promise<string> {
   if (error) throw new Error(error.message);
   const ultimo = (data ?? [])[0]?.numero as string | undefined;
   const seq = ultimo ? Number(ultimo.replace(/\D/g, "")) : 0;
-  return `PROP-${String((Number.isFinite(seq) ? seq : 0) + 1).padStart(4, "0")}`;
+  return `${getConfig().prefixoProposta}-${String((Number.isFinite(seq) ? seq : 0) + 1).padStart(4, "0")}`;
 }
 
 export async function criarProposta(input: PropostaInput): Promise<Proposta> {

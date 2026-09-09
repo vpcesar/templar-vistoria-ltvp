@@ -1,3 +1,4 @@
+import { getConfig } from "@/lib/config";
 import logoAsset from "@/assets/Logomarca-Templar.png.asset.json";
 import proposalLogoAsset from "@/assets/logotipo_horizontal_TEMPLAR.jpg.asset.json";
 
@@ -41,8 +42,16 @@ export function carregarLogo(): Promise<LogoLaudo | null> {
   return carregarImagem(logoAsset.url, "png");
 }
 
-/** Carrega a assinatura horizontal oficial usada nas propostas comerciais. */
+/**
+ * Carrega a logo horizontal usada nas propostas e relatórios.
+ * Usa a imagem enviada em Configurações, se houver; senão, a oficial da TEMPLAR.
+ */
 export function carregarLogoProposta(): Promise<LogoLaudo | null> {
+  const personalizada = getConfig().logoDataUrl;
+  if (personalizada) {
+    const tipo = personalizada.startsWith("data:image/png") ? "png" : "jpg";
+    return carregarImagem(personalizada, tipo);
+  }
   return carregarImagem(proposalLogoAsset.url, "jpg");
 }
 

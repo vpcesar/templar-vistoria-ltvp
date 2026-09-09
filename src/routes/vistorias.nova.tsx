@@ -21,6 +21,7 @@ import { SelecaoAmbientes } from "@/components/vistorias/SelecaoAmbientes";
 import { obterLead } from "@/lib/crm";
 import { hojeISO, obterProposta } from "@/lib/propostas";
 import { listarResponsaveis } from "@/lib/responsaveis";
+import { getConfig } from "@/lib/config";
 import { checklistDoServico } from "@/lib/vistorias-checklist";
 import { criarAmbientesComItens } from "@/lib/vistorias-ambientes";
 import { DICA_FLUXO, GRUPOS_SERVICO, fluxoDoTipo, rotuloTipo } from "@/lib/vistorias-tipos";
@@ -127,8 +128,8 @@ function NovaVistoriaCampo() {
           responsavel_construtora: fluxo === "ambientes" ? construtora || null : null,
           tipo_servico: tipoServico,
           fluxo,
-          responsavel_tecnico_nome: resp?.nome ?? "Vinicius Cesar",
-          responsavel_tecnico_crea: resp?.crea ?? "RJ 2024100977",
+          responsavel_tecnico_nome: resp?.nome ?? getConfig().nome,
+          responsavel_tecnico_crea: resp?.crea ?? getConfig().crea,
           observacoes: observacoes || null,
           concluida: false,
           status: fluxo === "ambientes" ? "em_andamento" : "agendada",

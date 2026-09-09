@@ -1,21 +1,31 @@
 import { enderecoCompleto, gutTotal, riscoDe, type Vistoria } from "./types";
 import { ANAMNESE_ITENS } from "./catalogos";
+import { formatarDataDoc, getConfig, siteUrl, whatsLabel, whatsUrl } from "./config";
 
+/** Dados institucionais lidos das Configurações (sem valores fixos no código). */
 export const EMPRESA = {
   nome: "TEMPLAR ENGENHARIA",
-  slogan: "Vistorias • Inspeções • Laudos • Perícias",
-  site: "www.templarengenharia.com.br",
-  siteUrl: "https://www.templarengenharia.com.br",
-  email: "templarengenharia@hotmail.com",
-  whats: "WhatsApp (21) 98180-8812",
-  whatsUrl: "https://wa.me/5521981808812",
+  get slogan() {
+    return getConfig().tagline;
+  },
+  get site() {
+    return getConfig().site;
+  },
+  get siteUrl() {
+    return siteUrl();
+  },
+  get email() {
+    return getConfig().email;
+  },
+  get whats() {
+    return whatsLabel();
+  },
+  get whatsUrl() {
+    return whatsUrl();
+  },
 };
 
-export const formatarData = (iso: string) => {
-  if (!iso) return "—";
-  const [y, m, d] = iso.slice(0, 10).split("-");
-  return d && m && y ? `${d}/${m}/${y}` : iso;
-};
+export const formatarData = (iso: string) => formatarDataDoc(iso);
 
 export const patologiasOrdenadas = (v: Vistoria) =>
   [...v.patologias].sort((a, b) => gutTotal(b) - gutTotal(a));

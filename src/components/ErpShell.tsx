@@ -1,6 +1,14 @@
 import { useState, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Users, FileSignature, ClipboardCheck, FileArchive, LogOut, Menu } from "lucide-react";
+import {
+  Users,
+  FileSignature,
+  ClipboardCheck,
+  FileArchive,
+  Settings,
+  LogOut,
+  Menu,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/context/AuthContext";
@@ -10,6 +18,7 @@ const MODULOS = [
   { label: "Propostas", to: "/propostas", icon: FileSignature, match: "/propostas" },
   { label: "Vistorias", to: "/vistorias", icon: ClipboardCheck, match: "/vistorias" },
   { label: "Laudos", to: "/", icon: FileArchive, match: "/" },
+  { label: "Configurações", to: "/configuracoes", icon: Settings, match: "/configuracoes" },
 ] as const;
 
 function ativo(pathname: string, match: string) {
