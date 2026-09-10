@@ -190,11 +190,50 @@ function mergeLista<T extends object>(base: T[], saved: unknown): T[] {
   return base.map((item, i) => mergeObj(item, saved[i]));
 }
 
+const ehObjeto = (x: unknown): x is Record<string, unknown> =>
+  !!x && typeof x === "object" && !Array.isArray(x);
+
+/**
+ * Mescla campo a campo: mantém o valor salvo apenas quando ele difere do padrão
+ * gerado no momento em que foi salvo (ou seja, quando o engenheiro editou aquele
+ * campo). Todo o resto vem sempre da coleta de campo atual.
+ */
+function mesclarEdicoes<T>(baseAtual: T, salvo: unknown, baseSalvo: unknown): T {
+  if (salvo === undefined || salvo === null) return baseAtual;
+
+  if (Array.isArray(baseAtual)) {
+    if (!Array.isArray(salvo)) return baseAtual;
+    const antigo = Array.isArray(baseSalvo) ? baseSalvo : [];
+    return baseAtual.map((item, i) => mesclarEdicoes(item, salvo[i], antigo[i])) as unknown as T;
+  }
+
+  if (ehObjeto(baseAtual)) {
+    if (!ehObjeto(salvo)) return baseAtual;
+    const antigo = ehObjeto(baseSalvo) ? baseSalvo : {};
+    const saida: Record<string, unknown> = { ...baseAtual };
+    Object.keys(baseAtual).forEach((k) => {
+      saida[k] = mesclarEdicoes(
+        (baseAtual as Record<string, unknown>)[k],
+        salvo[k],
+        (antigo as Record<string, unknown>)[k],
+      );
+    });
+    return saida as unknown as T;
+  }
+
+  // Primitivo: só preserva a edição do engenheiro.
+  return (salvo !== baseSalvo ? (salvo as T) : baseAtual) as T;
+}
+
 /** Combina os valores padrão do sistema com as edições salvas do engenheiro. */
 export function resolverLaudo(v: Vistoria): LaudoEditavel {
   const base = gerarLaudoPadrao(v);
   const s = v.laudoEditavel as Partial<LaudoEditavel> | undefined;
   if (!s) return base;
+
+  // Quando existe o snapshot do padrão salvo, só as edições reais são preservadas
+  // e todos os dados novos da coleta (imóvel, anamnese, patologias) aparecem.
+  if (v.laudoEditavelBase) return mesclarEdicoes(base, s, v.laudoEditavelBase);
   return {
     secao1: mergeObj(base.secao1, s.secao1),
     secao2: mergeObj(base.secao2, s.secao2),

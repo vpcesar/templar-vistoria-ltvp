@@ -1,6 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, FileDown, FileText, Loader2, Pencil, Plus, Save, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  FileDown,
+  FileText,
+  Loader2,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Save,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +28,7 @@ import {
   type Vistoria,
 } from "@/lib/types";
 import { formatarData, grauRiscoGlobal, patologiasOrdenadas } from "@/lib/laudo";
-import { resolverLaudo, type LaudoEditavel } from "@/lib/laudo-editavel";
+import { gerarLaudoPadrao, resolverLaudo, type LaudoEditavel } from "@/lib/laudo-editavel";
 
 export const Route = createFileRoute("/revisao/$id")({
   head: () => ({
@@ -64,7 +74,11 @@ function Revisao() {
       carregado.current = true;
       return;
     }
-    const atualizada: Vistoria = { ...vistoria, laudoEditavel: laudo };
+    const atualizada: Vistoria = {
+      ...vistoria,
+      laudoEditavel: laudo,
+      laudoEditavelBase: gerarLaudoPadrao(vistoria),
+    };
     salvarVistoria(atualizada);
     setVistoria(atualizada);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,6 +106,7 @@ function Revisao() {
       ...vistoria,
       itensAdicionais: itens,
       laudoEditavel: laudo,
+      laudoEditavelBase: gerarLaudoPadrao(vistoria),
       atualizadoEm: new Date().toISOString(),
     };
     salvarVistoria(atualizada);
@@ -146,7 +161,23 @@ function Revisao() {
     toast.success("Item removido do laudo.");
   };
 
-  const paraLaudo = (): Vistoria => ({ ...vistoria, laudoEditavel: laudo });
+  const paraLaudo = (): Vistoria => ({
+    ...vistoria,
+    laudoEditavel: laudo,
+    laudoEditavelBase: gerarLaudoPadrao(vistoria),
+  });
+
+  /** Descarta as edições e recarrega todo o conteúdo a partir da coleta de campo. */
+  const recarregarDaColeta = () => {
+    const limpa: Vistoria = { ...vistoria };
+    delete limpa.laudoEditavel;
+    delete limpa.laudoEditavelBase;
+    salvarVistoria(limpa);
+    setVistoria(limpa);
+    carregado.current = false;
+    setLaudo(gerarLaudoPadrao(limpa));
+    toast.success("Conteúdo recarregado com os dados da coleta de campo.");
+  };
 
   const concluir = () => {
     const atualizada: Vistoria = {
@@ -243,6 +274,17 @@ function Revisao() {
               </div>
             ))}
           </dl>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-4 min-h-10"
+            onClick={recarregarDaColeta}
+          >
+            <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+            Recarregar dados da coleta
+          </Button>
         </div>
 
         <div>

@@ -81,6 +81,12 @@ export interface Vistoria {
   itensAdicionais?: ItemAdicional[];
   /** Conteúdo do laudo revisado/editado pelo engenheiro na tela de Revisão Técnica. */
   laudoEditavel?: import("./laudo-editavel").LaudoEditavel;
+  /**
+   * Snapshot do laudo gerado automaticamente no momento em que as edições foram
+   * salvas. Serve para distinguir o que o engenheiro realmente editou do que veio
+   * da coleta de campo — assim novos dados da coleta continuam chegando à revisão.
+   */
+  laudoEditavelBase?: import("./laudo-editavel").LaudoEditavel;
 }
 
 export const gutTotal = (p: Patologia) => p.gravidade * p.urgencia * p.tendencia;
