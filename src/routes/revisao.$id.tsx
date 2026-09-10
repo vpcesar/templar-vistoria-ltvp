@@ -96,6 +96,7 @@ function Revisao() {
       ...vistoria,
       itensAdicionais: itens,
       laudoEditavel: laudo,
+      laudoEditavelBase: gerarLaudoPadrao(vistoria),
       atualizadoEm: new Date().toISOString(),
     };
     salvarVistoria(atualizada);
@@ -150,7 +151,23 @@ function Revisao() {
     toast.success("Item removido do laudo.");
   };
 
-  const paraLaudo = (): Vistoria => ({ ...vistoria, laudoEditavel: laudo });
+  const paraLaudo = (): Vistoria => ({
+    ...vistoria,
+    laudoEditavel: laudo,
+    laudoEditavelBase: gerarLaudoPadrao(vistoria),
+  });
+
+  /** Descarta as edições e recarrega todo o conteúdo a partir da coleta de campo. */
+  const recarregarDaColeta = () => {
+    const limpa: Vistoria = { ...vistoria };
+    delete limpa.laudoEditavel;
+    delete limpa.laudoEditavelBase;
+    salvarVistoria(limpa);
+    setVistoria(limpa);
+    carregado.current = false;
+    setLaudo(gerarLaudoPadrao(limpa));
+    toast.success("Conteúdo recarregado com os dados da coleta de campo.");
+  };
 
   const concluir = () => {
     const atualizada: Vistoria = {
