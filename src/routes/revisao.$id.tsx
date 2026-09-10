@@ -18,7 +18,7 @@ import {
   type Vistoria,
 } from "@/lib/types";
 import { formatarData, grauRiscoGlobal, patologiasOrdenadas } from "@/lib/laudo";
-import { resolverLaudo, type LaudoEditavel } from "@/lib/laudo-editavel";
+import { gerarLaudoPadrao, resolverLaudo, type LaudoEditavel } from "@/lib/laudo-editavel";
 
 export const Route = createFileRoute("/revisao/$id")({
   head: () => ({
@@ -64,7 +64,11 @@ function Revisao() {
       carregado.current = true;
       return;
     }
-    const atualizada: Vistoria = { ...vistoria, laudoEditavel: laudo };
+    const atualizada: Vistoria = {
+      ...vistoria,
+      laudoEditavel: laudo,
+      laudoEditavelBase: gerarLaudoPadrao(vistoria),
+    };
     salvarVistoria(atualizada);
     setVistoria(atualizada);
     // eslint-disable-next-line react-hooks/exhaustive-deps
