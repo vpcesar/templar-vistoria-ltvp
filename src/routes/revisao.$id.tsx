@@ -264,6 +264,17 @@ function Revisao() {
               </div>
             ))}
           </dl>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-4 min-h-10"
+            onClick={recarregarDaColeta}
+          >
+            <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+            Recarregar dados da coleta
+          </Button>
         </div>
 
         <div>
