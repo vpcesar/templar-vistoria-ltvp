@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Use Lovable Cloud Auth for accounts, with no profiles table; validate identity with getUser and keep a single session subscriber.
+- Preserve the existing inline ERP sign-in gate and public auth/recovery pages so account changes do not disturb existing module URLs or data storage.

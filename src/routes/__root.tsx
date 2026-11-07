@@ -6,6 +6,7 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  useRouterState,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
@@ -145,6 +146,9 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function AuthGate() {
   const { isAuthenticated, ready } = useAuth();
+  const pathname = useRouterState({ select: state => state.location.pathname });
+
+  if (pathname === "/reset-password" || pathname === "/auth") return <Outlet />;
 
   if (!ready) {
     return (

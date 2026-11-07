@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 const MODULOS = [
   { label: "CRM", to: "/crm", icon: Users, match: "/crm" },
@@ -121,7 +122,7 @@ export function ErpShell({
                   {userEmail}
                 </span>
               </div>
-              <Button variant="outline" size="sm" onClick={logout} className="min-h-9">
+              <Button variant="outline" size="sm" aria-label="Sair" onClick={() => { void logout().catch(() => toast.error("Não foi possível sair. Tente novamente.")); }} className="min-h-9">
                 <LogOut className="h-4 w-4 sm:mr-1.5" />
                 <span className="hidden sm:inline">Sair</span>
               </Button>

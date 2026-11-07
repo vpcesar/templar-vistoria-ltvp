@@ -79,6 +79,9 @@
   --color-risk-low: var(--risk-low);
   --color-info: var(--info);
   --color-primary-hover: var(--primary-hover);
+  --color-google-auth-background: var(--google-auth-background);
+  --color-google-auth-foreground: var(--google-auth-foreground);
+  --color-google-auth-border: var(--google-auth-border);
   --shadow-card: var(--shadow-card);
   --font-sans:
     Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -87,6 +90,9 @@
 
 
 :root {
+  --google-auth-background: #ffffff;
+  --google-auth-foreground: #1f1f1f;
+  --google-auth-border: #747775;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.31 0.03 260);
@@ -145,6 +151,9 @@
 
 
 .dark {
+  --google-auth-background: #131314;
+  --google-auth-foreground: #e3e3e3;
+  --google-auth-border: #8e918f;
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
   --card: oklch(0.208 0.042 265.755);
@@ -194,5 +203,15 @@
 
 @utility field-label {
   @apply flex items-center gap-1.5 text-sm font-semibold text-foreground;
+}
+
+.google-auth-button {
+  background: var(--google-auth-background);
+  color: var(--google-auth-foreground);
+  border-color: var(--google-auth-border);
+}
+.google-auth-button:hover {
+  background: var(--google-auth-background);
+  color: var(--google-auth-foreground);
 }
 
